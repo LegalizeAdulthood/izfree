@@ -36,78 +36,20 @@ import "ocidl.idl";
 ]
 interface IAppIdRecord : IDispatch
 {
-    [
-        propget,
-        id(1),
-        helpstring("AppId column")
-    ]
+    [ id(1), propget, helpstring("AppId column") ]
     HRESULT AppId([out, retval] BSTR *pVal);
-    [
-        propget,
-        id(2),
-        helpstring("RemoteServerName column")
-    ]
+    [ id(2), propget, helpstring("RemoteServerName column") ]
     HRESULT RemoteServerName([out, retval] BSTR *pVal);
-    [
-        propget,
-        id(3),
-        helpstring("LocalService column")
-    ]
+    [ propget, id(3), helpstring("LocalService column") ]
     HRESULT LocalService([out, retval] BSTR *pVal);
-    [
-        propget,
-        id(4),
-        helpstring("ServiceParameters column")
-    ]
+    [ propget, id(4), helpstring("ServiceParameters column") ]
     HRESULT ServiceParameters([out, retval] BSTR *pVal);
-    [
-        propget,
-        id(5),
-        helpstring("DllSurrogate column")
-    ]
+    [ propget, id(5), helpstring("DllSurrogate column") ]
     HRESULT DllSurrogate([out, retval] BSTR *pVal);
-    [
-        propget,
-        id(6),
-        helpstring("ActivateAtStorage column")
-    ]
+    [ propget, id(6), helpstring("ActivateAtStorage column") ]
     HRESULT ActivateAtStorage([out, retval] LONG *pVal);
-    [
-        propget,
-        id(7),
-        helpstring("RunAsInteractiveUser column")
-    ]
+    [ propget, id(7), helpstring("RunAsInteractiveUser column") ]
     HRESULT RunAsInteractiveUser([out, retval] LONG *pVal);
-};
-
-/////////////////////////////////////////////////////////////////////////////
-[
-    object,
-    uuid(3B0D5C0F-1B59-4E67-87B2-60AE466FF723),
-    dual,
-    helpstring("IAppIdTable Interface"),
-    pointer_default(unique)
-]
-interface IAppIdTable : IDispatch
-{
-    [
-        id(0xFFFFFFFC),
-        hidden,
-        helpstring("Returns an object that enumerates the rows in the table.")
-    ]
-    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
-    [
-        propget,
-        id(1),
-        helpstring("The number of rows in the table.")
-    ]
-    HRESULT Count([out, retval] long *pVal);
-    [
-        propget,
-        id(2),
-        helpstring("Returns a row from the table given its zero-based index.")
-    ]
-    HRESULT Item([in] long row, [out, retval] IAppIdRecord * *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -120,19 +62,188 @@ interface IAppIdTable : IDispatch
 ]
 interface IClassRecord : IDispatch
 {
-    [propget, id(1), helpstring("property CLSID")] HRESULT CLSID([out, retval] BSTR *pVal);
-    [propget, id(2), helpstring("property Context")] HRESULT Context([out, retval] BSTR *pVal);
-    [propget, id(3), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
-    [propget, id(4), helpstring("property ProgIdDefault")] HRESULT ProgIdDefault([out, retval] BSTR *pVal);
-    [propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
-    [propget, id(6), helpstring("property AppId")] HRESULT AppId([out, retval] BSTR *pVal);
-    [propget, id(7), helpstring("property FileTypeMask")] HRESULT FileTypeMask([out, retval] BSTR *pVal);
-    [propget, id(8), helpstring("property Icon")] HRESULT Icon([out, retval] BSTR *pVal);
-    [propget, id(9), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] long *pVal);
-    [propget, id(10), helpstring("property DefInprocHandler")] HRESULT DefInprocHandler([out, retval] BSTR *pVal);
-    [propget, id(11), helpstring("property Argument")] HRESULT Argument([out, retval] BSTR *pVal);
-    [propget, id(12), helpstring("property Feature")] HRESULT Feature([out, retval] BSTR *pVal);
-    [propget, id(13), helpstring("property Attributes")] HRESULT Attributes([out, retval] long *pVal);
+    [propget, id(1), helpstring("property CLSID")]
+    HRESULT CLSID([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Context")]
+    HRESULT Context([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property Component")]
+    HRESULT Component([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property ProgIdDefault")]
+    HRESULT ProgIdDefault([out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property Description")]
+    HRESULT Description([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property AppId")]
+    HRESULT AppId([out, retval] BSTR *pVal);
+    [propget, id(7), helpstring("property FileTypeMask")]
+    HRESULT FileTypeMask([out, retval] BSTR *pVal);
+    [propget, id(8), helpstring("property Icon")]
+    HRESULT Icon([out, retval] BSTR *pVal);
+    [propget, id(9), helpstring("property IconIndex")]
+    HRESULT IconIndex([out, retval] long *pVal);
+    [propget, id(10), helpstring("property DefInprocHandler")]
+    HRESULT DefInprocHandler([out, retval] BSTR *pVal);
+    [propget, id(11), helpstring("property Argument")]
+    HRESULT Argument([out, retval] BSTR *pVal);
+    [propget, id(12), helpstring("property Feature")]
+    HRESULT Feature([out, retval] BSTR *pVal);
+    [propget, id(13), helpstring("property Attributes")]
+    HRESULT Attributes([out, retval] long *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(F8546088-4C57-4229-BBF7-69B5FE4D84D1),
+    dual,
+    helpstring("IRegistryRecord Interface"),
+    pointer_default(unique)
+]
+interface IRegistryRecord : IDispatch
+{
+    [propget, id(1), helpstring("property Registry")]
+    HRESULT Registry([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Root")]
+    HRESULT Root([out, retval] LONG *pVal);
+    [propget, id(3), helpstring("property Key")]
+    HRESULT Key([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property Name")]
+    HRESULT Name([out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property Value")]
+    HRESULT Value([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property Component")]
+    HRESULT Component([out, retval] BSTR *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(945CC947-AF64-4AA7-B4AE-39D87E209280),
+    dual,
+    helpstring("IProgIdRecord Interface"),
+    pointer_default(unique)
+]
+interface IProgIdRecord : IDispatch
+{
+    [propget, id(1), helpstring("property ProgId")]
+    HRESULT ProgId([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Parent")]
+    HRESULT Parent([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property Class")]
+    HRESULT Class([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property Description")]
+    HRESULT Description([out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property Icon")]
+    HRESULT Icon([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property IconIndex")]
+    HRESULT IconIndex([out, retval] LONG *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(D06CD01E-51EB-4745-AFE4-2F297E0A13FC),
+    dual,
+    helpstring("ITypeLibRecord Interface"),
+    pointer_default(unique)
+]
+interface ITypeLibRecord : IDispatch
+{
+    [propget, id(1), helpstring("property LibID")]
+    HRESULT LibID([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Language")]
+    HRESULT Language([out, retval] LONG *pVal);
+    [propget, id(3), helpstring("property Component")]
+    HRESULT Component([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property Version")]
+    HRESULT Version([out, retval] LONG *pVal);
+    [propget, id(5), helpstring("property Description")]
+    HRESULT Description([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property Directory")]
+    HRESULT Directory([out, retval] BSTR *pVal);
+    [propget, id(7), helpstring("property Feature")]
+    HRESULT Feature([out, retval] BSTR *pVal);
+    [propget, id(8), helpstring("property Cost")]
+    HRESULT Cost([out, retval] LONG *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(64282601-33EE-4EAC-A869-0B162B934B5D),
+    dual,
+    helpstring("IServiceControlRecord Interface"),
+    pointer_default(unique)
+]
+interface IServiceControlRecord : IDispatch
+{
+    [propget, id(1), helpstring("property ServiceControl")]
+    HRESULT ServiceControl([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Name")]
+    HRESULT Name([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property Event")]
+    HRESULT Event([out, retval] LONG *pVal);
+    [propget, id(4), helpstring("property Arguments")]
+    HRESULT Arguments([out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property Wait")]
+    HRESULT Wait([out, retval] LONG *pVal);
+    [propget, id(6), helpstring("property Component")]
+    HRESULT Component([out, retval] BSTR *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(F7F31553-52A5-4D79-9981-3F4E321FC795),
+    dual,
+    helpstring("IServiceInstallRecord Interface"),
+    pointer_default(unique)
+]
+interface IServiceInstallRecord : IDispatch
+{
+    [propget, id(1), helpstring("property ServiceInstall")]
+    HRESULT ServiceInstall([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Name")]
+    HRESULT Name([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property DisplayName")]
+    HRESULT DisplayName([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property ServiceType")]
+    HRESULT ServiceType([out, retval] LONG *pVal);
+    [propget, id(5), helpstring("property StartType")]
+    HRESULT StartType([out, retval] LONG *pVal);
+    [propget, id(6), helpstring("property ErrorControl")]
+    HRESULT ErrorControl([out, retval] LONG *pVal);
+    [propget, id(7), helpstring("property LoadOrderGroup")]
+    HRESULT LoadOrderGroup([out, retval] BSTR *pVal);
+    [propget, id(8), helpstring("property Dependencies")]
+    HRESULT Dependencies([out, retval] BSTR *pVal);
+    [propget, id(9), helpstring("property StartName")]
+    HRESULT StartName([out, retval] BSTR *pVal);
+    [propget, id(10), helpstring("property Password")]
+    HRESULT Password([out, retval] BSTR *pVal);
+    [propget, id(11), helpstring("property Arguments")]
+    HRESULT Arguments([out, retval] BSTR *pVal);
+    [propget, id(12), helpstring("property Component")]
+    HRESULT Component([out, retval] BSTR *pVal);
+    [propget, id(13), helpstring("property Description")]
+    HRESULT Description([out, retval] BSTR *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(3B0D5C0F-1B59-4E67-87B2-60AE466FF723),
+    dual,
+    helpstring("IAppIdTable Interface"),
+    pointer_default(unique)
+]
+interface IAppIdTable : IDispatch
+{
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [ propget, id(1), helpstring("The number of rows in the table.") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ propget, id(DISPID_VALUE), helpstring("Returns a row from the table given its zero-based index.") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -145,16 +256,15 @@ interface IClassRecord : IDispatch
 ]
 interface IClassTable : IDispatch
 {
-    [
-        id(0xFFFFFFFC),
-        hidden,
-        helpstring("Returns an object that enumerates the rows in the table.")
-    ]
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
     HRESULT _NewEnum([out, retval] IUnknown **enumerator);
-    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
-    [propget, id(2), helpstring("property Item")] HRESULT Item([in] long row, [out, retval] IClassRecord * *pVal);
+    [ id(1), propget, helpstring("property Count") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ id(DISPID_VALUE), propget, helpstring("property Item") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
 
+/////////////////////////////////////////////////////////////////////////////
 [
     object,
     uuid(0958F57F-66A4-4895-BD7E-848BB27AE940),
@@ -164,7 +274,15 @@ interface IClassTable : IDispatch
 ]
 interface IRegistryTable : IDispatch
 {
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [ id(1), propget, helpstring("property Count") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ id(DISPID_VALUE), propget, helpstring("property Item") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
+
+/////////////////////////////////////////////////////////////////////////////
 [
     object,
     uuid(BDBAF679-B6E4-409A-ADB2-F23698DE1829),
@@ -174,7 +292,15 @@ interface IRegistryTable : IDispatch
 ]
 interface IProgIdTable : IDispatch
 {
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [ id(1), propget, helpstring("property Count") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ id(DISPID_VALUE), propget, helpstring("property Item") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
+
+/////////////////////////////////////////////////////////////////////////////
 [
     object,
     uuid(3464079D-9A7B-466F-9306-A33C422A9AB7),
@@ -184,7 +310,15 @@ interface IProgIdTable : IDispatch
 ]
 interface ITypeLibTable : IDispatch
 {
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [ id(1), propget, helpstring("property Count") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ id(DISPID_VALUE), propget, helpstring("property Item") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
+
+/////////////////////////////////////////////////////////////////////////////
 [
     object,
     uuid(E2C9B961-6B5F-4946-81C3-3B293D4B366A),
@@ -194,7 +328,15 @@ interface ITypeLibTable : IDispatch
 ]
 interface IServiceControlTable : IDispatch
 {
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [ id(1), propget, helpstring("property Count") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ id(DISPID_VALUE), propget, helpstring("property Item") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
+
+/////////////////////////////////////////////////////////////////////////////
 [
     object,
     uuid(C5703C99-B863-48EC-A674-92F87DA7DAF1),
@@ -204,95 +346,12 @@ interface IServiceControlTable : IDispatch
 ]
 interface IServiceInstallTable : IDispatch
 {
-};
-[
-    object,
-    uuid(F8546088-4C57-4229-BBF7-69B5FE4D84D1),
-    dual,
-    helpstring("IRegistryRecord Interface"),
-    pointer_default(unique)
-]
-interface IRegistryRecord : IDispatch
-{
-		[propget, id(1), helpstring("property Registry")] HRESULT Registry([out, retval] BSTR *pVal);
-		[propget, id(2), helpstring("property Root")] HRESULT Root([out, retval] LONG *pVal);
-		[propget, id(3), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
-		[propget, id(4), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
-		[propget, id(5), helpstring("property Value")] HRESULT Value([out, retval] BSTR *pVal);
-		[propget, id(6), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
-};
-[
-    object,
-    uuid(945CC947-AF64-4AA7-B4AE-39D87E209280),
-    dual,
-    helpstring("IProgIdRecord Interface"),
-    pointer_default(unique)
-]
-interface IProgIdRecord : IDispatch
-{
-		[propget, id(1), helpstring("property ProgId")] HRESULT ProgId([out, retval] BSTR *pVal);
-		[propget, id(2), helpstring("property Parent")] HRESULT Parent([out, retval] BSTR *pVal);
-		[propget, id(3), helpstring("property Class")] HRESULT Class([out, retval] BSTR *pVal);
-		[propget, id(4), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
-		[propget, id(5), helpstring("property Icon")] HRESULT Icon([out, retval] BSTR *pVal);
-		[propget, id(6), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] LONG *pVal);
-};
-[
-    object,
-    uuid(D06CD01E-51EB-4745-AFE4-2F297E0A13FC),
-    dual,
-    helpstring("ITypeLibRecord Interface"),
-    pointer_default(unique)
-]
-interface ITypeLibRecord : IDispatch
-{
-		[propget, id(1), helpstring("property LibID")] HRESULT LibID([out, retval] BSTR *pVal);
-		[propget, id(2), helpstring("property Language")] HRESULT Language([out, retval] LONG *pVal);
-		[propget, id(3), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
-		[propget, id(4), helpstring("property Version")] HRESULT Version([out, retval] LONG *pVal);
-		[propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
-		[propget, id(6), helpstring("property Directory")] HRESULT Directory([out, retval] BSTR *pVal);
-		[propget, id(7), helpstring("property Feature")] HRESULT Feature([out, retval] BSTR *pVal);
-		[propget, id(8), helpstring("property Cost")] HRESULT Cost([out, retval] LONG *pVal);
-};
-[
-    object,
-    uuid(64282601-33EE-4EAC-A869-0B162B934B5D),
-    dual,
-    helpstring("IServiceControlRecord Interface"),
-    pointer_default(unique)
-]
-interface IServiceControlRecord : IDispatch
-{
-		[propget, id(1), helpstring("property ServiceControl")] HRESULT ServiceControl([out, retval] BSTR *pVal);
-		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
-		[propget, id(3), helpstring("property Event")] HRESULT Event([out, retval] LONG *pVal);
-		[propget, id(4), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
-		[propget, id(5), helpstring("property Wait")] HRESULT Wait([out, retval] LONG *pVal);
-		[propget, id(6), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
-};
-[
-    object,
-    uuid(F7F31553-52A5-4D79-9981-3F4E321FC795),
-    dual,
-    helpstring("IServiceInstallRecord Interface"),
-    pointer_default(unique)
-]
-interface IServiceInstallRecord : IDispatch
-{
-		[propget, id(1), helpstring("property ServiceInstall")] HRESULT ServiceInstall([out, retval] BSTR *pVal);
-		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
-		[propget, id(3), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
-		[propget, id(4), helpstring("property ServiceType")] HRESULT ServiceType([out, retval] LONG *pVal);
-		[propget, id(5), helpstring("property StartType")] HRESULT StartType([out, retval] LONG *pVal);
-		[propget, id(6), helpstring("property ErrorControl")] HRESULT ErrorControl([out, retval] LONG *pVal);
-		[propget, id(7), helpstring("property LoadOrderGroup")] HRESULT LoadOrderGroup([out, retval] BSTR *pVal);
-		[propget, id(8), helpstring("property Dependencies")] HRESULT Dependencies([out, retval] BSTR *pVal);
-		[propget, id(9), helpstring("property StartName")] HRESULT StartName([out, retval] BSTR *pVal);
-		[propget, id(10), helpstring("property Password")] HRESULT Password([out, retval] BSTR *pVal);
-		[propget, id(11), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
-		[propget, id(12), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
-		[propget, id(13), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+    [ id(DISPID_NEWENUM), propget, helpstring("Returns an object that enumerates the rows in the table.") ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [ id(1), propget, helpstring("property Count") ]
+    HRESULT Count([out, retval] long *pVal);
+    [ id(DISPID_VALUE), propget, helpstring("property Item") ]
+    HRESULT Item([in] long row, [out, retval] VARIANT *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -305,28 +364,24 @@ interface IServiceInstallRecord : IDispatch
 ]
 interface IMonitor : IDispatch
 {
-    [
-        propget,
-        id(1),
-        helpstring("AppId Table")
-    ]
+    [ propget, id(1), helpstring("AppId Table") ]
     HRESULT AppIdTable([out, retval] IAppIdTable * *pVal);
-    [
-        id(2),
-        helpstring("Process the registration of a COM server in the given file and extract Windows Installer database table information from the registry.  If the file is a service, look for service-related table information as well.")
-    ]
+    [ id(2), helpstring("Process the registration of a COM server in the given file and extract Windows Installer database table information from the registry.  If the file is a service, look for service-related table information as well.") ]
     HRESULT Process([in] BSTR file, [in] BOOL service);
-    [
-        id(3),
-        helpstring("Adds a registry key to the list of keys to be monitored.")
-    ]
+    [ id(3), helpstring("Adds a registry key to the list of keys to be monitored.") ]
     HRESULT WatchKey(BSTR registry_key);
-    [propget, id(4), helpstring("Class Table")] HRESULT ClassTable([out, retval] IClassTable * *pVal);
-    [propget, id(5), helpstring("Registry Table")] HRESULT RegistryTable([out, retval] IRegistryTable * *pVal);
-    [propget, id(6), helpstring("ProgId Table")] HRESULT ProgIdTable([out, retval] IProgIdTable * *pVal);
-    [propget, id(7), helpstring("TypeLib Table")] HRESULT TypeLibTable([out, retval] ITypeLibTable * *pVal);
-    [propget, id(8), helpstring("ServiceControl Table")] HRESULT ServiceControlTable([out, retval] IServiceControlTable * *pVal);
-    [propget, id(9), helpstring("ServiceInstall Table")] HRESULT ServiceInstallTable([out, retval] IServiceInstallTable * *pVal);
+    [propget, id(4), helpstring("Class Table")]
+    HRESULT ClassTable([out, retval] IClassTable * *pVal);
+    [propget, id(5), helpstring("Registry Table")]
+    HRESULT RegistryTable([out, retval] IRegistryTable * *pVal);
+    [propget, id(6), helpstring("ProgId Table")]
+    HRESULT ProgIdTable([out, retval] IProgIdTable * *pVal);
+    [propget, id(7), helpstring("TypeLib Table")]
+    HRESULT TypeLibTable([out, retval] ITypeLibTable * *pVal);
+    [propget, id(8), helpstring("ServiceControl Table")]
+    HRESULT ServiceControlTable([out, retval] IServiceControlTable * *pVal);
+    [propget, id(9), helpstring("ServiceInstall Table")]
+    HRESULT ServiceInstallTable([out, retval] IServiceInstallTable * *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
