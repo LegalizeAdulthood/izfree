@@ -18,47 +18,69 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 -->
-<META name=VI60_defaultClientScript content=VBScript>
-<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
 <TITLE>izfree Help</TITLE>
-<LINK REL="stylesheet" HREF="izfree.css">
-<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
-<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
-option explicit
-
-sub window_onload
-    dim anchor : anchor = window.dialogArguments
-    if (anchor <> "") then
-        document.all("div" & anchor).className = ""
-        window.scrollTo 0, document.anchors(anchor).offsetTop
-    end if
-end sub
---></SCRIPT>
 </HEAD>
-<BODY LEFTMARGIN=20 rightmargin=20 bottommargin=20 topmargin=20>
+<BODY>
 <H2>izfree Tools for Windows Installer Help</H2>
 
-<DIV ID="divNewGUID" CLASS="invisible">
+<P>izfree is a collection of tools for automating common tasks when
+authoring Windows Installer databases (<CODE>.MSI</CODE> files).
+izfree is intended to be used in conjunction with Orca, when a task in
+Orca is too cumbersome, tedious, or error-prone.
+</P>
+
+<P>izfree consists of a main window that displays the currently open
+database along the top, a menu of tools along the left and an inset
+frame that changes to display information for the currently selected
+tool.</P>
+
+<P>The <STRONG>Open</STRONG>, <STRONG>New...</STRONG>, <STRONG>Save</STRONG>,
+and <STRONG>Close</STRONG> buttons operate on the current database.
+<STRONG>Open</STRONG> displays a dialog to browse for an existing database.
+<STRONG>New...</STRONG> displays a modal dialog for the creation of a
+<A HREF="#NewPackage">new database package</A> constructed from templates.</P>
+
+<P><STRONG>Save</STRONG> saves any modifications to the database.  When
+a database has been modified, an asterisk is displayed to the right of the
+database name.  </STRONG>Close</STRONG> closes any open database.  If the
+database has been modified, you are prompted to save your changes before
+the database is closed.  Similarly, if the application window itself is
+closed and the database has been modified, you are prompted to save your
+changes before the application exits.</P>
+
+<DIV ID="divNewGUID">
 <H3><A NAME="NewGUID">Create New GUID</A></H3>
 <P>Windows Installer requires GUIDs that have no lower case letters.
 Tools like UUIDGEN and GUIDGEN generate GUIDs with lower case letters.
-This simple script generates a GUID and ensures that all the letters
+This simple tool generates a GUID and ensures that all the letters
 are in upper case.  The result is placed in a text box for copy/paste
 into Orca or some other Windows Installer related utility.</P>
 
-<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close"></P>
+<P>izfree always starts with the new guid tool displayed.</P>
 </DIV>
 
-<DIV ID="divNewPackage" CLASS="invisible">
-<H3><A NAME="NewPackage">Create a New Installation Package</A></H3>
+<DIV ID="divNewPackage">
+<H3><A NAME="NewPackage">New Package</A></H3>
 
-<P>This form creates a blank installation database that validates in Orca
-with no errors.
-A new installation package can be created by merging the contents
-of the template files into a single database and setting a few properties
-on the database and the summary information stream.  The text fields
-allow you to provide the necessary required information.  You can enter
-your own GUIDs or generate new GUIDs for the fields requiring GUIDs.</P>
+<P>This tool creates a blank installation database that validates in Orca
+with no errors.  A new installation package can be created by merging
+the contents of several template files into a single database and
+entering a few minimal rows into the <STRONG>Property</STRONG>,
+<STRONG>Directory</STRONG>, and <STRONG>Feature</STRONG> tables.
+izfree also creates required values in the summary information
+stream.  The text fields allow you to provide the necessary required
+information.  You can enter your own GUIDs or generate new GUIDs for
+the fields requiring GUIDs.  If you are not sure, generate new GUIDs.</P>
+
+<P>The installation directory is used to create a base installation
+directory on the target machine.  izfree creates several rows in the
+<STRONG>Directory</STRONG> table to create your installation directory,
+which will be associated with the '<CODE>APPDIR</CODE>' public
+property.</P>
+
+<P>The <STRONG>Feature</STRONG> table is populated with a single row
+for a feature called '<CODE>All</CODE>' intended to contain all
+other features added to the installation.</P>
 
 <P>The Windows Installer SDK samples include several template files
 that can be used as the basis of an installation.  These files are:</P>
@@ -66,75 +88,197 @@ that can be used as the basis of an installation.  These files are:</P>
 <DT><STRONG>schema.msi</STRONG>
 <DD>A blank database schema containing unpopulated database tables.
 <DT><STRONG>Sequence.msi</STRONG>
-<DD>This database contains the sequence tables InstallUISequence,
-InstallExecuteSequence, AdminUISequence, AdminExecuteSequence,
-AdvtUISequence, AdvtExecuteSequence.  The tables are prepopulated
-with the suggested standard sequence as described in the SDK docs.
+<DD>This database contains the sequence tables
+<STRONG>InstallUISequence</STRONG>,
+<STRONG>InstallExecuteSequence</STRONG>,
+<STRONG>AdminUISequence</STRONG>,
+<STRONG>AdminExecuteSequence</STRONG>,
+<STRONG>AdvtUISequence</STRONG>,
+<STRONG>AdvtExecuteSequence</STRONG>.  The tables are prepopulated
+with the suggested standard sequence as described in the SDK.
 <DT><STRONG>UISample.msi</STRONG>
 <DD>This database contains a simple installation user 
   interface as a collection of dialogs.</DD>       
-</DL>
+</DL></P>
 
-<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close"></P>
+<P>izfree uses these templates to create your blank installation
+database.  The only requirement izfree imposes on the templates is
+that they have the names given above and that when combined they
+include a <STRONG>Property</STRONG>, <STRONG>Directory</STRONG> and
+<STRONG>Feature</STRONG> table.  You can use Orca to edit the templates
+and customize them for your organization.</P>
 </DIV>
 
-<DIV ID="divNewComponents" CLASS="invisible">
-<H3><A NAME="NewComponents">Scan a Directory for Components</A></H3>
+<DIV ID="divNewComponents">
+<H3><A NAME="NewComponents">New Components</A></H3>
 
-<P>This form scans a directory tree and minimally constructs rows for
-the File, Directory, Media, Component, Feature, and FeatureComponents
+<P>This tool scans a directory tree and minimally constructs rows for
+the <STRONG>File</STRONG>, <STRONG>Directory</STRONG>,
+<STRONG>Media</STRONG>, <STRONG>Component</STRONG>,
+<STRONG>Feature</STRONG>, and <STRONG>FeatureComponents</STRONG>
 tables.  It displays the components and their associated files in a
 tree view after the directories have been scanned.</P>
 
-<P>This form works in two stages.  First construct a directory containing
+<P>This form works in stages.  Use the Next, Back, Cancel and Finish
+buttons to navigate through the stages in the process of creating
+components from a direcotry tree.</P>
+
+<OL>
+<LI><P><STRONG>Select Scan Directory</STRONG></P>
+
+<P>First construct a directory containing
 your installation as you would like it organized on the distribution
-media.  Then enter the path of that directory into the form and click
-the scan button.  This scans the directory and automatically creates
-components for the directory contents.  All files in a directory that
+media.  Then enter the path of that directory into stage 1 and click
+the Next button.  This scans the directory and automatically creates
+components for the directory contents.  Any file containing a Win32
+version resource, or having the extension "<CODE>exe</CODE>",
+"<CODE>dll</CODE>", or "<CODE>ocx</CODE>"
+will be placed in its own component.
+All the remaining files that
 don't require their own component are collected into a component for
 that directory.</P>
 
-<P>Once the tree view has been populated with components, enter the name
-of an existing MSI database and click the save button to insert the necessary
-rows into the File, Directory, Media, Component, Feature and FeatureComponent
-tables.
-If you don't have an existing MSI database, use the create package form
-to create one.</P>
+<LI><P><STRONG>Modify Generated Components</STRONG></P>
 
-<P>A single feature named "All" is the parent of all the other features
-created.  A feature is created for each component in the installation.
-The source and target directory hierarchies are identical.</P>
+<P>Once the tree view has been populated with components, you can examine
+the components and files that were generated from the directory scan.
+Each component, displayed as a root node in the treeview, contains one
+or more files, displayed as child nodes.  You can edit the component
+names if you wish.  When a file or component is selected in the treeview
+control, the source and target directory paths are displayed on the
+right.</P>
+
+<LI><P><STRONG>Locate New Components Under a Feature and Directory</STRONG></P>
+
+<P>When new components and features are added to a package, they must
+be located relative to the other features in the package.  On the left
+is a tree view display of the existing features in the database.  You can
+select an existing feature from the tree view, or create a new feature
+in the database using the form on the right.</P>
+
+<P>Above the tree view is a listbox of the defined directories in the
+database.  Select one of the directories to use as the installation
+directory for the new components.</P>
+
+<LI><P><STRONG>Commit Components to the Database</STRONG></P>
+
+<P>The final step in the process displays a summary of the action about
+to be taken.  Clicking 'Finish' adds the relevant information to the
+database.</P>
+
+</OL>
 
 <P>This is a minimal installation that only copies files.  It doesn't
 automatically detect COM components or enter their registration information
 into the installation.  It doesn't control services, the registry, search
-for files/applications, etc., etc., etc.  Use Orca or some other MSI editor
-to add that information to the installation database after this form
-generates your basic installation.</P>
-
-<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close" id=button2 name=button2></P>
+for files/applications, etc.  izfree provides a tool for extracting
+COM registration from a self-registering COM object.  For the remaining
+operations, you will need to use Orca.</P>
 </DIV>
 
-<DIV ID="divPreviewDialogs" CLASS="invisible">
-<H3><A NAME="PreviewDialogs">User Interface Dialog Tools</A></H3>
+<DIV ID="divCOMRegistration">
+<H3><A NAME="COMRegistration">COM Registration</A></H3>
+<P>izfree can extract COM registration information from self-registering
+COM servers and use this information to populate the <STRONG>AppId</STRONG>,
+<STRONG>Class</STRONG>, <STRONG>ProgId</STRONG>, <STRONG>TypeLib</STRONG>,
+and <STRONG>Registry</STRONG> tables.  For COM servers that are also
+Windows NT services, izfree can extract the service creation information
+to populate the <STRONG>ServiceInstall</STRONG> table.</P>
 
-<P>This form allows you to preview the user interface 
-dialogs within an installation database. When a database is opened, the list box 
-is populated with the names of the dialoags in the databse. Select a dialog name 
-and then click the Preview button to display the dialog. To end the display of 
-the dialog click the Clear button. Select the close button before opening 
-another database.</P>
+<P>Extracting COM registration information is a two step process.
 
-<P>You can also clone an existing dialog into the installation 
-database.</P>           
+<OL>
+<LI><P><STRONG>Select COM Server</STRONG></P>
+<P>First, enter the path of the file containing the COM server.  This
+will usually be a file with a <CODE>DLL</CODE>, <CODE>EXE</CODE>, or
+<CODE>OCX</CODE> extension, but izfree does not require any particular
+extension.  If the file is a Windows NT service, check the service
+<CODE>EXE</CODE> box.  Select the component and feature with which to
+associate the extracted information.</P>
 
-<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close" id=button3 name=button3></P>
+<P>izfree extracts COM registration information by monitoring changes to
+the registry.  The default list of registry keys covers all the standard
+COM registration information written into the registry.  However, if you
+need to extract additional information written into the registyr, you
+may modify the list of registry keys that are monitored.</P>
+
+<P>Click the Next button to self-register the named file and extract
+the information from the system registry.</P>
+
+<LI><P><STRONG>Confirm Database Rows Added</STRONG></P>
+
+<P>izfree displays a summary of the information that was extracted from
+the registry.  Click the Finish button to add the information to the
+database.  Click Cancel or Back to return to the first step of the
+COM registration process.</P>
+</OL>
 </DIV>
 
-<DIV ID="divCOMRegistration" CLASS="invisible">
-<H3><A NAME="COMRegistration">ATL COM Registration</A></H3>
-<P>ATL COM Registration help.</P>
-<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close"></P>
+<DIV ID="divPreviewDialogs">
+<H3><A NAME="PreviewDialogs">Preview and Clone Dialogs</A></H3>
+
+<P>This tool allows you to preview the user interface dialogs within an
+installation database.  The standard user interface dialog names are displayed
+on the right.  The standard user interface dialogs include the
+dialog named by the <STRONG>ErrorDialog</STRONG> property and those
+associated with the sequence numbers -3, -2, and -1 in the
+<STRONG>InstallUISequence</STRONG> table.</P>
+
+<P>A dialog sequence can be initiated by placing the name of the dialog
+in the <STRONG>InstallUISequence</STRONG> table as the name of the action to
+be executed.  These UI dialogs are shown in the dropdown listbox on the
+right, above the standard dialogs.</P>
+
+<P>Selecting a standard dialog name, or one of the UI dialogs from the
+listbox results in the corresponding dialog being selected on the left.</P>
+
+<P>Each dialog contains any number of controls and each control can generate
+any number of events through user interaction.  Once a dialog has been
+selected, any events that  change the current dialog are
+displayed in the event section beneath the dialog information.  For each
+such event, the name of the control that generates the event and the
+target dialog are shown.</P>
+
+<P>Selecting an event from the list displays event detail information on
+the right.  Many controls have conditions on their events to branch from
+one dialog to several depending on the result of the condition.</P>
+
+<P>Double-clicking an event in the list changes the currently selected
+dialog to the target of the event.  This allows you to walk through a
+dialog wizard sequence without running an actual installation.</P>
+
+<P>The display of the preview window is independent of any other interaction
+with the tool.  You can display the preview window and use the tool to
+navigate through wizard sequences and the preview window will always track
+the current dialog selected in the tool.</P>
+
+<P>Cloning a dialog duplicates the dialog-related entries in the
+<STRONG>Dialog</STRONG>, <STRONG>Control</STRONG>,
+<STRONG>ControlEvent</STRONG> and <STRONG>EventMapping</STRONG> tables,
+substituting the original dialog name for a new user-supplied dialog
+name.  This is useful for making a new dialog based on an existing
+dialog.</P>
+
+<DIV ID="divTableValidation">
+<H3><A NAME="TableValidation">Database Table Validation Information</A></H3>
+<P>The table validation tool provides detailed information about each
+database table column.  It uses the <STRONG>_Validation</STRONG> table
+and the database object to obtain the relevant information about each
+field.</P>
+
+<P>The <STRONG>Column Type</STRONG> value gives the database type for
+the column.  Windows Installer also has a datatype for the column, given
+by the <STRONG>Category</STRONG> value.  The Windows Installer datatype
+will supply additional semantics beyond the database type.  For instance,
+the database type for a GUID string is <CODE>s38</CODE>, but a
+Windows Installer <STRONG>GUID</STRONG> type imposes additional constraints
+on the string.</P>
+
+<P>The <STRONG>Key Table</STRONG> and <STRONG>Key Column</STRONG> values
+are non-NULL if this column is a foreign key into another table.  The
+<STRONG>Category</STRONG> value gives the Windows Installer datatype
+for the column.  For enumerated datatypes, the <STRONG>Set</STRONG>
+value gives the acceptable values for the column.</P>
 </DIV>
 </BODY>
 </HTML>
