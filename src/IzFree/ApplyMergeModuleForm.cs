@@ -10,6 +10,7 @@ namespace IzFree
 	/// <summary>
 	/// Summary description for ApplyMergeModuleForm.
 	/// </summary>
+	[System.ComponentModel.DesignerCategory("Form")]
 	public class ApplyMergeModuleForm : System.Windows.Forms.Form
 	{
 		/// <summary>

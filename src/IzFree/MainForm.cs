@@ -12,6 +12,7 @@ namespace IzFree
 	/// <summary>
 	/// Summary description for Form1.
 	/// </summary>
+    [System.ComponentModel.DesignerCategory("Form")]
     public class MainForm : System.Windows.Forms.Form
     {
         #region Forms Components

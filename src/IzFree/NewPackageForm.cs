@@ -9,7 +9,8 @@ namespace IzFree
 	/// <summary>
 	/// Summary description for NewPackageForm.
 	/// </summary>
-	public class NewPackageForm : System.Windows.Forms.Form
+    [System.ComponentModel.DesignerCategory("Form")]
+    public class NewPackageForm : System.Windows.Forms.Form
 	{
         #region Form Components
         private System.Windows.Forms.Label templateDirectoryLabel;
