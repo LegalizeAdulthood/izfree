@@ -203,7 +203,7 @@ multi_sz(LPCTSTR multi)
 // Return the result of the registration procedure for a file, or error.
 //
 HRESULT
-register_proc(bool register_not_unregister, LPCTSTR file)
+register_proc(bool register_not_unregister, const tstring &file)
 {
     dynamic_library dll(file);
     const char *proc_name = register_not_unregister ?
@@ -220,19 +220,21 @@ register_proc(bool register_not_unregister, LPCTSTR file)
 // Call ::CreateProcess on a file and attempt to make it register itself.
 //
 HRESULT
-run_executable(LPCTSTR file, const tstring &cmd_line)
+run_executable(const tstring &file, const tstring &cmd_line)
 {
     STARTUPINFO si = { 0 };
     PROCESS_INFORMATION pi = { 0 };
-    if (!::CreateProcess(file, const_cast<LPTSTR>(cmd_line.c_str()),
-            NULL, NULL, false, 0, NULL, NULL, &si, &pi))
+    // ::CreateProcess wants a writable command line, so give it a copy
+    TCHAR writable[1024];
+    ::_tcsncpy(writable, cmd_line.c_str(), NUM_OF(writable));
+    if (!::CreateProcess(file.c_str(), writable, NULL, NULL, false, 0,
+                         NULL, NULL, &si, &pi))
     {
         DWORD error = ::GetLastError();
         if (ERROR_BAD_EXE_FORMAT == error)
         {
             throw win32_error(error, _T(__FILE__), __LINE__,
-                (tstring(file) +
-                 _T(" is not a valid executable file.")).c_str());
+                (file + _T(" is not an executable file.")).c_str());
         }
         else
         {
@@ -266,16 +268,16 @@ run_executable(LPCTSTR file, const tstring &cmd_line)
 // Otherwise, first try to use it like a DLL and then as an EXE.
 //
 HRESULT
-register_server(LPCTSTR file, bool servicep)
+register_server(const tstring &file, bool servicep)
 {
     if (servicep)
     {
-        return run_executable(file, tstring(file) + _T(" -service"));
+        return run_executable(file, file + _T(" -service"));
     }
 
     const HRESULT hr = register_proc(true, file);
     return (E_POINTER == hr) ?
-        run_executable(file, tstring(file) + _T(" -regserver")) : hr;
+        run_executable(file, file + _T(" -regserver")) : hr;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -284,11 +286,11 @@ register_server(LPCTSTR file, bool servicep)
 // Make a self-registering COM server unregister itself.
 //
 HRESULT
-unregister_server(LPCTSTR file)
+unregister_server(const tstring &file)
 {
     const HRESULT hr = register_proc(false, file);
     return (E_POINTER == hr) ?
-        run_executable(file, tstring(file) + _T(" -unregserver")) : hr;
+        run_executable(file, file + _T(" -unregserver")) : hr;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1296,7 +1298,7 @@ CMonitor::diff_services()
     for (i = 0; i < current_not_services.size(); i++)
     {
         windows_service_manager scm;
-        windows_service svc(scm, current_not_services[i].c_str());
+        windows_service svc(scm, current_not_services[i]);
         DWORD size_needed = 0;
         // this fails with buffer size too small, which is intentional
         ::QueryServiceConfig(svc, NULL, 0, &size_needed);
@@ -1435,7 +1437,7 @@ CMonitor::Process(BSTR file, BOOL service, BSTR component, BSTR feature)
     m_type_lib->Clear();
 
     // unregister the existing server so that our snapshot shows the new keys
-    THR(unregister_server(m_file.c_str()));
+    THR(unregister_server(m_file));
 
     // if necessary, capture a list of system services
     if (m_service)

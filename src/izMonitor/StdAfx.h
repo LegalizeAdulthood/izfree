@@ -244,6 +244,10 @@ public:
         : m_library(TWS(::LoadLibrary(file)))
     {
     }
+    dynamic_library(const tstring &file)
+        : m_library(TWS(::LoadLibrary(file.c_str())))
+    {
+    }
     ~dynamic_library()
     {
         const BOOL res = ::FreeLibrary(m_library);
@@ -283,8 +287,9 @@ private:
 class windows_service
 {
 public:
-    windows_service(SC_HANDLE scm, LPCTSTR name, DWORD access = GENERIC_READ)
-        : m_service(TWS(::OpenService(scm, name, access)))
+    windows_service(SC_HANDLE scm, const tstring &name,
+                    DWORD access = GENERIC_READ)
+        : m_service(TWS(::OpenService(scm, name.c_str(), access)))
     {
     }
     ~windows_service()
