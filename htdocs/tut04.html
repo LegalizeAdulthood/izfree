@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>izfree Tutorial 4: Initializing TARGETDIR</TITLE>
+</HEAD>
+<BODY>
+
+<H3>[ <A HREF="http://sourceforge.net/">SourceForge.net</A>
+| <A HREF="http://sourceforge.net/projects/izfree/">Project</A>
+| <A HREF="http://izfree.sourceforge.net/">izfree</A>
+| <A HREF="tutorial.html">Tutorials</A>
+| Tutorial 4 ]</H3>
+
+<H3>Tutorial 4: Initializing TARGETDIR</H3>
+
+<P>Usually a program will want to install itself into the Program
+Files folder.  The TARGETDIR property determines where the components
+will be installed on the target machine.  This property is initially
+undefined and cannot be set to a fixed value because the Program Files
+folder may be different for different target machines.  The template database
+does not provide an action in the install sequence to initialize
+TARGETDIR.</P>
+
+<P>This tutorial shows how to initialize TARGETDIR for zoom so that its
+default installation location will be a directory called 'zoom' in the
+Program Files folder.</P>
+
+<P>When standard Windows Installer actions don't meet the needs of an
+installation, custom actions can be used.  Custom actions can be as
+simple as formatting a string or as complex as an arbitrary piece of
+code.  To set the TARGETDIR properly for the target machine, all we
+need to do is a little string formatting.</P>
+
+<OL>
+<LI><P>Select the <STRONG>CustomAction</STRONG> table and enter a new
+row with the following values.</P>
+
+<P><TABLE BORDER=1>
+<THEAD>
+<TR><TH>Action</TH><TH>Type</TH><TH>Source</TH><TH>Target</TH></TR>
+</THEAD>
+<TBODY>
+<TR><TD><CODE>caSetTargetDir</CODE></TD>
+<TD><CODE>51</CODE></TD>
+<TD><CODE>TARGETDIR</CODE></TD>
+<TD><CODE>[ProgramFilesFolder]\zoom</CODE></TD>
+</TR>
+</TBODY>
+</TABLE></P>
+
+<P>This custom action type sets a property named by the
+<STRONG>Source</STRONG> column from a formatted string in the
+<STRONG>Target</STRONG> column.<P>
+
+<LI><P>Now add the custom action to the install sequence tables.
+Select the <STRONG>InstallExecuteSequence</STRONG> table and click the
+<STRONG>Sequence</STRONG> column name to sort the actions by their
+sequence number.  We want to set TARGETDIR early in the sequence.
+Select a sequence number for the new custom action after the
+<STRONG>LaunchConditions</STRONG> standard action and before the next
+action in the sequence.  In the case of zoom, this is <CODE>120</CODE>.
+
+<P>Enter a new row into the table with the following values:</P>
+
+<P><TABLE BORDER=1>
+<THEAD>
+<TR><TH>Action</TH><TH>Condition</TH><TH>Sequence</TH></TR>
+</THEAD>
+<TBODY>
+<TR><TD><CODE>caSetTargetDir</CODE></TD>
+<TD><CODE>NOT TARGETDIR</CODE></TD>
+<TD><CODE>120</CODE></TD></TR>
+</TBODY>
+</TABLE></P>
+
+<P>The condition on the action allows TARGETDIR to be set from the
+command-line and take precedence over the default value set by the
+custom action.</P>
+
+<LI><P>Select the <STRONG>InstallUISequence</STRONG> table and enter
+the same row of data into that table.</P>
+
+<P>The action must be set on both sequences, in case the install is
+run without a user interface.  Installs with no user interface don't
+execute the actions in the <STRONG>InstallUISequence</STRONG>
+table.</P>
+
+<LI><P>Validate your database and correct any errors before saving the
+changes.</P>
+</OL>
+
+<HR><UL>
+<LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
+<LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
+<LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A>
+<LI>Tutorial 4: Initializing TARGETDIR
+</UL>
+
+</BODY>
+</HTML>

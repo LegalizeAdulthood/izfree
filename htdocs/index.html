@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>izfree: Free Tools for Windows Installer</TITLE>
+</HEAD>
+<BODY>
+
+<H3>[ <A HREF="http://sourceforge.net/">SourceForge.net</A>
+| <A HREF="http://sourceforge.net/projects/izfree/">Project</A>
+| izfree ]</H3>
+
+<H1>izfree 1.0 alpha</H1>
+
+<H3>Free Tools for Windows Installer</H3>
+
+<P>This is the alpha test release of version 1.0 of
+izfree, a collection of free tools for authoring
+Windows Installer <CODE>.MSI</CODE> installation databases.
+izfree is designed for use in conjunction with 
+the Orca database editor included in the Platform SDK.</P>
+
+<P><TABLE><TR><TD VALIGN="top"><STRONG>Contents:</STRONG>
+<TD><UL>
+<LI><A HREF="#izfree"><STRONG>izfree</STRONG></A>
+<LI><A HREF="#project"><STRONG>Project Resources</STRONG></A>
+<LI><A HREF="#msi"><STRONG>About Windows Installer</STRONG></A>
+<LI><A HREF="#external"><STRONG>External Resources</STRONG></A>
+</UL>
+</TD></TR></TABLE></P>
+
+<HR><H3><A NAME="izfree">izfree</A></H3>
+
+<P>izfree, formerly known as 'msidb', automates some
+tasks specific to the authoring of MSI installation database files
+with Orca.  Orca provides a basic way to edit database tables, but
+doesn't create them automatically.  izfree automates
+the following tasks:</P>
+
+<UL>
+<LI>Create new Windows Installer compatible GUIDs
+<LI>Create a blank MSI package for editing
+<LI>Create features and components that install a directory tree of files
+<LI>Preview and clone user interface dialogs
+</UL>
+
+<P>izfree assumes that you are already familiar with
+Windows Installer and the MSI SDK documentation.  If you are
+completely new to Windows Installer, you might want to start with
+Visual Studio Installer and experiment with creating some simple
+installations and examining the msi with Orca.</P>
+
+<HR><H3><A NAME="project">Project Resources</A></H3>
+
+<UL>
+<LI><P><STRONG><A HREF="izfree-1.0.html">What's new for version
+1.0</A></STRONG></P>
+
+<LI><P><STRONG><A HREF="screenshots.html">Screen shots of the
+tools</A></STRONG></P>
+
+<LI><P><STRONG><A HREF="tutorial.html">izfree Tutorials</A></STRONG></P>
+
+<LI><P><STRONG>Download the <A HREF=
+"http://sourceforge.net/project/showfiles.php?group_id=40188&release_id=67043"
+>izfree 1.0 alpha release in zip
+form</A></STRONG></P>
+
+<P>The 1.0 alpha release of izfree.  Download the ZIP file and unpack
+it to a temporary directory.  Then invoke <CODE>izfree.msi</CODE> to
+install izfree onto your machine.  After installing izfree, you may
+remove the unpacked contents of the zip file.  You must already have
+Windows Installer installed on your machine in order to use izfree.</P>
+
+<LI><P><STRONG><A HREF="http://sourceforge.net/projects/izfree/">izfree
+project page</A></STRONG> on 
+<A href="http://sourceforge.net"><IMG
+src="http://sourceforge.net/sflogo.php?group_id=40188" width="88" height="31"
+border="0" alt="SourceForge.net"></A></P>
+
+<P>You can log bug reports, feature requests or participate in the
+development of izfree through the sourceforge.net project page.</P>
+
+<LI><P><STRONG><A HREF="http://www.xmission.com/~legalize/installer/">msidb
+0.2</A></STRONG></P>
+
+<P>This is the initial incarnation of izfree.  msidb is an HTML file
+with embedded client-side script that performs roughly the same tasks
+as izfree.  izfree 1.0 is mostly a rework and polish of msidb 0.2.
+The name was changed to avoid confusion with the MSI SDK tool
+called MSIDB.EXE.</P>
+
+</UL>
+
+<HR><H3><A NAME="msi">About Windows Installer</A></H3>
+
+<P>When you consider the varied needs of install programs and the
+method by which they interact with the system to perform updates,
+you can easily imagine that a complete specifications of the actions
+of install programs covers quite a bit of territory.  What follows
+in this section is a summary of Windows Installer.  For more
+information see the SDK documentation linked at the end of this
+document.</P>
+
+<P>Windows Installer is a system component provided by Microsoft to
+address the problem of 'DLL Hell' and poor installation programs.
+Windows Installer is available as a redistributable for Windows 95,
+Windows 98, and Windows NT 4.0.  Windows Installer is included in
+Windows Me, Windows 2000 and Windows XP.</P>
+
+<P>Use of Windows Installer is required for Windows 2000 logo
+certification and will continue to be a standard installation
+technology for Microsoft platforms with XP, .NET and beyond.</P>
+
+<P>Windows Installer uses a database of information about the
+application to be installed to determine what resources to install from
+source media onto the target machine.  Resources may be files, fonts,
+registry entries, COM servers, NT services, and any other piece of
+data that is required by your application.  The database is stored
+in a file with the extension '<CODE>.msi</CODE>'.</P>
+
+<P>Windows Installer caches the database onto the target machine when
+a product is installed.  The cached database can be used to perform
+repair operations in case of accidental deletion or corruption of
+resources.  The cached database is also used to remove the application
+completely, or to install or remove specific features provided by the
+application.</P>
+
+<HR><H3><A NAME="external">External Resources</A></H3>
+
+<UL>
+<LI><P><STRONG><A HREF="http://msi2xml.sourceforge.net/">msi/xml
+converter</A></STRONG></P>
+
+<P>Converts your MSI database into an XML text representation that is
+perfect for source code control systems as you revise your MSI over
+time.</P>
+
+<LI><P><STRONG><A HREF=
+"http://msdn.microsoft.com/vstudio/downloads/vsi11/default.asp">Visual
+Studio Installer</A></STRONG></P>
+
+<P>A free add-on for Microsoft Visual Studio users.  It provides a GUI
+environment for editing a simple installation containing files, COM
+objects, registry entries, etc.  It does not expose the more powerful
+features of Windows Installer technology such as custom actions,
+custom dialogs, Win32 service control and installation.
+This is a good free tool provided you already own Studio and your
+installation needs are simply copying files, modifying the registry
+and registration of COM objects.</P>
+
+<LI><P><STRONG><A HREF=
+"http://www.microsoft.com/msdownload/platformsdk/sdkupdate/">Platform
+SDK Update</A></STRONG></P>
+
+<P>After release 1.2 of Windows Installer, it was packaged with the
+Platform SDK.  As new releases of the Platform SDK are issued, new
+versions of Windows Installer are released.  As of December,
+2001 the Platform SDK included version 2.0 of Windows Installer.  The
+Platform SDK documentation describes the additional features included
+in successive versions of Windows Installer.
+</P>
+
+<P>The Platform SDK installs Orca.msi as with the version 1.2 of the
+MSI SDK.  Use Orca.msi to install the Orca database editor.</P>
+
+<LI><P><STRONG><A HREF=
+"http://msdn.microsoft.com/downloads/default.asp?URL=/code/sample.asp?url=/msdn-files/027/001/457/msdncompositedoc.xml">MSI
+SDK: Samples, Tools, and Documentation for Windows Installer
+1.2</A></STRONG></P> 
+
+<P>After downloading and installing the SDK, install Orca.msi to get
+the Orca database editor.  Orca.msi is located in the '%MSSDK%\bin'
+directory after you install the Platform SDK.</P> 
+
+<LI><P><STRONG><A HREF=
+"http://msdn.microsoft.com/vstudio/sp/vs6sp4/mmoverview.asp">Windows
+Installer Merge Modules for Visual Studio 6.0 Service Pack 4</A></STRONG></P>
+
+<P>Merge modules for libraries provided with Visual Studio 6.0 Service
+Pack 4.  If your code depends on these libraries, such as comdlg32.ocx
+or oleaut32.dll, then you should use the merge modules to ensure that
+the proper versions of these components are installed for use with
+your application.</P>
+
+<LI><P><STRONG>Windows Installer 2.0 Runtime for Windows <A HREF=
+"http://www.microsoft.com/downloads/release.asp?releaseid=32832">NT4/2000</A>,
+and <A HREF=
+"http://www.microsoft.com/downloads/release.asp?ReleaseID=32831">95/98/Me</A>
+</STRONG></P>
+<P>Obtain version 2.0 of the Windows Installer system component.
+Windows XP ships with version 2.0 of Windows Installer;
+it is a free download for other versions of Windows.</P>
+
+<LI><P><STRONG><A HREF=
+"http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncabsdk/html/cabdl.asp">Microsoft
+Cabinet SDK</A></STRONG></P>
+
+<P>The Cabinet SDK gives you documentation on the cabinet file format
+and associated tools for manipulating cabinet files (makecab, cabarc,
+etc.).</P>
+
+<P>Windows Installer uses cabinet files for compressed storage and for
+web based installations.  Windows Installer imposes sequence requirements
+relating the <STRONG>File</STRONG> table entries to the order of files
+in a cabinet file.  The Cabinet SDK contains documentation describing how
+to construct cabinet files to match the Windows Installer constraints.</P>
+
+<P>The <CODE>WiMakCab.vbs</CODE> builds a cabinet file using
+<CODE>MAKECAB.EXE</CODE>, which it assumes
+will be somewhere in your path.  If you don't
+have this tool, you can get it by installing the Cabinet SDK.</P>
+
+</UL>
+
+</BODY>
+</HTML>
+
+
