@@ -15,6 +15,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
+///////////////////////////////////////////////////////////////////////////
+// tstring.h
+//
+// Helper definitions for std::strings of TCHAR
+//
 #if !defined(TSTRING_H)
 #define TSTRING_H
 

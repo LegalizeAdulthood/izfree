@@ -15,6 +15,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
+///////////////////////////////////////////////////////////////////////////
+// s_tables.h
+//
+// Data structures defining the table records extracted by izMonitor.
+//
 #if !defined(S_TABLES_H)
 #define S_TABLES_H
 
