@@ -30,6 +30,8 @@ on error resume next
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim g_monitor
 
+dim g_app_ids, g_classes, g_interfaces, g_type_libs, g_categories
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim g_main_frame : set g_main_frame = window.parent
 
@@ -78,9 +80,59 @@ function prog_id_row(rec)
     set prog_id_row = row
 end function
 
+function count_key(dict, key)
+    if (not dict.exists(key)) then
+        dict.add key, dict.Count+1
+    end if
+    count_key = dict(key)
+end function
+
+function guid_number(guids, key, start)
+    guid_number = count_key(guids, _
+        "{" & ucase(replace(mid(key, start, 36), "_", "-")) & "}")
+end function
+
+function unique_key(key)
+    dim count : count = "..." & cstr(count_key(g_registry, key)) & "..."
+    dim i : i = (72-len(count))/2
+    unique_key = left(key, i) & count & right(key, i)
+end function
+
 function registry_row(rec)
     dim row : set row = installer().CreateRecord(6)
-    row.stringdata(1) = rec.registry
+    dim key : key = rec.registry
+    dim words : words = split(lcase(key), "_")
+    if (words(0) = "hkcr") then
+        select case words(1)
+        case "appid"
+            key = left(key, 11) & guid_number(g_app_ids, key, 12) &_
+                mid(key, 48)
+                    
+        case "clsid"
+            key = left(key, 11) & guid_number(g_classes, key, 12) &_
+                mid(key, 48)
+                    
+        case "component"
+            if (words(2) = "categories") then
+                key = left(key, 26) & guid_number(g_categories, key, 27) &_
+                    mid(key, 63)
+            end if
+                
+        case "interface"
+            key = left(key, 15) & guid_number(g_interfaces, key, 16) &_
+                mid(key, 52)
+            
+        case "typelib"
+            key = left(key, 13) & guid_number(g_type_libs, key, 14) &_
+                mid(key, 50)
+        end select
+    end if
+    if (len(key) > 72) then
+        ' arbitrarily shrink keystring and hope for uniqueify with
+        ' counter
+        key = unique_key(key)
+    end if
+    row.stringdata(1) = key
     row.integerdata(2) = rec.root
     row.stringdata(3) = rec.key
     row.stringdata(4) = rec.name
@@ -149,20 +201,51 @@ end sub
 
 sub save_class(table)
     on error resume next
-    dim view : set view = db().OpenView("insert into `Class`" &_
+    dim view : set view = db().OpenView("INSERT INTO `Class`" &_
         "(`CLSID`,`Context`,`Component_`,`ProgId_Default`,`Description`," &_
         "`AppId_`,`FileTypeMask`,`Icon_`,`IconIndex`,`DefInprocHandler`," &_
         "`Argument`,`Feature_`,`Attributes`)" &_
         " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)") : check
+    dim component
     dim rec : for each rec in table
+        dbgout "Component: " & rec.Component
+        component = rec.Component
         view.execute class_row(rec) : check
     next
+    view.close : check
+    
+    set view = exec_view(db(), "SELECT `Component_` FROM `File`")
+    set rec = view.fetch
+    do while not (rec is nothing)
+        dbgout "Component_: " & rec.stringdata(1)
+        set rec = view.fetch
+    loop
+    view.close : check
+    
+    set view = exec_view(db(), "SELECT `File`,`FileName` FROM `File`")
+    set rec = view.fetch
+    if (rec is nothing) then
+        msgbox("Expected to find a file under component " & component)
+    end if
+    dim key_path
+    do while (not rec is nothing)
+        if (right(rec.stringdata(2), len(component)) = component) then
+            key_path = rec.stringdata(1)
+            set rec = nothing
+        else
+            set rec = view.fetch
+        end if
+    loop
+    view.close : check
+        
+    set view = exec_view(db(), "UPDATE `Component` SET `KeyPath` = '" &_
+        key_path & "' WHERE `Component` = '" & component & "'")
     view.close : check
 end sub
 
 sub save_prog_id(table)
     on error resume next
-    dim view : set view = db().OpenView("insert into `ProgId`" &_
+    dim view : set view = db().OpenView("INSERT INTO `ProgId`" &_
         "(`ProgId`,`ProgId_Parent`,`Class_`,`Description`,`Icon_`," &_
         "`IconIndex`) VALUES (?,?,?,?,?,?)") : check
     dim rec : for each rec in table
@@ -173,7 +256,7 @@ end sub
 
 sub save_type_lib(table)
     on error resume next
-    dim view : set view = db().OpenView("insert into `TypeLib`" &_
+    dim view : set view = db().OpenView("INSERT INTO `TypeLib`" &_
         "(`LibID`,`Language`,`Component_`,`Version`,`Description`," &_
         "`Directory_`,`Feature_`,`Cost`) VALUES (?,?,?,?,?,?,?,?)") : check
     dim rec : for each rec in table
@@ -182,9 +265,30 @@ sub save_type_lib(table)
     view.close : check
 end sub
 
-sub save_registry(table)
+sub scrape_registry_ids(db)
     on error resume next
-    dim view : set view = db().OpenView("insert into `Registry`" &_
+    dim view : set view = exec_view(db, "SELECT `Root`,`Key`" &_
+        " FROM `Registry`")
+    dim rec : set rec = view.fetch
+    do while not rec is nothing
+        if (rec.integerdata(1) = 0) then 'HKCR
+            dim words : words = split(rec.stringdata(2), "\")
+            select case lcase(words(0))
+            case "clsid" : count_key g_classes, words(1)
+            case "appid" : count_key g_app_ids, words(1)
+            case "interface" : count_key g_interfaces, words(1)
+            case "typelib" : count_key g_type_libs, words(1)
+            case "component categories" : count_key g_categories, words(1)
+            end select
+        end if
+        set rec = view.fetch
+    loop
+end sub
+
+sub save_registry(table)
+    scrape_registry_ids db()
+    on error resume next
+    dim view : set view = db().OpenView("INSERT INTO `Registry`" &_
         "(`Registry`,`Root`,`Key`,`Name`,`Value`,`Component_`)" &_
         " VALUES (?,?,?,?,?,?)") : check
     dim rec : for each rec in table
@@ -195,7 +299,7 @@ end sub
 
 sub save_service_control(table)
     on error resume next
-    dim view : set view = db().OpenView("insert into `ServiceControl`" &_
+    dim view : set view = db().OpenView("INSERT INTO `ServiceControl`" &_
         "(`ServiceControl`,`Name`,`Event`,`Arguments`,`Wait`,`Component_`)" &_
         " VALUES (?,?,?,?,?,?)") : check
     dim rec : for each rec in table
@@ -244,6 +348,12 @@ sub extract_onClick
         exit sub
     end if
     
+    set g_app_ids = check_object("Scripting.Dictionary")
+    set g_classes = check_object("Scripting.Dictionary")
+    set g_interfaces = check_object("Scripting.Dictionary")
+    set g_type_libs = check_object("Scripting.Dictionary")
+    set g_categories = check_object("Scripting.Dictionary")
+    
     save_tables g_monitor
     db_modified
 end sub
@@ -254,6 +364,22 @@ end sub
 sub read_tool_input(name, fallback)
     read_input "COMRegistration", document.forms("Register").all, name, _
         fallback
+end sub
+
+sub load_column(opts, table, column)
+    on error resume next
+    dim view : set view = exec_view(db(), "select `" & column &_
+         "` from `" & table & "`")
+    dim rec : set rec = view.fetch
+    dim vals()
+    do while (not rec is nothing)
+        push vals, rec.stringdata(1)
+        set rec = view.fetch
+    loop
+    view.close : check
+    sort vals
+    load_opts opts, vals
+    opts.value = vals(0)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -271,6 +397,9 @@ sub window_onLoad
     next
     read_tool_input "server", ""
     read_tool_input "service", 0
+    
+    load_column document.all("components"), "Component", "Component"
+    load_column document.all("features"), "Feature", "Feature"
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -283,13 +412,30 @@ end sub
 </HEAD>
 <BODY>
 <P><FORM NAME="Register">
-<TABLE><TR><TD><STRONG>Path to COM server:</STRONG></TD></TR>
-<TR><TD><INPUT ID="server" TYPE="text" SIZE=30 VALUE="">
-<INPUT NAME="service" TYPE="checkbox"> <STRONG>Service EXE</STRONG></TD></TR>
-<TR><TD><STRONG>Monitored Registry keys:</STRONG>
-<INPUT ID="addKey" TYPE="button" VALUE="Add..."></TD></TR>
-<TR><TD><SELECT ID="keys" STYLE="width: 100%" SIZE=12></SELECT>
-<TR><TD><INPUT ID="extract" TYPE="button" VALUE="Go"></TD></TR>
+<TABLE WIDTH=100%>
+    <TR>
+        <TD ALIGN="right"><STRONG>Path to COM server:</STRONG></TD>
+        <TD><INPUT ID="server" TYPE="text" SIZE=50 VALUE=""></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Service EXE</STRONG></TD>
+        <TD><INPUT NAME="service" TYPE="checkbox"></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Component:</STRONG></TD><TD><SELECT ID="components"></SELECT></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Feature:</STRONG></TD>
+        <TD><SELECT ID="features"></SELECT></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right" VALIGN="top"><STRONG>Monitored Registry keys:</STRONG></TD>
+        <TD>
+            <SELECT ID="keys" STYLE="width: 100%" SIZE=12></SELECT><BR>
+            <INPUT ID="addKey" TYPE="button" VALUE="Add...">
+        </TD>
+    </TR>
+<TR><TD COLSPAN=2><INPUT ID="extract" TYPE="button" VALUE="Go"></TD></TR>
 </TABLE>
 </FORM></P>
 
