@@ -33,6 +33,19 @@ END_COM_MAP()
 
 // IServiceInstallRecord
 public:
+	STDMETHOD(get_Description)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Component)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Arguments)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Password)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_StartName)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Dependencies)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_LoadOrderGroup)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_ErrorControl)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_StartType)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_ServiceType)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_DisplayName)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Name)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_ServiceInstall)(/*[out, retval]*/ BSTR *pVal);
 };
 
 #endif //__SERVICEINSTALLRECORD_H_

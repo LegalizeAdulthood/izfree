@@ -33,6 +33,12 @@ END_COM_MAP()
 
 // IProgIdRecord
 public:
+	STDMETHOD(get_IconIndex)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_Icon)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Description)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Class)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Parent)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_ProgId)(/*[out, retval]*/ BSTR *pVal);
 };
 
 #endif //__PROGIDRECORD_H_

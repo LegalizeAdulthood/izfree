@@ -33,6 +33,12 @@ END_COM_MAP()
 
 // IServiceControlRecord
 public:
+	STDMETHOD(get_Component)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Wait)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_Arguments)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Event)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_Name)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_ServiceControl)(/*[out, retval]*/ BSTR *pVal);
 };
 
 #endif //__SERVICECONTROLRECORD_H_

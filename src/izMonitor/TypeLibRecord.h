@@ -33,6 +33,14 @@ END_COM_MAP()
 
 // ITypeLibRecord
 public:
+	STDMETHOD(get_Cost)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_Feature)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Directory)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Description)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Version)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_Component)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Language)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_LibID)(/*[out, retval]*/ BSTR *pVal);
 };
 
 #endif //__TYPELIBRECORD_H_

@@ -19,3 +19,59 @@ STDMETHODIMP CTypeLibRecord::InterfaceSupportsErrorInfo(REFIID riid)
 	}
 	return S_FALSE;
 }
+
+STDMETHODIMP CTypeLibRecord::get_LibID(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Language(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Component(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Version(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Description(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Directory(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Feature(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CTypeLibRecord::get_Cost(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}

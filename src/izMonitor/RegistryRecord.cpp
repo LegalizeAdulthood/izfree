@@ -19,3 +19,45 @@ STDMETHODIMP CRegistryRecord::InterfaceSupportsErrorInfo(REFIID riid)
 	}
 	return S_FALSE;
 }
+
+STDMETHODIMP CRegistryRecord::get_Registry(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CRegistryRecord::get_Root(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CRegistryRecord::get_Key(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CRegistryRecord::get_Name(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CRegistryRecord::get_Value(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CRegistryRecord::get_Component(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}

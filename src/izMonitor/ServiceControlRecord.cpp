@@ -19,3 +19,45 @@ STDMETHODIMP CServiceControlRecord::InterfaceSupportsErrorInfo(REFIID riid)
 	}
 	return S_FALSE;
 }
+
+STDMETHODIMP CServiceControlRecord::get_ServiceControl(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CServiceControlRecord::get_Name(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CServiceControlRecord::get_Event(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CServiceControlRecord::get_Arguments(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CServiceControlRecord::get_Wait(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CServiceControlRecord::get_Component(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}

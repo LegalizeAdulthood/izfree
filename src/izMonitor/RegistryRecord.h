@@ -33,6 +33,12 @@ END_COM_MAP()
 
 // IRegistryRecord
 public:
+	STDMETHOD(get_Component)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Value)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Name)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Key)(/*[out, retval]*/ BSTR *pVal);
+	STDMETHOD(get_Root)(/*[out, retval]*/ LONG *pVal);
+	STDMETHOD(get_Registry)(/*[out, retval]*/ BSTR *pVal);
 };
 
 #endif //__REGISTRYRECORD_H_

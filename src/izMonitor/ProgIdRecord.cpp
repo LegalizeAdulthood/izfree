@@ -19,3 +19,45 @@ STDMETHODIMP CProgIdRecord::InterfaceSupportsErrorInfo(REFIID riid)
 	}
 	return S_FALSE;
 }
+
+STDMETHODIMP CProgIdRecord::get_ProgId(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CProgIdRecord::get_Parent(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CProgIdRecord::get_Class(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CProgIdRecord::get_Description(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CProgIdRecord::get_Icon(BSTR *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CProgIdRecord::get_IconIndex(LONG *pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}

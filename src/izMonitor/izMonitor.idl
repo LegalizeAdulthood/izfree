@@ -214,6 +214,12 @@ interface IServiceInstallTable : IDispatch
 ]
 interface IRegistryRecord : IDispatch
 {
+		[propget, id(1), helpstring("property Registry")] HRESULT Registry([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Root")] HRESULT Root([out, retval] LONG *pVal);
+		[propget, id(3), helpstring("property Key")] HRESULT Key([out, retval] BSTR *pVal);
+		[propget, id(4), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propget, id(5), helpstring("property Value")] HRESULT Value([out, retval] BSTR *pVal);
+		[propget, id(6), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
 };
 [
     object,
@@ -224,6 +230,12 @@ interface IRegistryRecord : IDispatch
 ]
 interface IProgIdRecord : IDispatch
 {
+		[propget, id(1), helpstring("property ProgId")] HRESULT ProgId([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Parent")] HRESULT Parent([out, retval] BSTR *pVal);
+		[propget, id(3), helpstring("property Class")] HRESULT Class([out, retval] BSTR *pVal);
+		[propget, id(4), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+		[propget, id(5), helpstring("property Icon")] HRESULT Icon([out, retval] BSTR *pVal);
+		[propget, id(6), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] LONG *pVal);
 };
 [
     object,
@@ -234,6 +246,14 @@ interface IProgIdRecord : IDispatch
 ]
 interface ITypeLibRecord : IDispatch
 {
+		[propget, id(1), helpstring("property LibID")] HRESULT LibID([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Language")] HRESULT Language([out, retval] LONG *pVal);
+		[propget, id(3), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
+		[propget, id(4), helpstring("property Version")] HRESULT Version([out, retval] LONG *pVal);
+		[propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+		[propget, id(6), helpstring("property Directory")] HRESULT Directory([out, retval] BSTR *pVal);
+		[propget, id(7), helpstring("property Feature")] HRESULT Feature([out, retval] BSTR *pVal);
+		[propget, id(8), helpstring("property Cost")] HRESULT Cost([out, retval] LONG *pVal);
 };
 [
     object,
@@ -244,6 +264,12 @@ interface ITypeLibRecord : IDispatch
 ]
 interface IServiceControlRecord : IDispatch
 {
+		[propget, id(1), helpstring("property ServiceControl")] HRESULT ServiceControl([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propget, id(3), helpstring("property Event")] HRESULT Event([out, retval] LONG *pVal);
+		[propget, id(4), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+		[propget, id(5), helpstring("property Wait")] HRESULT Wait([out, retval] LONG *pVal);
+		[propget, id(6), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
 };
 [
     object,
@@ -254,6 +280,19 @@ interface IServiceControlRecord : IDispatch
 ]
 interface IServiceInstallRecord : IDispatch
 {
+		[propget, id(1), helpstring("property ServiceInstall")] HRESULT ServiceInstall([out, retval] BSTR *pVal);
+		[propget, id(2), helpstring("property Name")] HRESULT Name([out, retval] BSTR *pVal);
+		[propget, id(3), helpstring("property DisplayName")] HRESULT DisplayName([out, retval] BSTR *pVal);
+		[propget, id(4), helpstring("property ServiceType")] HRESULT ServiceType([out, retval] LONG *pVal);
+		[propget, id(5), helpstring("property StartType")] HRESULT StartType([out, retval] LONG *pVal);
+		[propget, id(6), helpstring("property ErrorControl")] HRESULT ErrorControl([out, retval] LONG *pVal);
+		[propget, id(7), helpstring("property LoadOrderGroup")] HRESULT LoadOrderGroup([out, retval] BSTR *pVal);
+		[propget, id(8), helpstring("property Dependencies")] HRESULT Dependencies([out, retval] BSTR *pVal);
+		[propget, id(9), helpstring("property StartName")] HRESULT StartName([out, retval] BSTR *pVal);
+		[propget, id(10), helpstring("property Password")] HRESULT Password([out, retval] BSTR *pVal);
+		[propget, id(11), helpstring("property Arguments")] HRESULT Arguments([out, retval] BSTR *pVal);
+		[propget, id(12), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
+		[propget, id(13), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
