@@ -434,7 +434,11 @@ sub push(byref ary, val)
         Err.Clear
         redim preserve ary(0)
     end if
-    ary(ubound(ary)) = val
+    if (isobject(val)) then
+        set ary(ubound(ary)) = val
+    else
+        ary(ubound(ary)) = val
+    end if
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
