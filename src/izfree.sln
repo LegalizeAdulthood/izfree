@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IzFree", "IzFree\IzFree.csp
 		{6555E7BD-88BF-4835-A855-DB23764BB9D3} = {6555E7BD-88BF-4835-A855-DB23764BB9D3}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSITest", "MSI.Interop\MSITest\MSITest.csproj", "{380E49E9-F07A-4831-8CA8-EFA8442585EC}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -84,6 +88,20 @@ Global
 		{B2D1ED6A-F44A-4C77-9519-48E76DE29DDC}.Unicode Release MinDependency.Build.0 = Release|.NET
 		{B2D1ED6A-F44A-4C77-9519-48E76DE29DDC}.Unicode Release MinSize.ActiveCfg = Release|.NET
 		{B2D1ED6A-F44A-4C77-9519-48E76DE29DDC}.Unicode Release MinSize.Build.0 = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Debug.ActiveCfg = Debug|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Debug.Build.0 = Debug|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Release.ActiveCfg = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Release.Build.0 = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Release MinDependency.ActiveCfg = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Release MinDependency.Build.0 = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Release MinSize.ActiveCfg = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Release MinSize.Build.0 = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Debug.ActiveCfg = Debug|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Debug.Build.0 = Debug|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinDependency.ActiveCfg = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinDependency.Build.0 = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinSize.ActiveCfg = Release|.NET
+		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinSize.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		ATLRegistration.html = ATLRegistration.html
