@@ -138,14 +138,25 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' save_media_table
 '
-' Write Media table into database.
+' Write Media table into database.  We are writing in the minimal it
+' takes for us to get by with a valid installation using an uncompressed
+' source.  This is a constant record, with the sequence numbers of all
+' files being set to 1.  For the purposes of the new components tool,
+' we assume that if the table has any records, then we don't need to add
+' this minimal record.
 '
 sub save_media_table(db)
-    dim view : set view = db.openview("INSERT INTO `Media`(`DiskId`,`LastSequence`,`DiskPrompt`,`Cabinet`,`VolumeLabel`,`Source`) " &_
-        "VALUES (1,1,'','','','')") : check
-    view.execute : check
+    dim view : set view = exec_view(db, "select * from `Media`")
+    dim rec : set rec = view.fetch
     view.close : check
     set view = nothing
+    if (rec is nothing) then
+        set view = exec_view(db, "INSERT INTO `Media`(`DiskId`," &_
+        "`LastSequence`,`DiskPrompt`,`Cabinet`,`VolumeLabel`,`Source`) " &_
+        "VALUES (1,1,'','','','')") : check
+        view.close : check
+        set view = nothing
+    end if
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -153,16 +164,31 @@ end sub
 '
 ' Write Feature table into database.
 sub save_feature_table(db, root)
-    dim view : set view = db.openview("INSERT INTO `Feature`(" &_
-        "`Feature`,`Feature_Parent`,`Title`,`Description`,`Display`,`Level`,`Directory_`,`Attributes`) " &_
-        "VALUES (?,?,?,?,?,?,?,0)") : check
+    ' get largest display value to start counting for new features
+    dim view : set view = exec_view(db, _
+        "select `Display` from `Feature` order by `Display`")
+    dim display : display = 0
+    dim rec : set rec = view.fetch
+    do while (not rec is nothing)
+        if (not rec.isnull(1)) then
+            dim num : num = cint(rec.integerdata(1)/2)
+            if (num > display) then display = num
+        end if
+        set rec = view.fetch
+    loop
+    view.close : check
+    if (display = 0) then display = 100 else display = display+1
+    
+    set view = db.openview("INSERT INTO `Feature`(`Feature`," &_
+        "`Feature_Parent`,`Title`,`Description`,`Display`,`Level`," &_
+        "`Directory_`,`Attributes`) VALUES (?,?,?,?,?,?,?,0)") : check
     dim i : for i = 0 to num_components-1
-        dim rec : set rec = installer().CreateRecord(7) : check
+        set rec = installer().CreateRecord(7) : check
         rec.stringdata(1) = components(cmp_name, i) 'feature
         rec.stringdata(2) = root                    'parent
         rec.stringdata(3) = components(cmp_name, i) 'title
         rec.stringdata(4) = components(cmp_name, i) 'description
-        rec.integerdata(5) = 2*(i+100)              'display
+        rec.integerdata(5) = 2*(i+display)          'display
         rec.integerdata(6) = 1                      'level
         rec.stringdata(7) = "" 'dirs(dir_name, components(cmp_dir, i)) 'directory
         view.execute rec : check
@@ -256,7 +282,7 @@ end sub
 '
 ' Look for a directory component with which to associate this file
 '
-sub add_to_component(file_idx)
+sub add_to_component(base, file_idx)
     ' scan list to see if we have a directory component already
     dim i : for i = num_components - num_dir_components to num_components-1
         if (components(cmp_dir, i) = files(fil_dir, file_idx)) then
@@ -275,7 +301,7 @@ sub add_to_component(file_idx)
         compname = left(compname, slash-1) & "_" & mid(compname, slash+1)
         slash = instr(slash, compname, "\")
     loop
-    if (compname = ".") then compname = "Top"
+    if (compname = ".") then compname = base & "_Top"
     create_component file_idx, compname
     num_dir_components = num_dir_components + 1
 end sub
@@ -289,7 +315,7 @@ end sub
 '   Remaining files grouped into components by directory.
 '   First file selected as key file.
 '
-sub determine_components
+sub determine_components(base)
     redim assigned_files(num_files)
     ' scan for special files requiring their own component
     dim i : for i = 0 to num_files-1
@@ -306,7 +332,7 @@ sub determine_components
     ' component for each directory
     for i = 0 to num_files-1
         if (assigned_files(i) = -1) then
-            add_to_component(i)
+            add_to_component base, i
         end if
     next
 end sub
@@ -336,14 +362,6 @@ sub display_components(tv)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' update_create_components
-'
-' Set UI state based on current values
-'
-sub update_create_components
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' scan_directory
 '
 sub scan_directory
@@ -357,7 +375,9 @@ sub scan_directory
     enum_files dir, "", folder
     set folder = nothing
     
-    determine_components
+    dim base : base = instrrev(dir, "\")
+    if (base > 0) then base = mid(dir, base+1) else base = dir
+    determine_components base
     
     dim i : for i = 0 to num_dirs-1
         if (lcase(left(dirs(dir_dir, i), len(dir))) = lcase(dir)) then
@@ -369,7 +389,6 @@ sub scan_directory
     dim tv : set tv = document.forms("CreateComponents").all("ComponentTree")
     tv.nodes.clear
     display_components tv
-    update_create_components
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -453,8 +472,9 @@ sub commit_components(db)
     save_directory_table db, selected_option(document.all("rootDirectory"))
     save_media_table db
     save_component_table db
-    save_feature_table db, document.all("features").selectedIndex.value
+    save_feature_table db, document.all("features").selectedItem.Text
     save_feature_components_table db
+    db_modified
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -495,15 +515,6 @@ sub undo_step
     case PAGE_FEATURES:         display_features
     case PAGE_COMPONENTS:       scan_directory
     end select
-end sub
-
-sub load_opts(opts, ary)
-    do while (opts.length > 0)
-        opts.remove 0
-    loop
-    dim i : for i = 0 to ubound(ary)
-        opts.add new_option(ary(i))
-    next
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -659,15 +670,16 @@ sub newFeature_onClick
         "`Description`,`Display`,`Level`,`Directory_`,`Attributes`)" &_
         " VALUES (?,?,?,?,?,?,?,?)") : check
     dim rec : set rec = installer().CreateRecord(8) : check
-    dim all : set all = document.forms("newFeature").all
-    rec.stringdata(1) = all("name").value
-    rec.stringdata(2) = all("parent").value
-    rec.stringdata(3) = all("title").value
-    rec.stringdata(4) = all("description").value
-    rec.integerdata(5) = all("display").value
-    rec.integerdata(6) = all("level").value
-    rec.stringdata(7) = selected_option(all("directory"))
-    rec.integerdata(8) = all("attributes").value
+    with document
+        rec.stringdata(1) = .all("name").value
+        rec.stringdata(2) = .all("parent").value
+        rec.stringdata(3) = .all("title").value
+        rec.stringdata(4) = .all("description").value
+        rec.integerdata(5) = .all("display").value
+        rec.integerdata(6) = .all("level").value
+        rec.stringdata(7) = selected_option(.all("directory"))
+        rec.integerdata(8) = .all("attributes").value
+    end with
     view.execute rec : check
     view.close : check
     
