@@ -80,7 +80,7 @@ sub close_onClick
     update_db_buttons
 end sub
 
-sub set_tool_class(tool, value)
+sub set_tool_class(tool, byval value)
     if (g_selected_tool = tool) then
         value = "selected"
     end if
@@ -241,12 +241,13 @@ window.resizeTo MAIN_WIDTH, MAIN_HEIGHT
 <HR>
 </TD></TR>-->
 <TR><TD COLSPAN=2><FORM ID="dbForm">
+<TABLE WIDTH=100%><TR><TD>
 <INPUT ID="open" TYPE="button" VALUE="Open...">
 <INPUT ID="new" TYPE="button" VALUE="New...">
 <INPUT ID="close" TYPE="button" VALUE="Close" DISABLED>
 <INPUT ID="save" TYPE="button" VALUE="Save" DISABLED>
 Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
-</FORM>
+</FORM></TD><TD ALIGN="right"><H2>izfree 1.1</H2></TD></TR></TABLE>
 </TD></TR>
 <TR HEIGHT="100%" VALIGN="top">
 <TD WIDTH="18%" HEIGHT="100%" VALIGN="top">
