@@ -146,12 +146,6 @@ SOURCE=.\ValidateTable.html
 # PROP BASE Deployment_Mode 1
 # PROP Deployment_Mode 1
 # End Source File
-# Begin Source File
-
-SOURCE=.\WizardSeqs.html
-# PROP BASE Deployment_Mode 1
-# PROP Deployment_Mode 1
-# End Source File
 # End Group
 # Begin Group "VBS"
 
