@@ -96,7 +96,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         CComPtr<IFileVersion> fv;
         THR(fv.CoCreateInstance(L"izfree.FileVersion"));
         CComBSTR version;
-        CComBSTR file(L"C:\\data\\Projects\\izfree\\ATLRegistration.html");
+        CComBSTR file(L"C:\\winnt\\system32\\atiicdxx.vxd");
         THR(fv->get_Version(file, &version));
         ::OutputDebugString((_T("izfree.FileVersion: ") +
             tstring(W2T(version)) + _T("\n")).c_str());
