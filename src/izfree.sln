@@ -21,6 +21,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSITest", "MSI.Interop\MSIT
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pahvant.Excluder", "Pahvant.Excluder\Pahvant.Excluder.csproj", "{BBEFB504-E018-40B6-8EF8-E1925372DED8}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Pahvant.Excluder.Setup", "Pahvant.Excluder\Pahvant.Excluder.Setup\Pahvant.Excluder.Setup.vdproj", "{4D0623C9-E363-488C-8CF0-83D3C3456359}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -102,6 +110,34 @@ Global
 		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinDependency.Build.0 = Release|.NET
 		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinSize.ActiveCfg = Release|.NET
 		{380E49E9-F07A-4831-8CA8-EFA8442585EC}.Unicode Release MinSize.Build.0 = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Debug.ActiveCfg = Debug|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Debug.Build.0 = Debug|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Release.ActiveCfg = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Release.Build.0 = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Release MinDependency.ActiveCfg = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Release MinDependency.Build.0 = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Release MinSize.ActiveCfg = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Release MinSize.Build.0 = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Unicode Debug.ActiveCfg = Debug|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Unicode Debug.Build.0 = Debug|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Unicode Release MinDependency.ActiveCfg = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Unicode Release MinDependency.Build.0 = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Unicode Release MinSize.ActiveCfg = Release|.NET
+		{BBEFB504-E018-40B6-8EF8-E1925372DED8}.Unicode Release MinSize.Build.0 = Release|.NET
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Debug.ActiveCfg = Debug
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Debug.Build.0 = Debug
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Release.ActiveCfg = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Release.Build.0 = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Release MinDependency.ActiveCfg = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Release MinDependency.Build.0 = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Release MinSize.ActiveCfg = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Release MinSize.Build.0 = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Unicode Debug.ActiveCfg = Debug
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Unicode Debug.Build.0 = Debug
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Unicode Release MinDependency.ActiveCfg = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Unicode Release MinDependency.Build.0 = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Unicode Release MinSize.ActiveCfg = Release
+		{4D0623C9-E363-488C-8CF0-83D3C3456359}.Unicode Release MinSize.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		ATLRegistration.html = ATLRegistration.html
