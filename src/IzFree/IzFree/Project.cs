@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using MSI;
 
@@ -6,8 +7,15 @@ namespace IzFree
 {
     public class PropertyNotFoundException : Exception
     {
-        public PropertyNotFoundException() : base()
+        public PropertyNotFoundException(string propertyName) : base()
         {
+            m_propertyName = propertyName;
+        }
+        private string m_propertyName = null;
+
+        public string PropertyName
+        {
+            get { return m_propertyName; }
         }
     }
 
@@ -116,46 +124,139 @@ namespace IzFree
 
         public string GetProperty(string name)
         {
-            string data = null;
-            using (View view = Application.ExecView(m_db,
-                       "SELECT `Value` FROM `IzProperty` WHERE " +
-                       "`IzProperty`.`Property` = '" + name + "'"))
+            if (null == m_properties)
             {
-                using (Record rec = view.Fetch())
-                {
-                    if (rec != null)
-                    {
-                        data = rec.GetString(1);
-                    }
-                }
-                view.Close();
+                ReadProperties();
             }
-            return data;
+
+            if (!m_properties.ContainsKey(name))
+            {
+                throw new PropertyNotFoundException(name);
+            }
+
+            return m_properties[name] as string;
         }
 
         public void SetProperty(string name, string data)
         {
+            if (null == m_properties)
+            {
+                ReadProperties();
+            }
+            m_properties[name] = data;
         }
 
         public int GetIntegerProperty(string name)
         {
-            using (View view = Application.ExecView(m_db,
-                       "SELECT `Value` FROM `IzProperty` WHERE " +
-                       "`IzProperty`.`Property` = '" + name + "'"))
+            if (null == m_properties)
             {
-                using (Record rec = view.Fetch())
-                {
-                    if (rec != null)
-                    {
-                        return rec.GetInteger(1);
-                    }
-                }
+                ReadProperties();
             }
-            throw new PropertyNotFoundException();
+            if (!m_properties.ContainsKey(name))
+            {
+                throw new PropertyNotFoundException(name);
+            }
+
+            return System.Convert.ToInt32(m_properties[name]);
         }
 
         public void SetIntegerProperty(string name, int data)
         {
+            m_properties[name] = String.Format("{0}", data);
+        }
+
+        private Hashtable m_properties = null;
+
+        private void WriteProperties()
+        {
+            if (m_izPropertyTableExists)
+            {
+                // update records
+                foreach (string key in m_properties.Keys)
+                {
+                    using (View view = Application.ExecView(m_db,
+                                "UPDATE `IzProperty` SET `Value`='" +
+                                (m_properties[key] as string) +
+                                "' WHERE `Name`='" + key + "'"))
+                    {
+                        view.Close();
+                    }
+                }
+            }
+            else
+            {
+                // create table
+                using (View view = Application.ExecView(m_db,
+                    "CREATE TABLE `IzProperty`(`Name` CHAR(72) NOT NULL, " +
+                    "`Value` CHAR NOT NULL PRIMARY KEY `Name`)"))
+                {
+                    view.Close();
+                }
+
+                // now add rows to the validation table for the new table
+                using (View view = m_db.OpenView("INSERT INTO `_Validation`(" +
+                           "`Column`,`Category`,`Description`," +
+                           "`Table`,`Nullable`,`MinValue`,`MaxValue`,`KeyTable`,`KeyColumn`," +
+                           "`Set`) VALUES (?,?,?,'IzProperty','N','','','','','')"))
+                {
+                    using (Record rec = new Record(3))
+                    {
+                        rec.SetString(1, "Name");
+                        rec.SetString(2, "Identifier");
+                        rec.SetString(3, "The name of the izfree property.");
+                        view.Execute(rec);
+
+                        rec.SetString(1, "Value");
+                        rec.SetString(2, "Text");
+                        rec.SetString(3, "The value of the izfree property.");
+                        view.Execute(rec);
+                    }
+                    view.Close();
+                }
+
+                // insert records
+                using (View view = Application.ExecView(m_db,
+                    "INSERT INTO `IzProperty`(`Name`,`Value`) VALUES (?,?)"))
+                {
+                    using (Record rec = new Record(2))
+                    {
+                        foreach (string key in m_properties.Keys)
+                        {
+                            rec.SetString(1, key);
+                            rec.SetString(2, m_properties[key] as string);
+                            view.Execute(rec);
+                        }
+                    }
+                    view.Close();
+                }
+            }
+        }
+
+        private bool m_izPropertyTableExists = false;
+        private void ReadProperties()
+        {
+            m_properties = new Hashtable();
+            using (View view = Application.ExecView(m_db,
+                       "SELECT `Name` FROM `_Tables` WHERE `Name`='IzProperty'"))
+            {
+                Record rec = view.Fetch();
+                m_izPropertyTableExists = (rec != null);
+                if (m_izPropertyTableExists)
+                {
+                    view.Close();
+                    rec.Dispose();
+                    using (View view2 = Application.ExecView(m_db,
+                               "SELECT `Name`,`Value` FROM `IzProperty`"))
+                    {
+                        for (rec = view2.Fetch(); rec != null; rec = view2.Fetch())
+                        {
+                            m_properties[rec.GetString(1)] = rec.GetString(2);
+                            rec.Dispose();
+                        }
+                    }
+                }
+                view.Close();
+            }
         }
         #endregion
 
