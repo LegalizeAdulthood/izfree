@@ -60,7 +60,7 @@
 		<revnumber>{3EF116B2-B7A6-42EC-A2CB-DA13516EBFD8}</revnumber>
 		<lastprinted>12/19/2001 14:21</lastprinted>
 		<createdtm>12/19/2001 14:21</createdtm>
-		<lastsavedtm>12/23/2001 22:36</lastsavedtm>
+		<lastsavedtm>12/24/2001 12:40</lastsavedtm>
 		<pagecount>110</pagecount>
 		<wordcount>0</wordcount>
 		<charcount>0</charcount>
@@ -7871,202 +7871,6 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td/>
 		</row>
 		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Back</td>
-			<td>PushButton</td>
-			<td>180</td>
-			<td>243</td>
-			<td>56</td>
-			<td>17</td>
-			<td>3</td>
-			<td/>
-			<td>[ButtonText_Back]</td>
-			<td>Next</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>BannerBitmap</td>
-			<td>Bitmap</td>
-			<td>0</td>
-			<td>0</td>
-			<td>374</td>
-			<td>44</td>
-			<td>1</td>
-			<td/>
-			<td>[BannerBitmap]</td>
-			<td>NameLabel</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>BannerLine</td>
-			<td>Line</td>
-			<td>0</td>
-			<td>44</td>
-			<td>374</td>
-			<td>0</td>
-			<td>1</td>
-			<td/>
-			<td/>
-			<td/>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>BottomLine</td>
-			<td>Line</td>
-			<td>0</td>
-			<td>234</td>
-			<td>374</td>
-			<td>0</td>
-			<td>1</td>
-			<td/>
-			<td/>
-			<td/>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>CDKeyEdit</td>
-			<td>MaskedEdit</td>
-			<td>45</td>
-			<td>159</td>
-			<td>250</td>
-			<td>16</td>
-			<td>3</td>
-			<td>PIDKEY</td>
-			<td>[PIDTemplate]</td>
-			<td>Back</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>CDKeyLabel</td>
-			<td>Text</td>
-			<td>45</td>
-			<td>147</td>
-			<td>50</td>
-			<td>10</td>
-			<td>3</td>
-			<td/>
-			<td>CD &amp;Key:</td>
-			<td>CDKeyEdit</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Cancel</td>
-			<td>PushButton</td>
-			<td>304</td>
-			<td>243</td>
-			<td>56</td>
-			<td>17</td>
-			<td>3</td>
-			<td/>
-			<td>[ButtonText_Cancel]</td>
-			<td>BannerBitmap</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Description</td>
-			<td>Text</td>
-			<td>25</td>
-			<td>23</td>
-			<td>280</td>
-			<td>15</td>
-			<td>196611</td>
-			<td/>
-			<td>Please enter your customer information</td>
-			<td/>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>NameEdit</td>
-			<td>Edit</td>
-			<td>45</td>
-			<td>85</td>
-			<td>220</td>
-			<td>18</td>
-			<td>3</td>
-			<td>USERNAME</td>
-			<td>{80}</td>
-			<td>OrganizationLabel</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>NameLabel</td>
-			<td>Text</td>
-			<td>45</td>
-			<td>73</td>
-			<td>100</td>
-			<td>15</td>
-			<td>3</td>
-			<td/>
-			<td>&amp;User Name:</td>
-			<td>NameEdit</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Next</td>
-			<td>PushButton</td>
-			<td>236</td>
-			<td>243</td>
-			<td>56</td>
-			<td>17</td>
-			<td>3</td>
-			<td/>
-			<td>[ButtonText_Next]</td>
-			<td>Cancel</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>OrganizationEdit</td>
-			<td>Edit</td>
-			<td>45</td>
-			<td>122</td>
-			<td>220</td>
-			<td>18</td>
-			<td>3</td>
-			<td>COMPANYNAME</td>
-			<td>{80}</td>
-			<td>CDKeyLabel</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>OrganizationLabel</td>
-			<td>Text</td>
-			<td>45</td>
-			<td>110</td>
-			<td>100</td>
-			<td>15</td>
-			<td>3</td>
-			<td/>
-			<td>&amp;Organization:</td>
-			<td>OrganizationEdit</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Title</td>
-			<td>Text</td>
-			<td>15</td>
-			<td>6</td>
-			<td>200</td>
-			<td>15</td>
-			<td>196611</td>
-			<td/>
-			<td>[DlgTitleFont]Customer Information</td>
-			<td/>
-			<td/>
-		</row>
-		<row>
 			<td>VerifyReadyDlg</td>
 			<td>Back</td>
 			<td>PushButton</td>
@@ -9026,7 +8830,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>LicenseAgreementDlg</td>
 			<td>Next</td>
 			<td>NewDialog</td>
-			<td>UserRegistrationDlg</td>
+			<td>SetupTypeDlg</td>
 			<td>IAgree = "Yes" AND ShowUserRegistrationDlg = 1</td>
 			<td>1</td>
 		</row>
@@ -9290,7 +9094,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>SetupTypeDlg</td>
 			<td>Back</td>
 			<td>NewDialog</td>
-			<td>UserRegistrationDlg</td>
+			<td>LicenseAgreementDlg</td>
 			<td>ShowUserRegistrationDlg = 1</td>
 			<td/>
 		</row>
@@ -9373,46 +9177,6 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>Exit</td>
 			<td>1</td>
 			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Back</td>
-			<td>NewDialog</td>
-			<td>LicenseAgreementDlg</td>
-			<td>1</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Cancel</td>
-			<td>SpawnDialog</td>
-			<td>CancelDlg</td>
-			<td>1</td>
-			<td/>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Next</td>
-			<td>NewDialog</td>
-			<td>SetupTypeDlg</td>
-			<td>ProductID</td>
-			<td>3</td>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Next</td>
-			<td>SpawnWaitDialog</td>
-			<td>WaitForCostingDlg</td>
-			<td>CostingComplete = 1</td>
-			<td>2</td>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>Next</td>
-			<td>ValidateProductID</td>
-			<td>0</td>
-			<td>0</td>
-			<td>1</td>
 		</row>
 		<row>
 			<td>VerifyReadyDlg</td>
@@ -9948,18 +9712,6 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>Finish</td>
 			<td>Finish</td>
 			<td>Finish</td>
-		</row>
-		<row>
-			<td>UserRegistrationDlg</td>
-			<td>50</td>
-			<td>50</td>
-			<td>370</td>
-			<td>270</td>
-			<td>3</td>
-			<td>[ProductName] [Setup]</td>
-			<td>NameLabel</td>
-			<td>Next</td>
-			<td>Cancel</td>
 		</row>
 		<row>
 			<td>VerifyReadyDlg</td>
@@ -10884,8 +10636,8 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 		<row>
 			<td>All</td>
 			<td/>
-			<td>All</td>
-			<td>All</td>
+			<td>izfree Tools 1.0</td>
+			<td>izfree Tools for Windows Installer 1.0</td>
 			<td>10</td>
 			<td>1</td>
 			<td>TARGETDIR</td>
@@ -10895,18 +10647,18 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>Templates</td>
 			<td>All</td>
 			<td>Templates</td>
-			<td>Templates</td>
-			<td>208</td>
+			<td>Database templates used to create new packages.</td>
+			<td>0</td>
 			<td>1</td>
 			<td/>
 			<td>0</td>
 		</row>
 		<row>
 			<td>Top</td>
-			<td>All</td>
+			<td>izfree</td>
 			<td>Top</td>
 			<td>Top</td>
-			<td>202</td>
+			<td>0</td>
 			<td>1</td>
 			<td/>
 			<td>0</td>
@@ -10914,19 +10666,19 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 		<row>
 			<td>guidgen</td>
 			<td>All</td>
-			<td>guidgen</td>
-			<td>guidgen</td>
-			<td>204</td>
+			<td>guidgen source</td>
+			<td>Source code for the guidgen COM server.</td>
+			<td>0</td>
 			<td>1</td>
 			<td/>
 			<td>0</td>
 		</row>
 		<row>
 			<td>guidgen.dll</td>
-			<td>All</td>
+			<td>izfree</td>
 			<td>guidgen.dll</td>
-			<td>guidgen.dll</td>
-			<td>200</td>
+			<td>COM server DLL for generating GUIDs</td>
+			<td>0</td>
 			<td>1</td>
 			<td/>
 			<td>0</td>
@@ -10934,9 +10686,9 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 		<row>
 			<td>guidgen_test</td>
 			<td>All</td>
-			<td>guidgen_test</td>
-			<td>guidgen_test</td>
-			<td>206</td>
+			<td>guidgen test source</td>
+			<td>Source code for the guidgen COM server test program.</td>
+			<td>0</td>
 			<td>1</td>
 			<td/>
 			<td>0</td>
@@ -10944,9 +10696,9 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 		<row>
 			<td>izfree</td>
 			<td>All</td>
-			<td>izfree Tools for Windows Installer 0.2</td>
+			<td>izfree</td>
 			<td>Provides tools for manipulating Windows Installer databases.</td>
-			<td/>
+			<td>0</td>
 			<td>1</td>
 			<td/>
 			<td>0</td>
@@ -11105,7 +10857,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f03_NewPackage.html</td>
 			<td>izfree.hta</td>
 			<td>NewPacka.htm|NewPackage.html</td>
-			<td>12013</td>
+			<td>12154</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11206,7 +10958,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>guidgen.dll</td>
 			<td>guidgen.dll</td>
 			<td>32768</td>
-			<td/>
+			<td>1.0.0.1</td>
 			<td/>
 			<td>0</td>
 			<td>1</td>
@@ -11445,7 +11197,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f37_izfree.msi.xml</td>
 			<td>Top</td>
 			<td>izfree_m.xml|izfree.msi.xml</td>
-			<td>638240</td>
+			<td>633955</td>
 			<td/>
 			<td/>
 			<td>0</td>
