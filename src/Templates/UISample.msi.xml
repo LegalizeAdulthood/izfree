@@ -55,13 +55,13 @@
 		<author>Microsoft Corporation</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>Contact:  Your local administrator</comments>
-		<template>;1033</template>
+		<template>Intel;1033</template>
 		<lastauthor>rich</lastauthor>
 		<revnumber>{Put Package Code GUID Here}</revnumber>
-		<lastprinted>05/04/1999 00:00</lastprinted>
-		<createdtm>05/04/1999 00:00</createdtm>
-		<lastsavedtm>12/23/2001 15:28</lastsavedtm>
-		<pagecount>100</pagecount>
+		<lastprinted>05/04/1999 01:00</lastprinted>
+		<createdtm>05/04/1999 01:00</createdtm>
+		<lastsavedtm>04/10/2002 13:45</lastsavedtm>
+		<pagecount>200</pagecount>
 		<wordcount>2</wordcount>
 		<charcount>0</charcount>
 		<appname>Windows Installer</appname>
@@ -7044,12 +7044,1572 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>Gathering required information...</td>
 		</row>
 		<row>
+			<td>2101</td>
+			<td>Shortcuts not supported by the OS</td>
+		</row>
+		<row>
+			<td>2102</td>
+			<td>Invalid .INI action: [2]</td>
+		</row>
+		<row>
+			<td>2103</td>
+			<td>Could not resolve path for shell folder [2].</td>
+		</row>
+		<row>
+			<td>2104</td>
+			<td>Writing .INI file: [3]: System error: [2]</td>
+		</row>
+		<row>
+			<td>2105</td>
+			<td>Shortcut Creation [3] Failed. System error: [2]</td>
+		</row>
+		<row>
+			<td>2106</td>
+			<td>Shortcut Deletion [3] Failed. System error: [2]</td>
+		</row>
+		<row>
+			<td>2107</td>
+			<td>Error [3] registering type library [2].</td>
+		</row>
+		<row>
+			<td>2108</td>
+			<td>Error [3] unregistering type library [2].</td>
+		</row>
+		<row>
+			<td>2109</td>
+			<td>Section missing for INI action.</td>
+		</row>
+		<row>
+			<td>2110</td>
+			<td>Key missing for INI action.</td>
+		</row>
+		<row>
+			<td>2111</td>
+			<td>Detection of running apps failed, could not get perf. data. Reg operation returned : [2].</td>
+		</row>
+		<row>
+			<td>2112</td>
+			<td>Detection of running apps failed, could not get perf. index.Reg operation returned : [2].</td>
+		</row>
+		<row>
+			<td>2113</td>
+			<td>Detection of running apps failed.</td>
+		</row>
+		<row>
 			<td>22</td>
 			<td>Removing older versions of this application...</td>
 		</row>
 		<row>
+			<td>2200</td>
+			<td>Database: [2]. Database object creation failed, mode = [3]</td>
+		</row>
+		<row>
+			<td>2201</td>
+			<td>Database: [2]. Initialization failed, out of memory</td>
+		</row>
+		<row>
+			<td>2202</td>
+			<td>Database: [2]. Data access failed, out of memory</td>
+		</row>
+		<row>
+			<td>2203</td>
+			<td>Database: [2]. Cannot open database file. System error [3]</td>
+		</row>
+		<row>
+			<td>2204</td>
+			<td>Database: [2]. Table already exists: [3]</td>
+		</row>
+		<row>
+			<td>2205</td>
+			<td>Database: [2]. Table does not exist: [3]</td>
+		</row>
+		<row>
+			<td>2206</td>
+			<td>Database: [2]. Table could not be dropped: [3]</td>
+		</row>
+		<row>
+			<td>2207</td>
+			<td>Database: [2]. Intent violation</td>
+		</row>
+		<row>
+			<td>2208</td>
+			<td>Database: [2]. Insufficient parameters for Execute</td>
+		</row>
+		<row>
+			<td>2209</td>
+			<td>Database: [2]. Cursor in invalid state </td>
+		</row>
+		<row>
+			<td>2210</td>
+			<td>Database: [2]. Invalid update data type in column [3]</td>
+		</row>
+		<row>
+			<td>2211</td>
+			<td>Database: [2]. Could not create database table [3]</td>
+		</row>
+		<row>
+			<td>2212</td>
+			<td>Database: [2]. Database not in writable state</td>
+		</row>
+		<row>
+			<td>2213</td>
+			<td>Database: [2]. Error saving database tables</td>
+		</row>
+		<row>
+			<td>2214</td>
+			<td>Database: [2]. Error writing export file: [3]</td>
+		</row>
+		<row>
+			<td>2215</td>
+			<td>Database: [2]. Cannot open import file: [3] </td>
+		</row>
+		<row>
+			<td>2216</td>
+			<td>Database: [2]. Import file format error: [3], Line [4]</td>
+		</row>
+		<row>
+			<td>2217</td>
+			<td>Database: [2]. Wrong state to CreateOutputDatabase [3].</td>
+		</row>
+		<row>
+			<td>2218</td>
+			<td>Database: [2]. Table name not supplied. </td>
+		</row>
+		<row>
+			<td>2219</td>
+			<td>Database: [2]. Invalid Installer database format    </td>
+		</row>
+		<row>
+			<td>2220</td>
+			<td>Database: [2]. Invalid row/field data </td>
+		</row>
+		<row>
+			<td>2221</td>
+			<td>Database: [2]. Code page conflict in import file: [3]. </td>
+		</row>
+		<row>
+			<td>2222</td>
+			<td>Database: [2]. Transform or merge code page [3] differs from database code page [4]. </td>
+		</row>
+		<row>
+			<td>2223</td>
+			<td>Database: [2]. Databases are the same. No transform generated. </td>
+		</row>
+		<row>
+			<td>2224</td>
+			<td>Database: [2]. GenerateTransform: Database corrupt. Table: [3] </td>
+		</row>
+		<row>
+			<td>2225</td>
+			<td>Database: [2]. Transform: Cannot transform a temporary table. Table: [3] </td>
+		</row>
+		<row>
+			<td>2226</td>
+			<td>Database: [2]. Transform failed. </td>
+		</row>
+		<row>
+			<td>2227</td>
+			<td>Database: [2]. Invalid identifier '[3]' in SQL query: [4] </td>
+		</row>
+		<row>
+			<td>2228</td>
+			<td>Database: [2]. Unknown table '[3]' in SQL query: [4]    </td>
+		</row>
+		<row>
+			<td>2229</td>
+			<td>Database: [2]. Could not load table '[3]' in SQL query: [4] </td>
+		</row>
+		<row>
+			<td>2230</td>
+			<td>Database: [2]. Repeated table '[3]' in SQL query: [4] </td>
+		</row>
+		<row>
+			<td>2231</td>
+			<td>Database: [2]. Missing ')' in SQL query: [3] </td>
+		</row>
+		<row>
+			<td>2232</td>
+			<td>Database: [2]. Unexpected token '[3]' in SQL query: [4] </td>
+		</row>
+		<row>
+			<td>2233</td>
+			<td>Database: [2]. No columns in SELECT clause in SQL query: [3] </td>
+		</row>
+		<row>
+			<td>2234</td>
+			<td>Database: [2]. No columns in ORDER BY clause in SQL query: [3] </td>
+		</row>
+		<row>
+			<td>2235</td>
+			<td>Database: [2]. Column '[3]' not present or ambiguous in SQL query: [4] </td>
+		</row>
+		<row>
+			<td>2236</td>
+			<td>Database: [2]. Invalid operator '[3]' in SQL query: [4] </td>
+		</row>
+		<row>
+			<td>2237</td>
+			<td>Database: [2]. Invalid or missing query string: [3]</td>
+		</row>
+		<row>
+			<td>2238</td>
+			<td>Database: [2]. Missing FROM clause in SQL query: [3] </td>
+		</row>
+		<row>
+			<td>2239</td>
+			<td>Database: [2]. Insufficient values in INSERT SQL stmt</td>
+		</row>
+		<row>
+			<td>2240</td>
+			<td>Database: [2]. Missing update columns in UPDATE SQL stmt </td>
+		</row>
+		<row>
+			<td>2241</td>
+			<td>Database: [2]. Missing insert columns in INSERT SQL stmt </td>
+		</row>
+		<row>
+			<td>2242</td>
+			<td>Database: [2]. Column '[3]' repeated </td>
+		</row>
+		<row>
+			<td>2243</td>
+			<td>Database: [2]. No primary columns defined for table creation </td>
+		</row>
+		<row>
+			<td>2244</td>
+			<td>Database: [2]. Invalid type specifier '[3]' in SQL query [4]. </td>
+		</row>
+		<row>
+			<td>2245</td>
+			<td>IStorage::Stat failed with error [3] </td>
+		</row>
+		<row>
+			<td>2246</td>
+			<td>Database: [2]. Invalid Installer transform format.</td>
+		</row>
+		<row>
+			<td>2247</td>
+			<td>Database: [2] Transform stream read/write failure. </td>
+		</row>
+		<row>
+			<td>2248</td>
+			<td>Database: [2] GenerateTransform/Merge: Column type in base table doesn't match reference table. Table: [3] Col #: [4] </td>
+		</row>
+		<row>
+			<td>2249</td>
+			<td>Database: [2] GenerateTransform: More columns in base table than in reference table. Table: [3] </td>
+		</row>
+		<row>
+			<td>2250</td>
+			<td>Database: [2] Transform: Cannot add existing row. Table: [3] </td>
+		</row>
+		<row>
+			<td>2251</td>
+			<td>Database: [2] Transform: Cannot delete row that doesn't exist. Table: [3] </td>
+		</row>
+		<row>
+			<td>2252</td>
+			<td>Database: [2] Transform: Cannot add existing table. Table: [3] </td>
+		</row>
+		<row>
+			<td>2253</td>
+			<td>Database: [2] Transform: Cannot delete table that doesn't exist. Table: [3] </td>
+		</row>
+		<row>
+			<td>2254</td>
+			<td>Database: [2] Transform: Cannot update row that doesn't exist. Table: [3] </td>
+		</row>
+		<row>
+			<td>2255</td>
+			<td>Database: [2] Transform: Column with this name already exists. Table: [3] Col: [4] </td>
+		</row>
+		<row>
+			<td>2256</td>
+			<td>Database: [2] GenerateTransform/Merge: Number of primary keys in base table doesn't match reference table. Table: [3] </td>
+		</row>
+		<row>
+			<td>2257</td>
+			<td>Database: [2]. Intent to modify read only table: [3] </td>
+		</row>
+		<row>
+			<td>2258</td>
+			<td>Database: [2]. Type mismatch in parameter: [3] </td>
+		</row>
+		<row>
+			<td>2259</td>
+			<td>Database: [2] Table(s) Update failed </td>
+		</row>
+		<row>
+			<td>2260</td>
+			<td>Storage CopyTo failed. System error: [3]    </td>
+		</row>
+		<row>
+			<td>2261</td>
+			<td>Could not remove stream [2]. System error: [3]    </td>
+		</row>
+		<row>
+			<td>2262</td>
+			<td>Stream does not exist: [2]. System error: [3] </td>
+		</row>
+		<row>
+			<td>2263</td>
+			<td>Could not open stream [2]. System error: [3] </td>
+		</row>
+		<row>
+			<td>2264</td>
+			<td>Could not remove stream [2]. System error: [3] </td>
+		</row>
+		<row>
+			<td>2265</td>
+			<td>Could not commit storage. System error: [3] </td>
+		</row>
+		<row>
+			<td>2266</td>
+			<td>Could not rollback storage. System error: [3] </td>
+		</row>
+		<row>
+			<td>2267</td>
+			<td>Could not delete storage [2]. System error: [3] </td>
+		</row>
+		<row>
+			<td>2268</td>
+			<td>Database: [2]. Merge: There were merge conflicts reported in [3] tables </td>
+		</row>
+		<row>
+			<td>2269</td>
+			<td>Database: [2]. Merge: The column count differed in the '[3]' table of the two databases </td>
+		</row>
+		<row>
+			<td>2270</td>
+			<td>Database: [2]. GenerateTransform/Merge: Column name in base table doesn't match reference table. Table: [3] Col #: [4] </td>
+		</row>
+		<row>
+			<td>2271</td>
+			<td>SummaryInformation write for transform failed </td>
+		</row>
+		<row>
+			<td>2272</td>
+			<td>Database: [2]. MergeDatabase will not write any changes because the database is open read-only. </td>
+		</row>
+		<row>
+			<td>2273</td>
+			<td>Database: [2]. MergeDatabase: A reference to the base database was passed as the reference database. </td>
+		</row>
+		<row>
+			<td>2274</td>
+			<td>Database: [2]. MergeDatabase: Unable to write errors to Error table. Could be due to a non-nullable column in a predefined Error table. </td>
+		</row>
+		<row>
+			<td>2275</td>
+			<td>Database: [2]. Specified Modify [3] operation invalid for table joins. </td>
+		</row>
+		<row>
+			<td>2276</td>
+			<td>Database: [2]. Code page [3] not supported by the system. </td>
+		</row>
+		<row>
+			<td>2277</td>
+			<td>Database: [2]. Failed to save table [3]. </td>
+		</row>
+		<row>
+			<td>2278</td>
+			<td>Database: [2]. Exceeded number of expressions limit of 32 in WHERE clause of SQL query: [3]. </td>
+		</row>
+		<row>
+			<td>2279</td>
+			<td>Database: [2] Transform: Too many columns in base table [3] </td>
+		</row>
+		<row>
+			<td>2280</td>
+			<td>Database: [2]. Could not create column [3] for table [4] </td>
+		</row>
+		<row>
+			<td>2281</td>
+			<td>Could not rename stream [2]. System error: [3]    </td>
+		</row>
+		<row>
+			<td>2282</td>
+			<td>Stream name invalid [2]. </td>
+		</row>
+		<row>
 			<td>23</td>
 			<td>Preparing to remove older versions of this application...</td>
+		</row>
+		<row>
+			<td>2302</td>
+			<td>Patch notify: [2] bytes patched to far. </td>
+		</row>
+		<row>
+			<td>2303</td>
+			<td>Error getting volume info. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2304</td>
+			<td>Error getting disk free space. GetLastError: [2]. Volume: [3] </td>
+		</row>
+		<row>
+			<td>2305</td>
+			<td>Error waiting for patch thread. GetLastError: [2]. </td>
+		</row>
+		<row>
+			<td>2306</td>
+			<td>Could not create thread for patch application. GetLastError: [2]. </td>
+		</row>
+		<row>
+			<td>2307</td>
+			<td>Source file key name is null. </td>
+		</row>
+		<row>
+			<td>2308</td>
+			<td>Destination File Name is Null </td>
+		</row>
+		<row>
+			<td>2309</td>
+			<td>Attempting to patch file [2] when patch already in progress. </td>
+		</row>
+		<row>
+			<td>2310</td>
+			<td>Attempting to continue patch when no patch is in progress. </td>
+		</row>
+		<row>
+			<td>2315</td>
+			<td>Missing Path Separator: [2] </td>
+		</row>
+		<row>
+			<td>2318</td>
+			<td>File does not exist: [2] </td>
+		</row>
+		<row>
+			<td>2319</td>
+			<td>Error setting file attribute: [3] GetLastError: [2</td>
+		</row>
+		<row>
+			<td>2320</td>
+			<td>File not writable: [2] </td>
+		</row>
+		<row>
+			<td>2321</td>
+			<td>Error creating file: [2] </td>
+		</row>
+		<row>
+			<td>2322</td>
+			<td>User canceled </td>
+		</row>
+		<row>
+			<td>2323</td>
+			<td>Invalid File Attribute </td>
+		</row>
+		<row>
+			<td>2324</td>
+			<td>Could not open file: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2325</td>
+			<td>Could not get file time for file: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2326</td>
+			<td>Error in FileToDosDateTime. </td>
+		</row>
+		<row>
+			<td>2327</td>
+			<td>Could not remove directory: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2328</td>
+			<td>Error getting file version info for file: [2] </td>
+		</row>
+		<row>
+			<td>2329</td>
+			<td>Error deleting file: [3]. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2330</td>
+			<td>Error getting file attributes: [3]. GetLastError: [2]</td>
+		</row>
+		<row>
+			<td>2331</td>
+			<td>Error loading library [2] or finding entry point [3] </td>
+		</row>
+		<row>
+			<td>2332</td>
+			<td>Error getting file attributes. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2333</td>
+			<td>Error setting file attributes. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2334</td>
+			<td>Error converting file time to local time for file: [3]. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2335</td>
+			<td>Path: [2] is not a parent of [3] </td>
+		</row>
+		<row>
+			<td>2336</td>
+			<td>Error creating temp file on path: [3]. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2337</td>
+			<td>Could not close file: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2338</td>
+			<td>Could not update resource for file: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2339</td>
+			<td>Could not set file time for file: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2340</td>
+			<td>Could not update resource for file: [3], Missing Resource </td>
+		</row>
+		<row>
+			<td>2341</td>
+			<td>Could not update resource for file: [3], Resource too large </td>
+		</row>
+		<row>
+			<td>2342</td>
+			<td>Could not update resource for file: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2343</td>
+			<td>Specified path is empty. </td>
+		</row>
+		<row>
+			<td>2344</td>
+			<td>Could not find required file IMAGEHLP.DLL to validate file:[2] </td>
+		</row>
+		<row>
+			<td>2345</td>
+			<td>[2]: File does not contain a valid checksum value. </td>
+		</row>
+		<row>
+			<td>2347</td>
+			<td>User ignore</td>
+		</row>
+		<row>
+			<td>2348</td>
+			<td>Error attempting to read from cabinet stream. </td>
+		</row>
+		<row>
+			<td>2349</td>
+			<td>Copy Resumed With Different Info </td>
+		</row>
+		<row>
+			<td>2350</td>
+			<td>FDI Server Error </td>
+		</row>
+		<row>
+			<td>2351</td>
+			<td>File key '[2]' not found in cabinet '[3]'. The installation cannot continue. </td>
+		</row>
+		<row>
+			<td>2352</td>
+			<td>Couldn't initialize cabinet file server. The required file 'Cabinet.dll' may be missing. </td>
+		</row>
+		<row>
+			<td>2353</td>
+			<td>Not a cabinet </td>
+		</row>
+		<row>
+			<td>2354</td>
+			<td>Cannot handle cabinet </td>
+		</row>
+		<row>
+			<td>2355</td>
+			<td>Corrupt cabinet </td>
+		</row>
+		<row>
+			<td>2356</td>
+			<td>Couldn't locate cabinet in stream: [2]. </td>
+		</row>
+		<row>
+			<td>2357</td>
+			<td>Cannot set attributes </td>
+		</row>
+		<row>
+			<td>2358</td>
+			<td>Error determining whether file is in-use: [3]. GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2359</td>
+			<td>Unable to create the target file - file may be in use.    </td>
+		</row>
+		<row>
+			<td>2360</td>
+			<td>progress tick. </td>
+		</row>
+		<row>
+			<td>2361</td>
+			<td>Need next cabinet. </td>
+		</row>
+		<row>
+			<td>2362</td>
+			<td>Folder not found: [2] </td>
+		</row>
+		<row>
+			<td>2363</td>
+			<td>Could not enumerate subfolders for folder: [2]    </td>
+		</row>
+		<row>
+			<td>2364</td>
+			<td>Bad enumeration constant in CreateCopier call. </td>
+		</row>
+		<row>
+			<td>2365</td>
+			<td>Could not BindImage exe file [2] </td>
+		</row>
+		<row>
+			<td>2366</td>
+			<td>User Failure </td>
+		</row>
+		<row>
+			<td>2367</td>
+			<td>User Abort. </td>
+		</row>
+		<row>
+			<td>2368</td>
+			<td>Failed to get network resource information. Error [2], network path [3]. Extended error: network provider [5], error code [4], error description [6]. </td>
+		</row>
+		<row>
+			<td>2370</td>
+			<td>Invalid CRC checksum value for [2] file.{ Its header says [3] for checksum, its computed value is [4].}</td>
+		</row>
+		<row>
+			<td>2371</td>
+			<td>Could not apply patch to file [2]. GetLastError: [3]</td>
+		</row>
+		<row>
+			<td>2372</td>
+			<td>Patch file [2] is corrupt or of an invalid format. Attempting to patch file [3]. GetLastError: [4]</td>
+		</row>
+		<row>
+			<td>2373</td>
+			<td>File [2] is not a valid patch file.</td>
+		</row>
+		<row>
+			<td>2374</td>
+			<td>File [2] is not a valid destination file for patch file [3].</td>
+		</row>
+		<row>
+			<td>2375</td>
+			<td>Unknown patching error: [2].</td>
+		</row>
+		<row>
+			<td>2376</td>
+			<td> Cabinet not found.  </td>
+		</row>
+		<row>
+			<td>2379</td>
+			<td>Error opening file for read: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2380</td>
+			<td>Error opening file for write: [3] GetLastError: [2] </td>
+		</row>
+		<row>
+			<td>2381</td>
+			<td>Directory does not exist: [2] </td>
+		</row>
+		<row>
+			<td>2382</td>
+			<td>Drive not ready: [2] </td>
+		</row>
+		<row>
+			<td>2401</td>
+			<td>64-bit registry operation attempted on 32-bit operating system for key [2].</td>
+		</row>
+		<row>
+			<td>2402</td>
+			<td>Out of memory.</td>
+		</row>
+		<row>
+			<td>2501</td>
+			<td>Could not create rollback script enumerator </td>
+		</row>
+		<row>
+			<td>2502</td>
+			<td>Called InstallFinalize when no install in progress. </td>
+		</row>
+		<row>
+			<td>2503</td>
+			<td>Called RunScript when not marked in progress. </td>
+		</row>
+		<row>
+			<td>2601</td>
+			<td>Invalid value for property [2]: '[3]' </td>
+		</row>
+		<row>
+			<td>2602</td>
+			<td>The [2] table entry '[3]' has no associated entry in the Media table. </td>
+		</row>
+		<row>
+			<td>2603</td>
+			<td>Duplicate Table Name [2] </td>
+		</row>
+		<row>
+			<td>2604</td>
+			<td>[2] property undefined. </td>
+		</row>
+		<row>
+			<td>2605</td>
+			<td> Could not find server [2] in [3] or [4].  </td>
+		</row>
+		<row>
+			<td>2606</td>
+			<td>Value of property [2] is not a valid full path: '[3]'. </td>
+		</row>
+		<row>
+			<td>2607</td>
+			<td>Media table not found or empty (required for installation of files). </td>
+		</row>
+		<row>
+			<td>2608</td>
+			<td>Could not create security descriptor for object. Error: '[2]'. </td>
+		</row>
+		<row>
+			<td>2609</td>
+			<td>Attempt to migrate product settings before initialization. </td>
+		</row>
+		<row>
+			<td>2611</td>
+			<td>The file [2] is marked as compressed, but the associated media entry does not specify a cabinet. </td>
+		</row>
+		<row>
+			<td>2612</td>
+			<td>Stream not found in '[2]' column. Primary key: '[3]'. </td>
+		</row>
+		<row>
+			<td>2613</td>
+			<td>RemoveExistingProducts action sequenced incorrectly. </td>
+		</row>
+		<row>
+			<td>2614</td>
+			<td>Could not access IStorage object from installation package. </td>
+		</row>
+		<row>
+			<td>2615</td>
+			<td>Skipped unregistration of Module [2] due to source resolution failure. </td>
+		</row>
+		<row>
+			<td>2616</td>
+			<td>Companion file [2] parent missing. </td>
+		</row>
+		<row>
+			<td>2617</td>
+			<td>Shared component [2] not found in Component table. </td>
+		</row>
+		<row>
+			<td>2618</td>
+			<td>Isolated application component [2] not found in Component table. </td>
+		</row>
+		<row>
+			<td>2619</td>
+			<td>Isolated components [2], [3] not part of same feature. </td>
+		</row>
+		<row>
+			<td>2620</td>
+			<td>Key file of isolated application component [2] not in File table. </td>
+		</row>
+		<row>
+			<td>2701</td>
+			<td>The Component Table exceeds the acceptable tree depth of [2] levels. </td>
+		</row>
+		<row>
+			<td>2702</td>
+			<td>A Feature Table record ([2]) references a non-existent parent in the Attributes field. </td>
+		</row>
+		<row>
+			<td>2703</td>
+			<td>Property name for root source path not defined: [2] </td>
+		</row>
+		<row>
+			<td>2704</td>
+			<td>Root directory property undefined: [2] </td>
+		</row>
+		<row>
+			<td>2705</td>
+			<td>Invalid table: [2]; Could not be linked as tree. </td>
+		</row>
+		<row>
+			<td>2706</td>
+			<td>Source paths not created. No path exists for entry [2] in Directory Table </td>
+		</row>
+		<row>
+			<td>2707</td>
+			<td>Target paths not created. No path exists for entry [2] in Directory Table </td>
+		</row>
+		<row>
+			<td>2708</td>
+			<td>No entries found in the file table. </td>
+		</row>
+		<row>
+			<td>2709</td>
+			<td>The specified Component name ('[2]') not found in Component Table. </td>
+		</row>
+		<row>
+			<td>2710</td>
+			<td>The requested 'Select' state is illegal for this Component. </td>
+		</row>
+		<row>
+			<td>2711</td>
+			<td>The specified Feature name ('[2]') not found in Feature Table. </td>
+		</row>
+		<row>
+			<td>2712</td>
+			<td>Invalid return from modeless dialog: [3], in action [2]. </td>
+		</row>
+		<row>
+			<td>2713</td>
+			<td>Null value in a non-nullable column ('[2]' in '[3]' column of the '[4]' table. </td>
+		</row>
+		<row>
+			<td>2714</td>
+			<td>Invalid value for default folder name: [2]. </td>
+		</row>
+		<row>
+			<td>2715</td>
+			<td>The specified File key ('[2]') not found in the File Table. </td>
+		</row>
+		<row>
+			<td>2716</td>
+			<td>Couldn't create a random subcomponent name for component '[2]'. </td>
+		</row>
+		<row>
+			<td>2717</td>
+			<td>Bad action condition or error calling custom action '[2]'. </td>
+		</row>
+		<row>
+			<td>2718</td>
+			<td>Missing package name for product code '[2]'. </td>
+		</row>
+		<row>
+			<td>2719</td>
+			<td>Neither UNC nor drive letter path found in source '[2]'. </td>
+		</row>
+		<row>
+			<td>2720</td>
+			<td>Error opening sourcelist key. Error: '[2]' </td>
+		</row>
+		<row>
+			<td>2721</td>
+			<td>Custom action [2] not found in Binary table stream </td>
+		</row>
+		<row>
+			<td>2722</td>
+			<td>Custom action [2] not found in File table </td>
+		</row>
+		<row>
+			<td>2723</td>
+			<td>Custom action [2] specifies unsupported type </td>
+		</row>
+		<row>
+			<td>2724</td>
+			<td>The volume label '[2]' on the media you're running from doesn't match the label '[3]' given in the Media table. This is allowed only if you have only 1 entry in your Media table. </td>
+		</row>
+		<row>
+			<td>2725</td>
+			<td>Invalid database tables </td>
+		</row>
+		<row>
+			<td>2726</td>
+			<td>Action not found: [2] </td>
+		</row>
+		<row>
+			<td>2727</td>
+			<td>The directory entry '[2]' does not exist in the Directory table </td>
+		</row>
+		<row>
+			<td>2728</td>
+			<td>Table definition error: [2] </td>
+		</row>
+		<row>
+			<td>2729</td>
+			<td>Install engine not initialized. </td>
+		</row>
+		<row>
+			<td>2730</td>
+			<td>Bad value in database. Table: '[2]'; Primary key: '[3]'; Column: '[4]' </td>
+		</row>
+		<row>
+			<td>2731</td>
+			<td>Selection Manager not initialized. </td>
+		</row>
+		<row>
+			<td>2732</td>
+			<td>Directory Manager not initialized. </td>
+		</row>
+		<row>
+			<td>2733</td>
+			<td>Bad foreign key ('[2]') in '[3]' column of the '[4]' table. </td>
+		</row>
+		<row>
+			<td>2734</td>
+			<td>Invalid Reinstall mode character. </td>
+		</row>
+		<row>
+			<td>2735</td>
+			<td>Custom action '[2]' has caused an unhandled exception and has been stopped. This may be the result of an internal error in the custom action, such as an access violation.</td>
+		</row>
+		<row>
+			<td>2736</td>
+			<td>Generation of custom action temp file failed: [2] </td>
+		</row>
+		<row>
+			<td>2737</td>
+			<td>Could not access custom action [2], entry [3], library [4] </td>
+		</row>
+		<row>
+			<td>2738</td>
+			<td>Could not access VBScript runtime for custom action [2] </td>
+		</row>
+		<row>
+			<td>2739</td>
+			<td>Could not access JavaScript runtime for custom action [2] </td>
+		</row>
+		<row>
+			<td>2740</td>
+			<td>Custom action [2] script error [3], [4]: [5] Line [6], Column [7], [8] </td>
+		</row>
+		<row>
+			<td>2741</td>
+			<td>Configuration information for product [2] is corrupt. Invalid info: [2] </td>
+		</row>
+		<row>
+			<td>2742</td>
+			<td>Marshaling to Server failed: [2] </td>
+		</row>
+		<row>
+			<td>2743</td>
+			<td>Could not execute custom action [2], location: [3], command: [4] </td>
+		</row>
+		<row>
+			<td>2744</td>
+			<td>EXE failed called by custom action [2], location: [3], command: [4] </td>
+		</row>
+		<row>
+			<td>2745</td>
+			<td>Transform [2] invalid for package [3]. Expected language [4], found language [5]. </td>
+		</row>
+		<row>
+			<td>2746</td>
+			<td>Transform [2] invalid for package [3]. Expected product [4], found product [5]. </td>
+		</row>
+		<row>
+			<td>2747</td>
+			<td>Transform [2] invalid for package [3]. Expected product version &lt; [4], found product version [5]. </td>
+		</row>
+		<row>
+			<td>2748</td>
+			<td>Transform [2] invalid for package [3]. Expected product version &lt;= [4], found product version [5]. </td>
+		</row>
+		<row>
+			<td>2749</td>
+			<td>Transform [2] invalid for package [3]. Expected product version == [4], found product version [5]. </td>
+		</row>
+		<row>
+			<td>2750</td>
+			<td>Transform [2] invalid for package [3]. Expected product version &gt;= [4], found product version [5]. </td>
+		</row>
+		<row>
+			<td>2751</td>
+			<td>Transform [2] invalid for package [3]. Expected product version &gt; [4], found product version [5].    </td>
+		</row>
+		<row>
+			<td>2752</td>
+			<td>Could not open transform [2] stored as child storage of package [4]. </td>
+		</row>
+		<row>
+			<td>2753</td>
+			<td>The File '[2]' is not marked for installation. </td>
+		</row>
+		<row>
+			<td>2754</td>
+			<td>The File '[2]' is not a valid patch file. </td>
+		</row>
+		<row>
+			<td>2755</td>
+			<td>Server returned unexpected error [2] attempting to install package [3]. </td>
+		</row>
+		<row>
+			<td>2756</td>
+			<td>The property '[2]' was used as a directory property in one or more tables, but no value was ever assigned. </td>
+		</row>
+		<row>
+			<td>2757</td>
+			<td>Could not create summary info for transform [2].    </td>
+		</row>
+		<row>
+			<td>2758</td>
+			<td>Transform [2] doesn't contain a MSI version. </td>
+		</row>
+		<row>
+			<td>2759</td>
+			<td>Transform [2] version [3] incompatible with engine; Min: [4], Max: [5]. </td>
+		</row>
+		<row>
+			<td>2760</td>
+			<td>Transform [2] invalid for package [3]. Expected upgrade code [4], found [5]. </td>
+		</row>
+		<row>
+			<td>2761</td>
+			<td>Cannot begin transaction. Global mutex not properly initialized. </td>
+		</row>
+		<row>
+			<td>2762</td>
+			<td>Cannot write script record. Transaction not started. </td>
+		</row>
+		<row>
+			<td>2763</td>
+			<td>Cannot run script. Transaction not started. </td>
+		</row>
+		<row>
+			<td>2765</td>
+			<td>Assembly name missing from AssemblyName table : Component: [4].</td>
+		</row>
+		<row>
+			<td>2766</td>
+			<td>The file [2] is an invalid MSI storage file.</td>
+		</row>
+		<row>
+			<td>2767</td>
+			<td>No more data{ while enumerating [2]}.</td>
+		</row>
+		<row>
+			<td>2768</td>
+			<td>Transform in patch package is invalid.</td>
+		</row>
+		<row>
+			<td>2769</td>
+			<td>Custom Action [2] did not close [3] MSIHANDLEs.</td>
+		</row>
+		<row>
+			<td>2770</td>
+			<td>Cached folder [2] not defined in internal cache folder table.</td>
+		</row>
+		<row>
+			<td>2801</td>
+			<td>Unknown Message -- Type [2]. No action is taken </td>
+		</row>
+		<row>
+			<td>2802</td>
+			<td>No publisher is found for the event [2] </td>
+		</row>
+		<row>
+			<td>2803</td>
+			<td>Dialog View did not find a record for the dialog [2] </td>
+		</row>
+		<row>
+			<td>2804</td>
+			<td>On activation of the control [3] on dialog [2] CMsiDialog failed to evaluate the condition [3] </td>
+		</row>
+		<row>
+			<td>2805</td>
+			<td>???</td>
+		</row>
+		<row>
+			<td>2806</td>
+			<td>The dialog [2] failed to evaluate the condition [3] </td>
+		</row>
+		<row>
+			<td>2807</td>
+			<td>The action [2] is not recognized </td>
+		</row>
+		<row>
+			<td>2808</td>
+			<td>Default button is ill-defined on dialog [2] </td>
+		</row>
+		<row>
+			<td>2809</td>
+			<td>On the dialog [2] the next control pointers do not form a cycle. There is a pointer from [3] to [4], but there is no further pointer </td>
+		</row>
+		<row>
+			<td>2810</td>
+			<td>On the dialog [2] the next control pointers do not form a cycle. There is a pointer from both [3] and [5] to [4] </td>
+		</row>
+		<row>
+			<td>2811</td>
+			<td>On dialog [2] control [3] has to take focus, but it is unable to do so </td>
+		</row>
+		<row>
+			<td>2812</td>
+			<td>The event [2] is not recognized </td>
+		</row>
+		<row>
+			<td>2813</td>
+			<td>The EndDialog event was called with the argument [2], but the dialog has a parent </td>
+		</row>
+		<row>
+			<td>2814</td>
+			<td>On the dialog [2] the control [3] names a non-existent control [4] as the next control </td>
+		</row>
+		<row>
+			<td>2815</td>
+			<td>ControlCondition table has a row without condition for the dialog [2] </td>
+		</row>
+		<row>
+			<td>2816</td>
+			<td>The EventMapping table refers to an invalid control [4] on dialog [2] for the event [3] </td>
+		</row>
+		<row>
+			<td>2817</td>
+			<td>The event [2] failed to set the attribute for the control [4] on dialog [3] </td>
+		</row>
+		<row>
+			<td>2818</td>
+			<td>In the ControlEvent table EndDialog has an unrecognized argument [2] </td>
+		</row>
+		<row>
+			<td>2819</td>
+			<td>Control [3] on dialog [2] needs a property linked to it </td>
+		</row>
+		<row>
+			<td>2820</td>
+			<td>Attempted to initialize an already initialized handler </td>
+		</row>
+		<row>
+			<td>2821</td>
+			<td>Attempted to initialize an already initialized dialog: [2]</td>
+		</row>
+		<row>
+			<td>2822</td>
+			<td>No other method can be called on dialog [2] until all the controls are added </td>
+		</row>
+		<row>
+			<td>2823</td>
+			<td>Attempted to initialize an already initialized control: [3] on dialog [2] </td>
+		</row>
+		<row>
+			<td>2824</td>
+			<td>The dialog attribute [3] needs a record of at least [2] field(s) </td>
+		</row>
+		<row>
+			<td>2825</td>
+			<td>The control attribute [3] needs a record of at least [2] field(s) </td>
+		</row>
+		<row>
+			<td>2826</td>
+			<td>Control [3] on dialog [2] extends beyond the boundaries of the dialog [4] by [5] pixels </td>
+		</row>
+		<row>
+			<td>2827</td>
+			<td>The button [4] on the radio button group [3] on dialog [2] extends beyond the boundaries of the group [5] by [6] pixels </td>
+		</row>
+		<row>
+			<td>2828</td>
+			<td>Tried to remove control [3] from dialog [2], but the control is not part of the dialog </td>
+		</row>
+		<row>
+			<td>2829</td>
+			<td>Attempt to use an uninitialized dialog </td>
+		</row>
+		<row>
+			<td>2830</td>
+			<td>Attempt to use an uninitialized control on dialog [2] </td>
+		</row>
+		<row>
+			<td>2831</td>
+			<td>The control [3] on dialog [2] does not support [5] the attribute [4] </td>
+		</row>
+		<row>
+			<td>2832</td>
+			<td>The dialog [2] does not support the attribute [3] </td>
+		</row>
+		<row>
+			<td>2833</td>
+			<td>Control [4] on dialog [3] ignored the message [2] </td>
+		</row>
+		<row>
+			<td>2834</td>
+			<td>The next pointers on the dialog [2] do not form a single loop </td>
+		</row>
+		<row>
+			<td>2835</td>
+			<td>The control [2] was not found on dialog [3] </td>
+		</row>
+		<row>
+			<td>2836</td>
+			<td>The control [3] on the dialog [2] cannot take focus </td>
+		</row>
+		<row>
+			<td>2837</td>
+			<td>The control [3] on dialog [2] wants the winproc to return [4] </td>
+		</row>
+		<row>
+			<td>2838</td>
+			<td>The item [2] in the selection table has itself as a parent </td>
+		</row>
+		<row>
+			<td>2839</td>
+			<td>Setting the property [2] failed    </td>
+		</row>
+		<row>
+			<td>2840</td>
+			<td>Error dialog name mismatch    </td>
+		</row>
+		<row>
+			<td>2841</td>
+			<td>No OK button was found on the error dialog    </td>
+		</row>
+		<row>
+			<td>2842</td>
+			<td>No text field was found on the error dialog    </td>
+		</row>
+		<row>
+			<td>2843</td>
+			<td>The ErrorString attribute is not supported for standard dialogs    </td>
+		</row>
+		<row>
+			<td>2844</td>
+			<td>Cannot execute an error dialog if the Errorstring is not set    </td>
+		</row>
+		<row>
+			<td>2845</td>
+			<td>The total width of the buttons exceeds the size of the error dialog    </td>
+		</row>
+		<row>
+			<td>2846</td>
+			<td>SetFocus did not find the required control on the error dialog    </td>
+		</row>
+		<row>
+			<td>2847</td>
+			<td>The control [3] on dialog [2] has both the icon and the bitmap style set    </td>
+		</row>
+		<row>
+			<td>2848</td>
+			<td>Tried to set control [3] as the default button on dialog [2], but the control does not exist    </td>
+		</row>
+		<row>
+			<td>2849</td>
+			<td>The control [3] on dialog [2] is of a type, that cannot be integer valued    </td>
+		</row>
+		<row>
+			<td>2850</td>
+			<td>Unrecognized volume type    </td>
+		</row>
+		<row>
+			<td>2851</td>
+			<td>The data for the icon [2] is not valid    </td>
+		</row>
+		<row>
+			<td>2852</td>
+			<td>At least one control has to be added to dialog [2] before it is used    </td>
+		</row>
+		<row>
+			<td>2853</td>
+			<td>Dialog [2] is a modeless dialog. The execute method should not be called on it    </td>
+		</row>
+		<row>
+			<td>2854</td>
+			<td>On the dialog [2] the control [3] is designated as first active control, but there is no such control    </td>
+		</row>
+		<row>
+			<td>2855</td>
+			<td>The radio button group [3] on dialog [2] has fewer than 2 buttons    </td>
+		</row>
+		<row>
+			<td>2856</td>
+			<td>Creating a second copy of the dialog [2]    </td>
+		</row>
+		<row>
+			<td>2857</td>
+			<td>The directory [2] is mentioned in the selection table but not found    </td>
+		</row>
+		<row>
+			<td>2858</td>
+			<td>The data for the bitmap [2] is not valid    </td>
+		</row>
+		<row>
+			<td>2859</td>
+			<td>Test error message    </td>
+		</row>
+		<row>
+			<td>2860</td>
+			<td>Cancel button is ill-defined on dialog [2]    </td>
+		</row>
+		<row>
+			<td>2861</td>
+			<td>The next pointers for the radio buttons on dialog [2] control [3] do not form a cycle    </td>
+		</row>
+		<row>
+			<td>2862</td>
+			<td>The attributes for the control [3] on dialog [2] do not define a valid icon size. Setting the size to 16    </td>
+		</row>
+		<row>
+			<td>2863</td>
+			<td>The control [3] on dialog [2] needs the icon [4] in size [5]x[5], but that size is not available. Loading the first available size    </td>
+		</row>
+		<row>
+			<td>2864</td>
+			<td>The control [3] on dialog [2] received a browse event, but there is no configurable directory for the present selection. Likely cause: browse button is not authored correctly    </td>
+		</row>
+		<row>
+			<td>2865</td>
+			<td>Control [3] on billboard [2] extends beyond the boundaries of the billboard [4] by [5] pixels    </td>
+		</row>
+		<row>
+			<td>2866</td>
+			<td>The dialog [2] is not allowed to return the argument [3]    </td>
+		</row>
+		<row>
+			<td>2867</td>
+			<td>The error dialog property is not set    </td>
+		</row>
+		<row>
+			<td>2868</td>
+			<td>The error dialog [2] does not have the error style bit set    </td>
+		</row>
+		<row>
+			<td>2869</td>
+			<td>The dialog [2] has the error style bit set, but is not an error dialog    </td>
+		</row>
+		<row>
+			<td>2870</td>
+			<td>The help string [4] for control [3] on dialog [2] does not contain the separator character    </td>
+		</row>
+		<row>
+			<td>2871</td>
+			<td>The [2] table is out of date: [3]    </td>
+		</row>
+		<row>
+			<td>2872</td>
+			<td>The argument of the CheckPath control event on dialog [2] is invalid Where "CheckPath" can be the CheckTargetPath, SetTargetPath or the CheckExistingTargetPath control events. </td>
+		</row>
+		<row>
+			<td>2873</td>
+			<td>On the dialog [2] the control [3] has an invalid string length limit: [4]    </td>
+		</row>
+		<row>
+			<td>2874</td>
+			<td>Changing the text font to [2] failed    </td>
+		</row>
+		<row>
+			<td>2875</td>
+			<td>Changing the text color to [2] failed    </td>
+		</row>
+		<row>
+			<td>2876</td>
+			<td>The control [3] on dialog [2] had to truncate the string: [4]    </td>
+		</row>
+		<row>
+			<td>2877</td>
+			<td>The binary data [2] was not found    </td>
+		</row>
+		<row>
+			<td>2878</td>
+			<td>On the dialog [2] the control [3] has a possible value: [4]. This is an invalid or duplicate value.    </td>
+		</row>
+		<row>
+			<td>2879</td>
+			<td>The control [3] on dialog [2] cannot parse the mask string: [4]    </td>
+		</row>
+		<row>
+			<td>2880</td>
+			<td>Do not perform the remaining control events.    </td>
+		</row>
+		<row>
+			<td>2881</td>
+			<td>CMsiHandler initialization failed    </td>
+		</row>
+		<row>
+			<td>2882</td>
+			<td>Dialog window class registration failed    </td>
+		</row>
+		<row>
+			<td>2883</td>
+			<td>CreateNewDialog failed for the dialog [2]    </td>
+		</row>
+		<row>
+			<td>2884</td>
+			<td>Failed to create a window for the dialog [2]!    </td>
+		</row>
+		<row>
+			<td>2885</td>
+			<td>Failed to create the control [3] on the dialog [2]    </td>
+		</row>
+		<row>
+			<td>2886</td>
+			<td>Creating the [2] table failed    </td>
+		</row>
+		<row>
+			<td>2887</td>
+			<td>Creating a cursor to the [2] table failed    </td>
+		</row>
+		<row>
+			<td>2888</td>
+			<td>Executing the [2] view failed    </td>
+		</row>
+		<row>
+			<td>2889</td>
+			<td>Creating the window for the control [3] on dialog [2] failed    </td>
+		</row>
+		<row>
+			<td>2890</td>
+			<td>The handler failed in creating an initialized dialog    </td>
+		</row>
+		<row>
+			<td>2891</td>
+			<td>Failed to destroy window for dialog [2]    </td>
+		</row>
+		<row>
+			<td>2892</td>
+			<td>[2] is an integer only control, [3] is not a valid integer value    </td>
+		</row>
+		<row>
+			<td>2893</td>
+			<td>The control [3] on dialog [2] can accept property values that are at most [5] characters long. The value [4] exceeds this limit, and has been truncated.    </td>
+		</row>
+		<row>
+			<td>2894</td>
+			<td>Loading RichEd20.dll failed. GetLastError() returned: [2]    </td>
+		</row>
+		<row>
+			<td>2895</td>
+			<td>Freeing RichEd20.dll failed. GetLastError() returned: [2]    </td>
+		</row>
+		<row>
+			<td>2896</td>
+			<td>Executing action [2] failed.    </td>
+		</row>
+		<row>
+			<td>2897</td>
+			<td>Failed to create any [2] font on this system.    </td>
+		</row>
+		<row>
+			<td>2898</td>
+			<td>For [2] textstyle, the system created a '[3]' font, in [4] character set.    </td>
+		</row>
+		<row>
+			<td>2899</td>
+			<td>Failed to create [2] textstyle. GetLastError() returned: [3].</td>
+		</row>
+		<row>
+			<td>2901</td>
+			<td>Invalid parameter to operation [2]: Parameter [3]    </td>
+		</row>
+		<row>
+			<td>2902</td>
+			<td>Operation [2] called out of sequence.    </td>
+		</row>
+		<row>
+			<td>2903</td>
+			<td>The file [2] is missing    </td>
+		</row>
+		<row>
+			<td>2904</td>
+			<td>Could not BindImage file [2].    </td>
+		</row>
+		<row>
+			<td>2905</td>
+			<td>Could not read record from script file [2].    </td>
+		</row>
+		<row>
+			<td>2906</td>
+			<td>Missing header in script file [2].    </td>
+		</row>
+		<row>
+			<td>2907</td>
+			<td>Could not create secure security descriptor. Error: [2]    </td>
+		</row>
+		<row>
+			<td>2908</td>
+			<td>Could not register component [2].    </td>
+		</row>
+		<row>
+			<td>2909</td>
+			<td>Could not unregister component [2].    </td>
+		</row>
+		<row>
+			<td>2910</td>
+			<td>Could not determine user's security id.    </td>
+		</row>
+		<row>
+			<td>2911</td>
+			<td>Could not remove the folder [2].    </td>
+		</row>
+		<row>
+			<td>2912</td>
+			<td>Could not schedule file [2] for removal on reboot.    </td>
+		</row>
+		<row>
+			<td>2919</td>
+			<td>No cabinet specified for compressed file: [2]    </td>
+		</row>
+		<row>
+			<td>2920</td>
+			<td>Source directory not specified for file [2].    </td>
+		</row>
+		<row>
+			<td>2924</td>
+			<td>Script [2] version unsupported. Script version: [3], minimum version: [4], maximum version: [5].    </td>
+		</row>
+		<row>
+			<td>2927</td>
+			<td>ShellFolder id [2] is invalid.    </td>
+		</row>
+		<row>
+			<td>2928</td>
+			<td>Exceeded maximum number of sources. Skipping source '[2]'.    </td>
+		</row>
+		<row>
+			<td>2929</td>
+			<td>Could not determine publishing root. Error: [2]    </td>
+		</row>
+		<row>
+			<td>2932</td>
+			<td>Could not create file [2] from script data. Error: [3]    </td>
+		</row>
+		<row>
+			<td>2933</td>
+			<td>Could not initialize rollback script [2].    </td>
+		</row>
+		<row>
+			<td>2934</td>
+			<td>Could not secure transform [2]. Error [3]    </td>
+		</row>
+		<row>
+			<td>2935</td>
+			<td>Could not un-secure transform [2]. Error [3]    </td>
+		</row>
+		<row>
+			<td>2936</td>
+			<td>Could not find transform [2].    </td>
+		</row>
+		<row>
+			<td>2937</td>
+			<td>The Windows Installer cannot install a system file protection catalog. Catalog: [2], Error: [3]</td>
+		</row>
+		<row>
+			<td>2938</td>
+			<td>The Windows Installer cannot retrieve a system file protection catalog from the cache. Catalog: [2], Error: [3] </td>
+		</row>
+		<row>
+			<td>2939</td>
+			<td>The Windows Installer cannot delete a system file protection catalog from the cache. Catalog: [2], Error: [3] </td>
+		</row>
+		<row>
+			<td>2940</td>
+			<td>Directory Manager not supplied for source resolution. </td>
+		</row>
+		<row>
+			<td>2941</td>
+			<td>Unable to compute the CRC for file [2]. </td>
+		</row>
+		<row>
+			<td>2942</td>
+			<td>BindImage action has not been executed on [2] file.  </td>
+		</row>
+		<row>
+			<td>2943</td>
+			<td>This version of Windows does not support deploying 64-bit packages. The script [2] is for a 64-bit package. </td>
+		</row>
+		<row>
+			<td>2944</td>
+			<td>GetProductAssignmentType failed. </td>
 		</row>
 		<row>
 			<td>3</td>
