@@ -192,7 +192,8 @@ struct thread_args
 struct s_monitor_key
 {
     s_monitor_key()
-        : m_key(NULL),
+        : m_root(0),
+        m_key(0),
         m_name(),
         m_subkey(),
         m_modified(false),
@@ -200,14 +201,46 @@ struct s_monitor_key
         m_subkeys()
     {}
     s_monitor_key(HKEY root, LPCTSTR name, LPCTSTR subkey = NULL)
-        : m_key(root),
+        : m_root(root),
+        m_key(0),
         m_name(name),
         m_subkey(subkey ? subkey : _T("")),
         m_modified(false),
         m_values(),
         m_subkeys()
-    {}
-    ~s_monitor_key() {}
+    {
+        CRegKey tmp;
+        TRS(tmp.Open(root, subkey, KEY_READ));
+        m_key = tmp.Detach();
+    }
+    s_monitor_key(const s_monitor_key &rhs)
+        : m_root(rhs.m_root),
+        m_key(0),
+        m_name(rhs.m_name),
+        m_subkey(rhs.m_subkey),
+        m_modified(rhs.m_modified),
+        m_values(rhs.m_values),
+        m_subkeys(rhs.m_subkeys)
+    {
+        if (rhs.m_key)
+        {
+            CRegKey tmp;
+            TRS(tmp.Open(rhs.m_root, rhs.m_subkey.c_str(), KEY_READ));
+            m_key = tmp.Detach();
+        }
+    }
+    ~s_monitor_key()
+    {
+        if (m_key)
+        {
+            const LONG res = ::RegCloseKey(m_key);
+            ATLASSERT(res == ERROR_SUCCESS);
+        }
+        m_key = 0;
+    }
+
+    HANDLE subscribe();
+    void unsubscribe();
 
     void snapshot();
     void extract_app_id(app_id_table_t &appid,
@@ -245,6 +278,7 @@ struct s_monitor_key
                                 const tstring &component,
                                 const tstring &feature) const;
 
+    HKEY m_root;
     HKEY m_key;
     tstring m_name;
     tstring m_subkey;
