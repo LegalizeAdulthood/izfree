@@ -23,6 +23,8 @@
 
 import "oaidl.idl";
 import "ocidl.idl";
+
+/////////////////////////////////////////////////////////////////////////////
 [
 	object,
 	uuid(67E7999E-9B44-4CB3-974A-235670564EC8),
@@ -35,18 +37,22 @@ interface IGenerator : IDispatch
 	[id(1), helpstring("method Generate")]
     HRESULT Generate([out, retval] BSTR *guid);
 };
-	[
-		object,
-		uuid(D242E8F4-F93F-408D-B0CB-0AF9F9851E5F),
-		dual,
-		helpstring("IFileVersion Interface"),
-		pointer_default(unique)
-	]
-	interface IFileVersion : IDispatch
-	{
-		[propget, id(1), helpstring("property Version")] HRESULT Version([in] BSTR file, [out, retval] BSTR *pVal);
-	};
 
+/////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(D242E8F4-F93F-408D-B0CB-0AF9F9851E5F),
+	dual,
+	helpstring("IFileVersion Interface"),
+	pointer_default(unique)
+]
+interface IFileVersion : IDispatch
+{
+	[propget, id(1), helpstring("property Version")]
+    HRESULT Version([in] BSTR file, [out, retval] BSTR *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
 [
 	uuid(699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC),
 	version(1.0),
