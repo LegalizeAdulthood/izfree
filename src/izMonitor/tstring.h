@@ -26,5 +26,6 @@
 
 typedef std::basic_string<TCHAR> tstring;
 typedef std::basic_ostringstream<TCHAR> tostringstream;
+typedef std::basic_istringstream<TCHAR> tistringstream;
 
 #endif
