@@ -19,8 +19,12 @@
 #define TSTRING_H
 
 #include <string>
+#include <sstream>
+#include <iomanip>
+
 #include <tchar.h>
 
 typedef std::basic_string<TCHAR> tstring;
+typedef std::basic_ostringstream<TCHAR> tostringstream;
 
 #endif
