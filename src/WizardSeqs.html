@@ -2,7 +2,7 @@
 <HEAD>
 <!--
     izfree Tools for Windows Installer 1.1
-    Copyright (C) 2001 Pahvant Technologies, Inc.
+    Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ sub load_wizards(list, db)
 
     ' load all wizard starting points from the UI sequence table
     dim view : set view = exec_view(db, "select `Action` from " &_
-        "`InstallUISequence` order by `Sequence`")
+        "`InstallUISequence` where `Sequence` >= 0 order by `Sequence`")
     dim rec : set rec = view.fetch
     dim ui_dialogs()
     do while (not rec is nothing)
@@ -75,6 +75,8 @@ sub load_wizards(list, db)
     next
     sort all_dlgs
     load_opts document.all("dialogs").options, all_dlgs
+    document.all("dialogs").value = list.value
+    dialogs_onChange
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -154,11 +156,11 @@ sub clone_event_mapping_table(parent, clone)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' update_dialog_tool
+' update_dialog_buttons
 '
 ' Update form UI state based on current values
 '
-sub update_dialog_tool
+sub update_dialog_buttons
     dim all : set all = document.forms("Wizards").all
     dim disabled : disabled = (db() is nothing) or _
         (g_preview is nothing) or (all("dialogs").selectedIndex = -1)
@@ -223,7 +225,7 @@ end sub
 sub clear_onClick
     g_current_dialog = ""
     g_preview.viewdialog(g_current_dialog)
-    update_dialog_tool
+    update_dialog_buttons
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -272,10 +274,8 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub dialogs_onChange
     dim sel : set sel = document.all("dialogs")
-    dim dlg : dlg = sel.options(sel.selectedIndex).value
-    preview_dialog dlg
+    dim dlg : dlg = sel.value
     if (sel.selectedIndex >= 0) then
-
         dim vu : set vu = db().OpenView("select `Control_`,`Argument` " &_
             "from `ControlEvent` where `Event` = 'NewDialog' " &_
             "and `Dialog_` = '" & dlg & "'")
@@ -289,10 +289,13 @@ sub dialogs_onChange
         loop
         vu.close : check
 
-        load_opts document.all("sequence").options, evts
+        load_opts document.all("events").options, evts
     end if
+    document.all("ordering").innerText = ""
+    document.all("condition").innerText = ""
 
-    update_dialog_tool
+    update_dialog_buttons
+    preview_dialog dlg
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -312,12 +315,12 @@ sub preview_onClick
         g_current_dialog = list.options(selected).value
         g_preview.viewDialog g_current_dialog
     end if
-    update_dialog_tool
+    update_dialog_buttons
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub sequence_onChange
-    dim seq : set seq = document.all("sequence")
+sub events_onChange
+    dim seq : set seq = document.all("events")
     if (seq.selectedIndex >= 0) then
         dim dlg : dlg = selected_option(document.all("dialogs"))
         dim evt : evt = split(selected_option(seq), " ")
@@ -338,19 +341,28 @@ sub sequence_onChange
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub sequence_onDblClick
-    dim dlg : dlg = split(selected_option(document.all("sequence")), " ")(2)
+sub events_onDblClick
+    dim dlg : dlg = split(selected_option(document.all("events")), " ")(2)
     document.all("dialogs").value = dlg
     dialogs_onChange
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub load_standard_dialogs(all, db)
+    all("fatalErrorDlg").innerText = get_ui_action(db, -3)
+    all("userExitDlg").innerText = get_ui_action(db, -2)
+    all("exitDlg").innerText = get_ui_action(db, -1)
+    all("errorDlg").innerText = get_property(db, "ErrorDialog")
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
     dim all : set all = document.forms("Wizards").all
+    load_standard_dialogs all, db()
     load_wizards all("actions"), db()
     set g_preview = db().enableuipreview
     set all = nothing
-    update_dialog_tool
+    update_dialog_buttons
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -360,6 +372,17 @@ sub window_onBeforeUnload
         set g_preview = nothing
     end if
 end sub
+
+sub set_dialog_text(id)
+    dim dlg : dlg = document.all(id).innerText
+    document.all("dialogs").value = dlg
+    dialogs_onChange
+end sub
+
+sub fatalErrorDlg_onClick   : set_dialog_text "fatalErrorDlg"   : end sub
+sub userExitDlg_onClick     : set_dialog_text "userExitDlg"     : end sub
+sub exitDlg_onClick         : set_dialog_text "exitDlg"         : end sub
+sub errorDlg_onClick        : set_dialog_text "errorDlg"        : end sub
 
 sub actions_onChange
     document.all("dialogs").value = document.all("actions").value
@@ -371,30 +394,37 @@ end sub
 <BODY>
 
 <P><FORM NAME="Wizards">
-<TABLE>
-<TR><TD>
-<TABLE>
-<TR><TD>
-<INPUT TYPE="button" VALUE="Preview" disabled id=preview>
-<INPUT TYPE="button" VALUE="Clear" disabled id=clear>
-<INPUT TYPE="button" VALUE="Clone..." disabled id=clone>
-</TD></TR>
-<TR><TD>
-<TABLE>
-<TR>
-<TD><SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT><BR>
-<SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=12></SELECT><BR>
-<SELECT ID="sequence" CLASS="listBox" SIZE=6></SELECT></TD>
-<TD VALIGN="top"><TABLE>
-<TR><TD ALIGN="right"><STRONG>Ordering:</STRONG></TD><TD ID="ordering"></TD></TR>
-<TR><TD ALIGN="right"><STRONG>Condition:</STRONG></TD><TD ID="condition"></TD></TR>
-</TABLE></TD>
-</TR>
-</TABLE>
-</TD>
-</TR>
-</TABLE>
-</TD></TR>
+<TABLE WIDTH=100%>
+    <TR><TD>
+        <INPUT TYPE="button" VALUE="Preview" disabled id=preview>
+        <INPUT TYPE="button" VALUE="Clear" disabled id=clear>
+        <INPUT TYPE="button" VALUE="Clone..." disabled id=clone>
+    </TD></TR>
+    <TR><TD><TABLE>
+        <TR><TD>
+            <STRONG>UI Sequence Dialogs:</STRONG><BR>
+            <SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT><BR>
+            <STRONG>Dialogs:</STRONG><BR>
+            <SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=12></SELECT><BR>
+            <SELECT ID="events" CLASS="listBox" SIZE=6></SELECT>
+        </TD>
+        <TD VALIGN="top"><TABLE>
+            <TR><TD COLSPAN=2><STRONG>Standard Dialogs:</STRONG><BR>
+                <TABLE>
+                    <TR><TD ALIGN="right"><STRONG>Fatal Error (-3):</STRONG></TD>
+                    <TD ID="fatalErrorDlg" CLASS="anchor"></TD></TR>
+                    <TR><TD ALIGN="right"><STRONG>User Exit (-2):</STRONG></TD>
+                    <TD ID="userExitDlg" CLASS="anchor"></TD></TR>
+                    <TR><TD ALIGN="right"><STRONG>Exit (-1):</STRONG></TD>
+                    <TD ID="exitDlg" CLASS="anchor"></TD></TR>
+                    <TR><TD ALIGN="right"><STRONG>ErrorDialog Property:</STRONG></TD>
+                    <TD ID="errorDlg" CLASS="anchor"></TD></TR>
+                </TABLE>
+            </TD></TR>
+        </TABLE></TD></TR>
+    </TABLE></TD></TR>
+<TR><TD><TABLE><TR><TD><STRONG>Ordering:</STRONG></TD><TD ID="ordering"></TD></TR>
+<TR><TD><STRONG>Condition:</STRONG></TD><TD ID="condition"></TD></TR></TABLE></TD></TR>
 </TABLE>
 </FORM></P>
 
