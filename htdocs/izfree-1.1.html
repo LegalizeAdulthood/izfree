@@ -8,55 +8,55 @@
 <H3>[ <A HREF="http://sourceforge.net/">SourceForge.net</A>
 | <A HREF="http://sourceforge.net/projects/izfree/">Project</A>
 | <A HREF="http://izfree.sourceforge.net/">izfree</A>
-| What's New For Version 1.1 ]</H3>
+| Version 1.1 Preview ]</H3>
 
 <H1>Version 1.1 Preview</H1>
 
-<P>Version 1.1 is under development.  Here are some screen shots of
-the work in progress:</P>
+<P>izfree version 1.1 is under development.  The following items are
+scheduled for addition in version 1.1, but are not yet implemented:</P>
 
-<P><TABLE><TR>
-<TD><A HREF="images/DialogPreview-1.1.png"><IMG ALT="Preview Dialogs"
-SRC="images/DialogPreview-1.1.png.jpg" WIDTH=128 HEIGHT=96></A></TD>
-<TD><A HREF="images/NewComponents-1.1.png"><IMG ALT="New Components"
-SRC="images/NewComponents-1.1.png.jpg" WIDTH=128 HEIGHT=96></A></TD>
-</TR>
-<TR>
-<TD><A HREF="images/NewPackage-1.1.png"><IMG ALT="New Package"
-SRC="images/NewPackage-1.1.png.jpg" WIDTH=128 HEIGHT=94></A></TD>
-<TD><A HREF="images/Validation-1.1.png"><IMG ALT="Table Validation"
-SRC="images/Validation-1.1.png.jpg" WIDTH=128 HEIGHT=96></A></TD>
-</TR>
-</TABLE></P>
+<P><UL>
+<LI><STRONG>extract version information for EXE/DLL/OCX files</STRONG>
+<LI><STRONG>Automatic COM registration extraction</STRONG>
+</UL></P>
 
-<!--
+<P>izfree version 1.1 has not yet been released.  However, you may
+examine the source code as it currently exists within the CVS
+Repository on SourceForge with the CVS link on izfree's Project page.
+</P>
+
+<H1>What's New in Version 1.1</H1>
+
 <P>This is an alpha release.  I have tested the release on my own machine
 (Windows 2000 Professional SP2, Visual C++ SP6, IE 5.01), but not on any
 others.  If you encounter problems with the software, please file a
-bug report on the izfree SourceForge project page.</P>
--->
+bug report on the izfree Project page.</P>
 
 <P>This 1.1 alpha release improves upon the previous 1.0 release as
 follows.</P>
 
 <UL>
-<LI><P>Application is database-centric</P>
+<LI><P><STRONG>database-centric model replaces task-centric model</STRONG></P>
 
-<P>Previously, the HTML application treated each tool as its own
+<P>Previously, izfree used a task-centric model and treated each tool as its own
 isolated world, opening and closing the database each time a tool was
-used.  izfree now has a database-centric model, where the current open
+selected.  izfree now has a database-centric model, where the current open
 database is shown at the top of the main window.  An asterisk next to
 the database name indicates that changes have been made to the
-database but not yet saved.</P>
+database but not yet saved.  All the tools operate on the open database.</P>
 
-<LI><P>New package tool is a modal dialog</P>
+<LI><P><A HREF="images/NewPackage-1.1.png"><IMG ALT="New Package"
+SRC="images/NewPackage-1.1.png.jpg" WIDTH=128 HEIGHT=94></A>
+<STRONG>New package tool is now a modal dialog</STRONG></P>
 
 <P>In accordance with the new database-centric model of izfree,
-creating a new package is now packaged in a modal dialog.  You either
-open an existing database, or create a new one.  When you create a new
-database, that becomes the current database.</P>
+creating a new package is now done through a modal dialog.  You either
+open an existing database, or create a new one.  After you create a new
+database, it becomes the open database.</P>
 
-<LI><P>Improved dialog preview</P>
+<LI><P><A HREF="images/DialogPreview-1.1.png"><IMG ALT="Preview Dialogs"
+SRC="images/DialogPreview-1.1.png.jpg" WIDTH=128 HEIGHT=96></A>
+<STRONG>Improved dialog preview</STRONG></P>
 
 <P>izfree now lists the names of standard dialogs corresponding to the
 negative sequence numbers of the <STRONG>InstallUISequence</STRONG>
@@ -71,13 +71,29 @@ information associated with the control event.  Double-clicking an
 event selects the corresponding dialog invoked by the event, allowing
 a quick click-through of a dialog wizard sequence.</P>
 
-<LI><P>New table validation tool</P>
+<P>Once the preview window has been displayed, it remains visible
+until the preview window is cleared or another tool is selected.  The
+preview window always tracks the selected dialog in izfree.  You can
+preview an entire dialog sequence simply by navigating the event table
+in izfree with the preview window displayed.</P>
+
+<P>Most UI sequence dialogs are coded to appear in the center of the
+screen.  However, once the preview window has been displayed, new
+dialogs will appear in the same relative location making it easy to
+access izfree's GUI once the preview window has been moved out of the
+way.</P>
+
+<LI><P><A HREF="images/Validation-1.1.png"><IMG ALT="Table Validation"
+SRC="images/Validation-1.1.png.jpg" WIDTH=128 HEIGHT=96></A>
+<STRONG>New table validation tool</STRONG></P>
 
 <P>The table validation tool shows all pertinent information for any
 column in any table in the open database.  This is handy for learning
 more about the allowed values when editing columns in Orca.</P>
 
-<LI><P>Enhancements to New Component tool</P>
+<LI><P><A HREF="images/NewComponents-1.1.png"><IMG ALT="New Components"
+SRC="images/NewComponents-1.1.png.jpg" WIDTH=128 HEIGHT=96></A>
+<STRONG>Enhanced New Component tool</STRONG></P>
 
 <P>The previous version supported creating new components from a
 directory tree in a blank database.  No attempts were made to
@@ -88,29 +104,47 @@ entries.</P>
 database table entries so that new components can be added to an
 existing installation database.</P>
 
+<P>Each component created from the directory scan has a matching
+feature.  The features from the scan are placed under an existing
+feature in the database.  If no existing feature is appropriate, a
+form is provided for creating a new feature under which the features
+from the scan can be placed.</P>
+
+<P>The directory table entries resulting from the scan also must be
+rooted underneath an existing directory in the database.  Typically
+this will be <CODE>TARGETDIR</CODE>.</P>
+
+<P>The previous version of the New Component tool enforced the
+sequence of operations by enabling and disabling buttons that
+performed steps in the process.  New Component is now organized as a
+wizard sequence, building up information about the new components to
+be added until a final confirmation from the user commits those
+components to the database.</P>
+
 </UL>
 
 <H3>Future Work</H3>
 
 <P>These are some of the ideas for things I will be adding to izfree over
 time.  If you have something specific you'd like automated, feel free
-to add a feature request on the izfree SourceForge.net project page.
-I've entered specifics about these ideas there in the Feature Requests
-tracker and the Tasks tracker.  If you are interested in helping with
-the development of izfree, join SourceForge and email me to be added
-to the project.</P>
+to add a feature request on the izfree SourceForge.net project page.</P>
 
-</UL>
-<LI><P>extract version information for EXE/DLL/OCX files</P>
-<LI><P>interface improvements</P>
-<LI><P>optionally include dialog boxes for the New Package tool</P>
-<LI><P>wildcard selective directory scanning for the New Components tool</P>
-<LI><P>Automatic COM registration extraction</P>
-<LI><P>"MSI Shrink" tool to create very small installs for small files</P>
-<LI><P>Merge modules</P>
-<LI><P>Support an MSI build process</P>
-<LI><P>GUI dialog editor (a work in progress is included with 1.0)</P>
-</UL>
+<P></UL>
+<LI>interface improvements
+<LI>optionally include dialog boxes for the New Package tool
+<LI>wildcard selective directory scanning for the New Components tool
+<LI>"MSI Shrink" tool to create very small installs for small files
+<LI>Merge modules
+<LI>Support an MSI build process
+<LI>GUI dialog editor (a work in progress is included with 1.0)
+</UL></P>
+
+<P>I've entered specifics about these ideas there in the Feature Requests
+tracker and the Tasks tracker.  If you are interested in helping with
+the development of izfree, join SourceForge and <A
+HREF="http://www.xmission.com/~legalize/mail.html">email Rich</A>, the
+project maintainer, and request to be added to the project.</P>
+
 
 </BODY>
 </HTML>
