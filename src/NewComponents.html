@@ -50,6 +50,13 @@ const PAGE_LAST = 4
 dim g_page : g_page = 1
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_file_version
+'
+' FileVersion object for filling in file versions.
+'
+dim g_file_version
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' files()
 ' dirs()
 ' components()
@@ -62,7 +69,8 @@ const fil_dir = 0
 const fil_name = 1
 const fil_component = 2
 const fil_size = 3
-const fil_dims = 3
+const fil_version = 4
+const fil_dims = 4
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim num_dirs : dim dirs()
@@ -109,7 +117,7 @@ end sub
 ' Legal characters are letters, digits, '.' and '_'.
 '
 function database_key(str)
-    dim i : for i = 0 to len(str)
+    dim i : for i = 1 to len(str)
         dim char : char = ucase(mid(str, i, 1))
         if not (((char >= "A") and (char <= "Z")) or _
                 ((char >= "0") and (char <= "9")) or _
@@ -133,16 +141,17 @@ sub save_file_table(db)
     dim view : set view = db.OpenView("INSERT INTO `File`(" & _
             "`File`,`Component_`,`FileName`,`FileSize`,`Version`," & _
             "`Language`,`Attributes`,`Sequence`) " & _
-            "VALUES (?,?,?,?,'','',0,1)") : check
+            "VALUES (?,?,?,?,?,'',0,1)") : check
 
     dim digits : digits = sig_digits(num_files)
     dim i : for i = 0 to num_files-1
-        dim rec : set rec = installer().CreateRecord(4) : check
+        dim rec : set rec = installer().CreateRecord(5) : check
         rec.stringdata(1) = "f" & right("000000" & i, digits) & "_" &_
             database_key(files(fil_name, i))
         rec.stringdata(2) = components(cmp_name, files(fil_component, i))
         rec.stringdata(3) = wit_filename(files(fil_name, i))
         rec.integerdata(4) = files(fil_size, i)
+        rec.stringdata(5) = files(fil_version, i)
         view.execute rec : check : if err.number then exit sub
         set rec = nothing
     next
@@ -269,6 +278,7 @@ sub enum_files(base, parent, dir)
         files(fil_dir, num_files) = num_dirs
         files(fil_name, num_files) = file.name
         files(fil_size, num_files) = fso().GetFile(file.path).Size
+        files(fil_version, num_files) = g_file_version.Version(file.Path)
         num_files = num_files + 1
     next
     set file = nothing
@@ -776,10 +786,10 @@ sub newFeature_onClick
         rec.stringdata(2) = .all("parent").value
         rec.stringdata(3) = .all("title").value
         rec.stringdata(4) = .all("description").value
-        rec.integerdata(5) = .all("display").value
-        rec.integerdata(6) = .all("level").value
+        rec.integerdata(5) = cint(.all("display").value)
+        rec.integerdata(6) = cint(.all("level").value)
         rec.stringdata(7) = selected_option(.all("directory"))
-        rec.integerdata(8) = .all("attributes").value
+        rec.integerdata(8) = cint(.all("attributes").value)
     end with
     view.execute rec : check
     view.close : check
@@ -798,6 +808,7 @@ sub window_onLoad
     read_tool_input "dir", ""
     load_directories
     back_next_update
+    set g_file_version = check_object("izfree.FileVersion")
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
