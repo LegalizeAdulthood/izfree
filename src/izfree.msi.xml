@@ -60,7 +60,7 @@
 		<revnumber>{3EF116B2-B7A6-42EC-A2CB-DA13516EBFD8}</revnumber>
 		<lastprinted>12/19/2001 14:21</lastprinted>
 		<createdtm>12/19/2001 14:21</createdtm>
-		<lastsavedtm>12/24/2001 12:40</lastsavedtm>
+		<lastsavedtm>12/24/2001 18:45</lastsavedtm>
 		<pagecount>110</pagecount>
 		<wordcount>0</wordcount>
 		<charcount>0</charcount>
@@ -10827,7 +10827,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f00_ATLRegistration.html</td>
 			<td>izfree.hta</td>
 			<td>ATLRegis.htm|ATLRegistration.html</td>
-			<td>8719</td>
+			<td>9544</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10837,7 +10837,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f01_NewComponents.html</td>
 			<td>izfree.hta</td>
 			<td>NewCompo.htm|NewComponents.html</td>
-			<td>18285</td>
+			<td>19110</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10847,7 +10847,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f02_NewGUID.html</td>
 			<td>izfree.hta</td>
 			<td>NewGUID.htm|NewGUID.html</td>
-			<td>800</td>
+			<td>1625</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10857,7 +10857,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f03_NewPackage.html</td>
 			<td>izfree.hta</td>
 			<td>NewPacka.htm|NewPackage.html</td>
-			<td>12154</td>
+			<td>12979</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10867,7 +10867,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f04_PreviewDialogs.html</td>
 			<td>izfree.hta</td>
 			<td>PreviewD.htm|PreviewDialogs.html</td>
-			<td>10564</td>
+			<td>11389</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10877,7 +10877,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f05_EditDialog.html</td>
 			<td>izfree.hta</td>
 			<td>EditDial.htm|EditDialog.html</td>
-			<td>9237</td>
+			<td>10062</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10887,7 +10887,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f06_help.html</td>
 			<td>izfree.hta</td>
 			<td>help.htm|help.html</td>
-			<td>5431</td>
+			<td>6256</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10907,7 +10907,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f08_izfree.hta</td>
 			<td>izfree.hta</td>
 			<td>izfree.hta</td>
-			<td>4499</td>
+			<td>5326</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10927,7 +10927,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f10_izfree.vbs</td>
 			<td>Top</td>
 			<td>izfree.vbs</td>
-			<td>11440</td>
+			<td>12303</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10937,7 +10937,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f11_izfree.vup</td>
 			<td>Top</td>
 			<td>izfree.vup</td>
-			<td>3805</td>
+			<td>3998</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10947,7 +10947,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f12_MergeModule.html</td>
 			<td>izfree.hta</td>
 			<td>MergeMod.htm|MergeModule.html</td>
-			<td>6275</td>
+			<td>7100</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10967,7 +10967,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f14_Generator.cpp</td>
 			<td>guidgen</td>
 			<td>Generato.cpp|Generator.cpp</td>
-			<td>685</td>
+			<td>1512</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10977,7 +10977,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f15_Generator.h</td>
 			<td>guidgen</td>
 			<td>Generato.h|Generator.h</td>
-			<td>788</td>
+			<td>1615</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -10997,7 +10997,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f17_guidgen.cpp</td>
 			<td>guidgen</td>
 			<td>guidgen.cpp</td>
-			<td>1963</td>
+			<td>2790</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11034,20 +11034,10 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>1</td>
 		</row>
 		<row>
-			<td>f21_guidgen.h</td>
-			<td>guidgen</td>
-			<td>guidgen.h</td>
-			<td>6755</td>
-			<td/>
-			<td/>
-			<td>0</td>
-			<td>1</td>
-		</row>
-		<row>
 			<td>f22_guidgen.idl</td>
 			<td>guidgen</td>
 			<td>guidgen.idl</td>
-			<td>826</td>
+			<td>1653</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11077,7 +11067,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f25_StdAfx.cpp</td>
 			<td>guidgen</td>
 			<td>StdAfx.cpp</td>
-			<td>315</td>
+			<td>1142</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11087,7 +11077,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f26_StdAfx.h</td>
 			<td>guidgen</td>
 			<td>StdAfx.h</td>
-			<td>908</td>
+			<td>1735</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11097,7 +11087,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f27_StdAfx.cpp</td>
 			<td>guidgen_test</td>
 			<td>StdAfx.cpp</td>
-			<td>291</td>
+			<td>1118</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11107,7 +11097,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f28_StdAfx.h</td>
 			<td>guidgen_test</td>
 			<td>StdAfx.h</td>
-			<td>773</td>
+			<td>1600</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11117,7 +11107,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f29_test.cpp</td>
 			<td>guidgen_test</td>
 			<td>test.cpp</td>
-			<td>1690</td>
+			<td>2517</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11187,7 +11177,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f36_license.txt</td>
 			<td>Top</td>
 			<td>license.txt</td>
-			<td>19867</td>
+			<td>17987</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11197,7 +11187,17 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f37_izfree.msi.xml</td>
 			<td>Top</td>
 			<td>izfree_m.xml|izfree.msi.xml</td>
-			<td>633955</td>
+			<td>633956</td>
+			<td/>
+			<td/>
+			<td>0</td>
+			<td>1</td>
+		</row>
+		<row>
+			<td>f38_msi.xsl</td>
+			<td>Top</td>
+			<td>msi.xsl</td>
+			<td>7210</td>
 			<td/>
 			<td/>
 			<td>0</td>
