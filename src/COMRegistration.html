@@ -57,6 +57,7 @@ dim g_app_ids, g_classes, g_interfaces, g_type_libs, g_categories, g_registry
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' g_main_frame -- globals frame
+'
 dim g_main_frame : set g_main_frame = window.parent
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -485,60 +486,48 @@ sub keys_update
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' do_step
+'
+' Do a step in the wizard sequence.
+'
+function do_step
+    select case g_page
+    case PAGE_SERVER:   do_step = register_server
+    case PAGE_LAST:     do_step = record_server
+    end select
+end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub addKey_onClick
-    dim key : key = InputBox("Enter a registry key name:", _
-        "Add a Registry Key", "")
-    if (key <> "") then
-        document.all("keys").options.add new_option(key)
-    end if
-    keys_update
+' back_next_update
+'
+' Depending on the page and the inputs on each page, determine whether
+' or not the back, next, cancel and finish buttons should be enabled.
+'
+sub back_next_update
+    select case g_page
+    case PAGE_SERVER:
+        document.all("back").disabled = true
+        document.all("next").disabled = false
+        document.all("cancel").disabled = true
+        document.all("finish").disabled = false
+        
+    case PAGE_COMMIT:
+        document.all("back").disabled = false
+        document.all("next").disabled = true
+        document.all("cancel").disabled = false
+        document.all("finish").disabled = false
+    case else
+        MsgBox("Unexpected case on back_next_update")
+    end select
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub deleteKey_onClick
-    dim sel : set sel = document.all("keys")
-    dim idx : idx = sel.selectedIndex
-    sel.remove idx
-    if (idx = sel.options.length) then idx = idx-1
-    sel.selectedIndex = idx
-    keys_update
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub moveUp_onClick
-    dim sel : set sel = document.all("keys")
-    dim idx : idx = sel.selectedIndex
-    dim val : set val = sel(idx)
-    sel.remove idx
-    sel.add val, idx-1
-    sel.selectedIndex = idx-1
-    keys_update
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub moveDown_onClick
-    dim sel : set sel = document.all("keys")
-    dim idx : idx = sel.selectedIndex
-    dim val : set val = sel(idx)
-    sel.remove idx
-    sel.add val, idx+1
-    sel.selectedIndex = idx+1
-    keys_update
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub keys_onChange
-    dim sel : set sel = document.all("keys")
-    if (sel.selectedIndex >= 0) then
-        keys_update
-    end if
-end sub
-
+' dump_keys
+'
+' Dump summary information about the COM registration information to
+' a string so that the user can verify that all the proper information
+' was captured.
+'
 function dump_keys(mon)
     dim msg(), i
     if (mon.AppIdTable.Count > 0) then
@@ -578,14 +567,14 @@ function dump_keys(mon)
     end if
     if (mon.ServiceControlTable.Count > 0) then
         push msg, "ServiceControl Entries:"
-        for i = 1 to mon.ServiceControl.Count
+        for i = 1 to mon.ServiceControlTable.Count
             push msg, "    " & mon.ServiceControlTable(i).ServiceControl
         next
         push msg, ""
     end if
     if (mon.ServiceInstallTable.Count > 0) then
         push msg, "ServiceInstall Entries:"
-        for i = 1 to mon.ServiceInstall.Count
+        for i = 1 to mon.ServiceInstallTable.Count
             push msg, "    " & mon.ServiceInstallTable(i).ServiceInstall
         next
     end if
@@ -596,7 +585,7 @@ end function
 ' register_server
 '
 ' Ask a self-registering COM server to register itself and scrape all
-' its registry information out into tables.
+' its registry information.
 '
 function register_server
     register_server = true
@@ -645,6 +634,9 @@ function register_server
     end if
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' record_server -- record the COM server information in the database
+'
 function record_server    
     set g_app_ids = check_object("Scripting.Dictionary")
     set g_classes = check_object("Scripting.Dictionary")
@@ -660,32 +652,79 @@ function record_server
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub window_onLoad
-    set g_monitor = check_object("izfree.Monitor")
-    
-    read_tool_input "server", ""
-    read_tool_input "service", 0
-    
-    load_opts document.all("keys"), array("HKEY_CLASSES_ROOT\AppID", _
-        "HKEY_CLASSES_ROOT\CLSID", "HKEY_CLASSES_ROOT\TypeLib", _
-        "HKEY_CLASSES_ROOT\Component Categories", "HKEY_CLASSES_ROOT", _
-        "HKEY_CURRENT_USER\Software", "HKEY_CURRENT_USER", _
-        "HKEY_LOCAL_MACHINE\Software", "HKEY_LOCAL_MACHINE", "HKEY_USERS")
-    load_column document.all("components"), "Component", "Component"
-    load_column document.all("features"), "Feature", "Feature"
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' addKey_onClick -- add a registry key to the end of the list
+'
+sub addKey_onClick
+    dim key : key = InputBox("Enter a registry key name:", _
+        "Add a Registry Key", "")
+    if (key <> "") then
+        document.all("keys").options.add new_option(key)
+    end if
     keys_update
-    back_next_update
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub window_onUnload
-    write_tool_input "server"
-    write_tool_input "service"
-    set g_monitor = nothing
+' deleteKey_onClick -- delete the currently selected registry key
+'
+sub deleteKey_onClick
+    dim sel : set sel = document.all("keys")
+    dim idx : idx = sel.selectedIndex
+    sel.remove idx
+    if (idx = sel.options.length) then idx = idx-1
+    sel.selectedIndex = idx
+    keys_update
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' moveUp_onClick -- move the currently selected registry key up in the list
+'
+sub moveUp_onClick
+    dim sel : set sel = document.all("keys")
+    dim idx : idx = sel.selectedIndex
+    dim val : set val = sel(idx)
+    sel.remove idx
+    sel.add val, idx-1
+    sel.selectedIndex = idx-1
+    keys_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' moveDown_onClick -- move the currently selected registry key down
+'
+sub moveDown_onClick
+    dim sel : set sel = document.all("keys")
+    dim idx : idx = sel.selectedIndex
+    dim val : set val = sel(idx)
+    sel.remove idx
+    sel.add val, idx+1
+    sel.selectedIndex = idx+1
+    keys_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' keys_onChange -- enable/disable buttons when the selection changes
+'
+sub keys_onChange
+    dim sel : set sel = document.all("keys")
+    if (sel.selectedIndex >= 0) then
+        keys_update
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' browseServer_onClick -- browse the file system for a COM server
+'
 sub browseServer_onClick
+    dim file : file = browse_for_existing_file( _
+        "Local Servers (*.exe)|*.exe" &_
+        "|Inproc Servers (*.dll,*.ocx)|*.dll;*.ocx" &_
+        "|All Files (*.*)|*.*")
+    if (file <> "") then document.all("server").value = file
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -751,54 +790,44 @@ sub back_onClick
     if (g_page >= 1) then
         document.all("page" & g_page).className = ""
    end if
-   undo_step
    back_next_update 
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' do_step
+' window_onLoad
 '
-' Do a step in the wizard sequence.
+' Instantiate the monitor object that we use to scrape information out
+' of the registry.  Load the default values for our tool inputs.  Load
+' the default list of monitored registry keys.
 '
-function do_step
-    select case g_page
-    case PAGE_SERVER:   do_step = register_server
-    case PAGE_LAST:     do_step = record_server
-    end select
-end function
+sub window_onLoad
+    set g_monitor = check_object("izfree.Monitor")
+    
+    read_tool_input "server", ""
+    read_tool_input "service", 0
+    
+    load_opts document.all("keys"), array("HKEY_CLASSES_ROOT\AppID", _
+        "HKEY_CLASSES_ROOT\CLSID", "HKEY_CLASSES_ROOT\TypeLib", _
+        "HKEY_CLASSES_ROOT\Component Categories", "HKEY_CLASSES_ROOT", _
+        "HKEY_CURRENT_USER\Software", "HKEY_CURRENT_USER", _
+        "HKEY_LOCAL_MACHINE\Software", "HKEY_LOCAL_MACHINE", "HKEY_USERS")
+    load_column document.all("components"), "Component", "Component"
+    load_column document.all("features"), "Feature", "Feature"
 
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' undo_step
-'
-' Undo a step in the wizard sequence.
-'
-sub undo_step
+    keys_update
+    back_next_update
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' back_next_update
+' window_onUnload
 '
-' Depending on the page and the inputs on each page, determine whether
-' or not the back, next, cancel and finish buttons should be enabled.
+' Save tool settings into the registry.
 '
-sub back_next_update
-    select case g_page
-    case PAGE_SERVER:
-        document.all("back").disabled = true
-        document.all("next").disabled = false
-        document.all("cancel").disabled = true
-        document.all("finish").disabled = false
-        
-    case PAGE_COMMIT:
-        document.all("back").disabled = false
-        document.all("next").disabled = true
-        document.all("cancel").disabled = false
-        document.all("finish").disabled = false
-    case else
-        MsgBox("Unexpected case on back_next_update")
-    end select
+sub window_onUnload
+    write_tool_input "server"
+    write_tool_input "service"
+    set g_monitor = nothing
 end sub
-
 --></SCRIPT>
 </HEAD>
 <BODY>
