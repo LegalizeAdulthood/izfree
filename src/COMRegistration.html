@@ -30,15 +30,18 @@ on error resume next
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim g_monitor
 
-dim g_app_ids, g_classes, g_interfaces, g_type_libs, g_categories
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim g_app_ids, g_classes, g_interfaces, g_type_libs, g_categories, g_registry
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim g_main_frame : set g_main_frame = window.parent
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function db()
     set db = g_main_frame.g_database
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function app_id_row(rec)
     dim row : set row = installer().CreateRecord(7)
     row.stringdata(1) = rec.AppId
@@ -51,6 +54,7 @@ function app_id_row(rec)
     set app_id_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function class_row(rec)
     dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.CLSID
@@ -69,6 +73,7 @@ function class_row(rec)
     set class_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function prog_id_row(rec)
     dim row : set row = installer().CreateRecord(6)
     row.stringdata(1) = rec.ProgId
@@ -80,6 +85,7 @@ function prog_id_row(rec)
     set prog_id_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function count_key(dict, key)
     if (not dict.exists(key)) then
         dict.add key, dict.Count+1
@@ -87,17 +93,20 @@ function count_key(dict, key)
     count_key = dict(key)
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function guid_number(guids, key, start)
     guid_number = count_key(guids, _
         "{" & ucase(replace(mid(key, start, 36), "_", "-")) & "}")
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function unique_key(key)
     dim count : count = "..." & cstr(count_key(g_registry, key)) & "..."
     dim i : i = (72-len(count))/2
     unique_key = left(key, i) & count & right(key, i)
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function registry_row(rec)
     dim row : set row = installer().CreateRecord(6)
     dim key : key = rec.registry
@@ -128,8 +137,7 @@ function registry_row(rec)
         end select
     end if
     if (len(key) > 72) then
-        ' arbitrarily shrink keystring and hope for uniqueify with
-        ' counter
+        ' arbitrarily shrink keystring and for uniqueify with a counter
         key = unique_key(key)
     end if
     row.stringdata(1) = key
@@ -141,6 +149,7 @@ function registry_row(rec)
     set registry_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function type_lib_row(rec)
     dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.LibID
@@ -158,6 +167,7 @@ function type_lib_row(rec)
     set type_lib_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function service_control_row(rec)
     dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.ServiceControl
@@ -169,6 +179,7 @@ function service_control_row(rec)
     set service_control_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function service_install_row(rec)
     dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.ServiceInstall
@@ -187,6 +198,7 @@ function service_install_row(rec)
     set service_install_row = row
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_app_id(table)
     on error resume next
     dim view : set view = db().openview("INSERT INTO `AppId`" &_
@@ -199,6 +211,7 @@ sub save_app_id(table)
     view.close : check
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_class(table)
     on error resume next
     dim view : set view = db().OpenView("INSERT INTO `Class`" &_
@@ -206,10 +219,8 @@ sub save_class(table)
         "`AppId_`,`FileTypeMask`,`Icon_`,`IconIndex`,`DefInprocHandler`," &_
         "`Argument`,`Feature_`,`Attributes`)" &_
         " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)") : check
-    dim component
+    dim component : component = table(0).Component
     dim rec : for each rec in table
-        dbgout "Component: " & rec.Component
-        component = rec.Component
         view.execute class_row(rec) : check
     next
     view.close : check
@@ -217,7 +228,6 @@ sub save_class(table)
     set view = exec_view(db(), "SELECT `Component_` FROM `File`")
     set rec = view.fetch
     do while not (rec is nothing)
-        dbgout "Component_: " & rec.stringdata(1)
         set rec = view.fetch
     loop
     view.close : check
@@ -243,6 +253,7 @@ sub save_class(table)
     view.close : check
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_prog_id(table)
     on error resume next
     dim view : set view = db().OpenView("INSERT INTO `ProgId`" &_
@@ -254,6 +265,7 @@ sub save_prog_id(table)
     view.close : check
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_type_lib(table)
     on error resume next
     dim view : set view = db().OpenView("INSERT INTO `TypeLib`" &_
@@ -265,9 +277,10 @@ sub save_type_lib(table)
     view.close : check
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub scrape_registry_ids(db)
     on error resume next
-    dim view : set view = exec_view(db, "SELECT `Root`,`Key`" &_
+    dim view : set view = exec_view(db, "SELECT `Root`,`Key`,`Registry`" &_
         " FROM `Registry`")
     dim rec : set rec = view.fetch
     do while not rec is nothing
@@ -281,10 +294,12 @@ sub scrape_registry_ids(db)
             case "component categories" : count_key g_categories, words(1)
             end select
         end if
+        count_key g_registry, rec.stringdata(3)
         set rec = view.fetch
     loop
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_registry(table)
     scrape_registry_ids db()
     on error resume next
@@ -297,6 +312,7 @@ sub save_registry(table)
     view.close : check
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_service_control(table)
     on error resume next
     dim view : set view = db().OpenView("INSERT INTO `ServiceControl`" &_
@@ -308,6 +324,7 @@ sub save_service_control(table)
     view.close : check
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_service_install(table)
     on error resume next
     dim view : set view = db().OpenView("insert into `ServiceInstall`" &_
@@ -323,14 +340,27 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_tables(mon)
-    save_app_id mon.AppIdTable
-    save_class mon.ClassTable
-    save_prog_id mon.ProgIdTable
-    save_type_lib mon.TypeLibTable
-    save_registry mon.RegistryTable
+    if (mon.AppIdTable.Count > 0) then save_app_id mon.AppIdTable
+    if (mon.ClassTable.Count > 0) then save_class mon.ClassTable
+    if (mon.ProgIdTable.Count > 0) then save_prog_id mon.ProgIdTable
+    if (mon.TypeLibTable.Count > 0) then save_type_lib mon.TypeLibTable
+    if (mon.RegistryTable.Count > 0) then save_registry mon.RegistryTable
     if (mon.Service) then
-        save_service_control mon.ServiceControlTable
-        save_service_install mon.ServiceInstallTable
+        if (mon.ServiceControlTable.Count > 0) then
+            save_service_control mon.ServiceControlTable
+        end if
+        if (mon.ServiceInstallTable.Count > 0) then
+            save_service_install mon.ServiceInstallTable
+        end if
+    end if
+end sub
+
+sub accum_msg(table, name, byref msg)
+    if (table.Count > 0) then
+        if (msg <> "") then
+            msg = msg & ", "
+        end if
+        msg = msg & table.Count & " " & name & " rows"
     end if
 end sub
 
@@ -338,9 +368,11 @@ end sub
 sub extract_onClick
     dim file : file = document.all("server").value
     dim svc : svc = document.all("service").checked
+    dim component : component = document.all("components").value
+    dim feature : feature = document.all("features").value
     on error resume next
     Err.Clear
-    g_monitor.Process file, svc
+    g_monitor.Process file, svc, component, feature
     if (Err) then
         MsgBox "Description: " & Err.description & vbCRLF &_
             "Source: " & Err.Source, vbOKOnly, "Error While Registering Server:"
@@ -353,11 +385,29 @@ sub extract_onClick
     set g_interfaces = check_object("Scripting.Dictionary")
     set g_type_libs = check_object("Scripting.Dictionary")
     set g_categories = check_object("Scripting.Dictionary")
+    set g_registry = check_object("Scripting.Dictionary")
     
     save_tables g_monitor
     db_modified
+    
+    dim msg : msg = ""
+    accum_msg g_monitor.AppIdTable, "AppId", msg
+    accum_msg g_monitor.ClassTable, "Class", msg
+    accum_msg g_monitor.ProgIdTable, "ProgId", msg
+    accum_msg g_monitor.TypeLibTable, "TypeLib", msg
+    accum_msg g_monitor.RegistryTable, "Registry", msg
+    accum_msg g_monitor.ServiceControlTable, "ServiceControl", msg
+    accum_msg g_monitor.ServiceInstallTable, "ServiceInstall", msg
+    if (msg <> "") then
+        if (svc) then
+            dbgout "Service '" & file & "' yielded " & msg & "."
+        else
+            dbgout "File '" & file & "' yielded " & msg & "."
+        end if
+    end if
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub write_tool_input(name)
     write_input "COMRegistration", document.forms("Register").all, name
 end sub
@@ -366,6 +416,7 @@ sub read_tool_input(name, fallback)
         fallback
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub load_column(opts, table, column)
     on error resume next
     dim view : set view = exec_view(db(), "select `" & column &_
@@ -404,9 +455,9 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onUnload
-    set g_monitor = nothing
     write_tool_input "server"
     write_tool_input "service"
+    set g_monitor = nothing
 end sub
 --></SCRIPT>
 </HEAD>
