@@ -59,7 +59,8 @@ end sub
 ' required to pass full MSI validation in Orca on the resulting database.
 '
 sub create_package(template_dir, database, manufacturer, _
-                   product_name, product_version, product_code, package_guid)
+                   product_name, product_version, product_code, _
+                   package_guid, upgrade_code)
     on error resume next
     g_source = template_dir
     if (right(g_source, 1) <> "\") then
@@ -105,6 +106,7 @@ sub create_package(template_dir, database, manufacturer, _
     set_property view, "ProductCode", product_code
     set_property view, "ProductName", product_name
     set_property view, "ProductVersion", product_version
+    set_property view, "UpgradeCode", upgrade_code
     view.close : check
     set view = nothing
 
@@ -186,7 +188,8 @@ sub create_onClick
                         all("productName").value, _
                         all("productVersion").value, _
                         all("productCode").value, _
-                        all("packageGuid").value
+                        all("packageGuid").value, _
+                        all("upgradeCode").value
     set all = nothing
 end sub
 
