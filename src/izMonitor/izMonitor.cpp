@@ -31,6 +31,18 @@
 #include "AppIdRecord.h"
 #include "AppIdTable.h"
 #include "Monitor.h"
+#include "ClassTable.h"
+#include "ClassRecord.h"
+#include "RegistryTable.h"
+#include "ProgIdTable.h"
+#include "TypeLibTable.h"
+#include "ServiceControlTable.h"
+#include "ServiceInstallTable.h"
+#include "RegistryRecord.h"
+#include "ProgIdRecord.h"
+#include "TypeLibRecord.h"
+#include "ServiceControlRecord.h"
+#include "ServiceInstallRecord.h"
 
 
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
@@ -97,6 +109,18 @@ BEGIN_OBJECT_MAP(ObjectMap)
 OBJECT_ENTRY(CLSID_AppIdRecord, CAppIdRecord)
 OBJECT_ENTRY(CLSID_AppIdTable, CAppIdTable)
 OBJECT_ENTRY(CLSID_Monitor, CMonitor)
+OBJECT_ENTRY(CLSID_ClassTable, CClassTable)
+OBJECT_ENTRY(CLSID_ClassRecord, CClassRecord)
+OBJECT_ENTRY(CLSID_RegistryTable, CRegistryTable)
+OBJECT_ENTRY(CLSID_ProgIdTable, CProgIdTable)
+OBJECT_ENTRY(CLSID_TypeLibTable, CTypeLibTable)
+OBJECT_ENTRY(CLSID_ServiceControlTable, CServiceControlTable)
+OBJECT_ENTRY(CLSID_ServiceInstallTable, CServiceInstallTable)
+OBJECT_ENTRY(CLSID_RegistryRecord, CRegistryRecord)
+OBJECT_ENTRY(CLSID_ProgIdRecord, CProgIdRecord)
+OBJECT_ENTRY(CLSID_TypeLibRecord, CTypeLibRecord)
+OBJECT_ENTRY(CLSID_ServiceControlRecord, CServiceControlRecord)
+OBJECT_ENTRY(CLSID_ServiceInstallRecord, CServiceInstallRecord)
 END_OBJECT_MAP()
 
 

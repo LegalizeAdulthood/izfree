@@ -112,30 +112,182 @@ interface IAppIdTable : IDispatch
 
 /////////////////////////////////////////////////////////////////////////////
 [
-	object,
-	uuid(5876A466-D3AA-4EFD-9E5C-7611FECBB361),
-	dual,
-	helpstring("IMonitor Interface"),
-	pointer_default(unique)
+    object,
+    uuid(22E48B26-7F50-4646-A105-B2CF17895C52),
+    dual,
+    helpstring("IClassRecord Interface"),
+    pointer_default(unique)
+]
+interface IClassRecord : IDispatch
+{
+    [propget, id(1), helpstring("property CLSID")] HRESULT CLSID([out, retval] BSTR *pVal);
+    [propget, id(2), helpstring("property Context")] HRESULT Context([out, retval] BSTR *pVal);
+    [propget, id(3), helpstring("property Component")] HRESULT Component([out, retval] BSTR *pVal);
+    [propget, id(4), helpstring("property ProgIdDefault")] HRESULT ProgIdDefault([out, retval] BSTR *pVal);
+    [propget, id(5), helpstring("property Description")] HRESULT Description([out, retval] BSTR *pVal);
+    [propget, id(6), helpstring("property AppId")] HRESULT AppId([out, retval] BSTR *pVal);
+    [propget, id(7), helpstring("property FileTypeMask")] HRESULT FileTypeMask([out, retval] BSTR *pVal);
+    [propget, id(8), helpstring("property Icon")] HRESULT Icon([out, retval] BSTR *pVal);
+    [propget, id(9), helpstring("property IconIndex")] HRESULT IconIndex([out, retval] long *pVal);
+    [propget, id(10), helpstring("property DefInprocHandler")] HRESULT DefInprocHandler([out, retval] BSTR *pVal);
+    [propget, id(11), helpstring("property Argument")] HRESULT Argument([out, retval] BSTR *pVal);
+    [propget, id(12), helpstring("property Feature")] HRESULT Feature([out, retval] BSTR *pVal);
+    [propget, id(13), helpstring("property Attributes")] HRESULT Attributes([out, retval] long *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(888F3FA4-FEC3-4C1D-B211-76606F07DBC8),
+    dual,
+    helpstring("IClassTable Interface"),
+    pointer_default(unique)
+]
+interface IClassTable : IDispatch
+{
+    [
+        id(0xFFFFFFFC),
+        hidden,
+        helpstring("Returns an object that enumerates the rows in the table.")
+    ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [propget, id(1), helpstring("property Count")] HRESULT Count([out, retval] long *pVal);
+    [propget, id(2), helpstring("property Item")] HRESULT Item([in] long row, [out, retval] IClassRecord * *pVal);
+};
+
+[
+    object,
+    uuid(0958F57F-66A4-4895-BD7E-848BB27AE940),
+    dual,
+    helpstring("IRegistryTable Interface"),
+    pointer_default(unique)
+]
+interface IRegistryTable : IDispatch
+{
+};
+[
+    object,
+    uuid(BDBAF679-B6E4-409A-ADB2-F23698DE1829),
+    dual,
+    helpstring("IProgIdTable Interface"),
+    pointer_default(unique)
+]
+interface IProgIdTable : IDispatch
+{
+};
+[
+    object,
+    uuid(3464079D-9A7B-466F-9306-A33C422A9AB7),
+    dual,
+    helpstring("ITypeLibTable Interface"),
+    pointer_default(unique)
+]
+interface ITypeLibTable : IDispatch
+{
+};
+[
+    object,
+    uuid(E2C9B961-6B5F-4946-81C3-3B293D4B366A),
+    dual,
+    helpstring("IServiceControlTable Interface"),
+    pointer_default(unique)
+]
+interface IServiceControlTable : IDispatch
+{
+};
+[
+    object,
+    uuid(C5703C99-B863-48EC-A674-92F87DA7DAF1),
+    dual,
+    helpstring("IServiceInstallTable Interface"),
+    pointer_default(unique)
+]
+interface IServiceInstallTable : IDispatch
+{
+};
+[
+    object,
+    uuid(F8546088-4C57-4229-BBF7-69B5FE4D84D1),
+    dual,
+    helpstring("IRegistryRecord Interface"),
+    pointer_default(unique)
+]
+interface IRegistryRecord : IDispatch
+{
+};
+[
+    object,
+    uuid(945CC947-AF64-4AA7-B4AE-39D87E209280),
+    dual,
+    helpstring("IProgIdRecord Interface"),
+    pointer_default(unique)
+]
+interface IProgIdRecord : IDispatch
+{
+};
+[
+    object,
+    uuid(D06CD01E-51EB-4745-AFE4-2F297E0A13FC),
+    dual,
+    helpstring("ITypeLibRecord Interface"),
+    pointer_default(unique)
+]
+interface ITypeLibRecord : IDispatch
+{
+};
+[
+    object,
+    uuid(64282601-33EE-4EAC-A869-0B162B934B5D),
+    dual,
+    helpstring("IServiceControlRecord Interface"),
+    pointer_default(unique)
+]
+interface IServiceControlRecord : IDispatch
+{
+};
+[
+    object,
+    uuid(F7F31553-52A5-4D79-9981-3F4E321FC795),
+    dual,
+    helpstring("IServiceInstallRecord Interface"),
+    pointer_default(unique)
+]
+interface IServiceInstallRecord : IDispatch
+{
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(5876A466-D3AA-4EFD-9E5C-7611FECBB361),
+    dual,
+    helpstring("IMonitor Interface"),
+    pointer_default(unique)
 ]
 interface IMonitor : IDispatch
 {
-	[
+    [
         propget,
         id(1),
         helpstring("AppId Table")
     ]
     HRESULT AppIdTable([out, retval] IAppIdTable * *pVal);
-	[
+    [
         id(2),
         helpstring("Process the registration of a COM server in the given file and extract Windows Installer database table information from the registry.  If the file is a service, look for service-related table information as well.")
     ]
     HRESULT Process([in] BSTR file, [in] BOOL service);
-	[
+    [
         id(3),
         helpstring("Adds a registry key to the list of keys to be monitored.")
     ]
     HRESULT WatchKey(BSTR registry_key);
+    [propget, id(4), helpstring("Class Table")] HRESULT ClassTable([out, retval] IClassTable * *pVal);
+    [propget, id(5), helpstring("Registry Table")] HRESULT RegistryTable([out, retval] IRegistryTable * *pVal);
+    [propget, id(6), helpstring("ProgId Table")] HRESULT ProgIdTable([out, retval] IProgIdTable * *pVal);
+    [propget, id(7), helpstring("TypeLib Table")] HRESULT TypeLibTable([out, retval] ITypeLibTable * *pVal);
+    [propget, id(8), helpstring("ServiceControl Table")] HRESULT ServiceControlTable([out, retval] IServiceControlTable * *pVal);
+    [propget, id(9), helpstring("ServiceInstall Table")] HRESULT ServiceInstallTable([out, retval] IServiceInstallTable * *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -167,12 +319,108 @@ library IZMONITORLib
         [default] interface IAppIdTable;
     };
 
-	[
-		uuid(CA4F90E8-864B-447A-8B21-B2D5ED2E2A92),
-		helpstring("izfree Registry Monitor Class")
-	]
-	coclass Monitor
-	{
-		[default] interface IMonitor;
-	};
+    [
+        uuid(CA4F90E8-864B-447A-8B21-B2D5ED2E2A92),
+        helpstring("izfree Registry Monitor Class")
+    ]
+    coclass Monitor
+    {
+        [default] interface IMonitor;
+    };
+    [
+        uuid(8B9CD7E2-F4CF-420F-BB0D-A60ED2C5A7EE),
+        helpstring("ClassTable Class")
+    ]
+    coclass ClassTable
+    {
+        [default] interface IClassTable;
+    };
+    [
+        uuid(231EEF09-3703-4D7B-A3F9-EBEE39CE1C05),
+        helpstring("ClassRecord Class")
+    ]
+    coclass ClassRecord
+    {
+        [default] interface IClassRecord;
+    };
+    [
+        uuid(E89C3BB2-1524-4862-AE35-B8B42BA5D257),
+        helpstring("RegistryTable Class")
+    ]
+    coclass RegistryTable
+    {
+        [default] interface IRegistryTable;
+    };
+    [
+        uuid(45C713F3-3E1C-4701-9866-F6EFFFBAF64D),
+        helpstring("ProgIdTable Class")
+    ]
+    coclass ProgIdTable
+    {
+        [default] interface IProgIdTable;
+    };
+    [
+        uuid(B8606DFB-EF9C-42B7-A30F-59D00993586F),
+        helpstring("TypeLibTable Class")
+    ]
+    coclass TypeLibTable
+    {
+        [default] interface ITypeLibTable;
+    };
+    [
+        uuid(FE016280-BF9A-4B68-85B2-7033609502DB),
+        helpstring("ServiceControlTable Class")
+    ]
+    coclass ServiceControlTable
+    {
+        [default] interface IServiceControlTable;
+    };
+    [
+        uuid(29B75584-C018-417C-A641-28F596B973F9),
+        helpstring("ServiceInstallTable Class")
+    ]
+    coclass ServiceInstallTable
+    {
+        [default] interface IServiceInstallTable;
+    };
+    [
+        uuid(6DC0973B-A1C3-453E-86A5-80EC942F0835),
+        helpstring("RegistryRecord Class")
+    ]
+    coclass RegistryRecord
+    {
+        [default] interface IRegistryRecord;
+    };
+    [
+        uuid(138D1F13-6497-4E6C-85E3-A8089DB5F971),
+        helpstring("ProgIdRecord Class")
+    ]
+    coclass ProgIdRecord
+    {
+        [default] interface IProgIdRecord;
+    };
+    [
+        uuid(D48B5CAB-F0CF-4AFD-AF4D-33B9160B8B65),
+        helpstring("TypeLibRecord Class")
+    ]
+    coclass TypeLibRecord
+    {
+        [default] interface ITypeLibRecord;
+    };
+    [
+        uuid(947CEBF2-41B1-4349-817E-375CE5DA5611),
+        helpstring("ServiceControlRecord Class")
+    ]
+    coclass ServiceControlRecord
+    {
+        [default] interface IServiceControlRecord;
+    };
+    [
+        uuid(7CA418BC-DCBD-4159-8EB6-1B9CC6DFB481),
+        helpstring("ServiceInstallRecord Class")
+    ]
+    coclass ServiceInstallRecord
+    {
+        [default] interface IServiceInstallRecord;
+    };
 };

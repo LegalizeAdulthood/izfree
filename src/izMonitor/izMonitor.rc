@@ -103,6 +103,18 @@ IDR_izMonitor           REGISTRY MOVEABLE PURE  "izMonitor.rgs"
 IDR_APPIDRECORD         REGISTRY DISCARDABLE    "AppIdRecord.rgs"
 IDR_APPIDTABLE          REGISTRY DISCARDABLE    "AppIdTable.rgs"
 IDR_MONITOR             REGISTRY DISCARDABLE    "Monitor.rgs"
+IDR_ICLASSTABLE         REGISTRY DISCARDABLE    "IClassTable.rgs"
+IDR_CLASSRECORD         REGISTRY DISCARDABLE    "ClassRecord.rgs"
+IDR_REGISTRYTABLE       REGISTRY DISCARDABLE    "RegistryTable.rgs"
+IDR_PROGIDTABLE         REGISTRY DISCARDABLE    "ProgIdTable.rgs"
+IDR_TYPELIBTABLE        REGISTRY DISCARDABLE    "TypeLibTable.rgs"
+IDR_SERVICECONTROLTABLE REGISTRY DISCARDABLE    "ServiceControlTable.rgs"
+IDR_SERVICEINSTALLTABLE REGISTRY DISCARDABLE    "ServiceInstallTable.rgs"
+IDR_REGISTRYRECORD      REGISTRY DISCARDABLE    "RegistryRecord.rgs"
+IDR_PROGIDRECORD        REGISTRY DISCARDABLE    "ProgIdRecord.rgs"
+IDR_TYPELIBRECORD       REGISTRY DISCARDABLE    "TypeLibRecord.rgs"
+IDR_SERVICECONTROLRECORD REGISTRY DISCARDABLE    "ServiceControlRecord.rgs"
+IDR_SERVICEINSTALLRECORD REGISTRY DISCARDABLE    "ServiceInstallRecord.rgs"
 
 /////////////////////////////////////////////////////////////////////////////
 //

@@ -26,12 +26,12 @@
 /////////////////////////////////////////////////////////////////////////////
 // CMonitor
 class ATL_NO_VTABLE CMonitor : 
-	public CComObjectRootEx<CComSingleThreadModel>,
-	public CComCoClass<CMonitor, &CLSID_Monitor>,
-	public IDispatchImpl<IMonitor, &IID_IMonitor, &LIBID_IZMONITORLib>
+    public CComObjectRootEx<CComSingleThreadModel>,
+    public CComCoClass<CMonitor, &CLSID_Monitor>,
+    public IDispatchImpl<IMonitor, &IID_IMonitor, &LIBID_IZMONITORLib>
 {
 public:
-	CMonitor();
+    CMonitor();
     ~CMonitor();
     HRESULT FinalConstruct();
     void FinalRelease();
@@ -41,15 +41,21 @@ DECLARE_REGISTRY_RESOURCEID(IDR_MONITOR)
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CMonitor)
-	COM_INTERFACE_ENTRY(IMonitor)
-	COM_INTERFACE_ENTRY(IDispatch)
+    COM_INTERFACE_ENTRY(IMonitor)
+    COM_INTERFACE_ENTRY(IDispatch)
 END_COM_MAP()
 
 // IMonitor
 public:
-	STDMETHOD(WatchKey)(BSTR registry_key);
-	STDMETHOD(Process)(/*[in]*/ BSTR file, /*[in]*/ BOOL service);
-	STDMETHOD(get_AppIdTable)(/*[out, retval]*/ IAppIdTable * *pVal);
+    STDMETHOD(get_ServiceInstallTable)(/*[out, retval]*/ IServiceInstallTable * *pVal);
+    STDMETHOD(get_ServiceControlTable)(/*[out, retval]*/ IServiceControlTable * *pVal);
+    STDMETHOD(get_TypeLibTable)(/*[out, retval]*/ ITypeLibTable * *pVal);
+    STDMETHOD(get_ProgIdTable)(/*[out, retval]*/ IProgIdTable * *pVal);
+    STDMETHOD(get_RegistryTable)(/*[out, retval]*/ IRegistryTable * *pVal);
+    STDMETHOD(get_ClassTable)(/*[out, retval]*/ IClassTable * *pVal);
+    STDMETHOD(WatchKey)(BSTR registry_key);
+    STDMETHOD(Process)(/*[in]*/ BSTR file, /*[in]*/ BOOL service);
+    STDMETHOD(get_AppIdTable)(/*[out, retval]*/ IAppIdTable * *pVal);
 
 private:
     CComObject<CAppIdTable> *m_app_ids;

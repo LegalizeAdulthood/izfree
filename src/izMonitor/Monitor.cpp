@@ -105,3 +105,45 @@ CMonitor::WatchKey(BSTR registry_key)
 
 	return S_OK;
 }
+
+STDMETHODIMP CMonitor::get_ClassTable(IClassTable **pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CMonitor::get_RegistryTable(IRegistryTable **pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CMonitor::get_ProgIdTable(IProgIdTable **pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CMonitor::get_TypeLibTable(ITypeLibTable **pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CMonitor::get_ServiceControlTable(IServiceControlTable **pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
+
+STDMETHODIMP CMonitor::get_ServiceInstallTable(IServiceInstallTable **pVal)
+{
+	// TODO: Add your implementation code here
+
+	return S_OK;
+}
