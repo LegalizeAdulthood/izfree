@@ -140,10 +140,39 @@ second row above to:</P>
 <CODE>Zoom</CODE> underneath the Programs menu.</P>
 
 <LI><P>Now validate the database to ensure that there are no errors
-from editing and save the database.  The install now includes a
-working shortcut in the <STRONG>Start</STRONG> /
-<STRONG>Programs</STRONG> menu.  However, if you test this install
-you'll see that the shortcut lacks an icon in the menu.</P>
+from editing.  Validation warnings indicate situations that may
+require repair.  You will get the following warnings:</P>
+
+<P><TABLE BORDER=1>
+<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerb1024</CODE> is used in an unsupported
+way. Shell extension verbs info should be registered via the Verb
+table. This entry may overwrite a value created through that table.</TD></TR>
+<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerb1280</CODE> is used in an unsupported way. Shell
+extension verbs info should be registered via the Verb table. This
+entry may overwrite a value created through that table.</TD></TR>
+<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerb1280x1024</CODE> is used in an unsupported
+way. Shell extension verbs info should be registered via the Verb
+table. This entry may overwrite a value created through that table.</TD></TR>
+<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerbDouble</CODE> is used in an unsupported
+way. Shell extension verbs info should be registered via the Verb
+table. This entry may overwrite a value created through that table.</TD></TR>
+<TR><TD><CODE>ICE57</CODE></TD><TD>WARNING</TD><TD>Component '<CODE>Documentation</CODE>' has both per-user and
+per-machine data with an HKCU Registry KeyPath.</TD></TR>
+</TABLE></P>
+
+<P>The <CODE>ICE33</CODE> warnings can be ignored because we don't
+want to register Zoom as the COM server for JPEG files, only extend
+the context menu.</P>
+
+<P>The <CODE>ICE57</CODE> warning can also be ignored.  The shortcut
+is installed on the user's Start menu, but the file itself is stored
+on machine-wide.  So that the component can be properly detected, we
+set the key path for the component to a registry entry in HKCU.</P>
+
+<LI><P>Now save the database.  The install now includes a working
+shortcut in the <STRONG>Start</STRONG> / <STRONG>Programs</STRONG>
+menu.  However, if you test this install you'll see that the shortcut
+lacks an icon in the menu.</P>
 
 <LI><P>Select an icon for your shortcut and save it as an icon (.ICO)
 file.  We'll extract the icon from notepad and store it in the file
