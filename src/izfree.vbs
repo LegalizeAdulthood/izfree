@@ -298,8 +298,7 @@ end function
 ' Display the help information for the given label.
 '
 sub show_help(label)
-    window.showModalDialog "help.html", label, _
-        "resizable: yes; dialogHeight: 300px; dialogWidth: 500px;"
+    g_main_frame.window_OnHelp()
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
