@@ -12,13 +12,8 @@
 
 <H1>Version 1.1 Preview</H1>
 
-<P>izfree version 1.1 is under development.  The following items are
-scheduled for addition in version 1.1, but are not yet implemented:</P>
-
-<P><UL>
-<LI><STRONG>extract version information for EXE/DLL/OCX files</STRONG>
-<LI><STRONG>Automatic COM registration extraction</STRONG>
-</UL></P>
+<P>izfree version 1.1 is currently wrapping up development and
+transitioning into alpha testing before its release.
 
 <P>izfree version 1.1 has not yet been released.  However, you may
 examine the source code as it currently exists within the CVS
@@ -90,7 +85,7 @@ dialogs will appear in the same relative location making it easy to
 access izfree's GUI once the preview window has been moved out of the
 way.</P>
 
-<LI><P><STRONG>New table validation tool</STRONG></P>
+<LI><P><STRONG>New Table Validation tool</STRONG></P>
 
 <P><TABLE><TR><TD><IMG ALT="Table Validation"
 SRC="images/Validation-1.1.png.jpg" WIDTH=128 HEIGHT=96></TD>
@@ -136,6 +131,29 @@ wizard sequence, building up information about the new components to
 be added until a final confirmation from the user commits those
 components to the database.</P>
 
+<LI><P><STRONG>Version information extracted from files</STRONG></P>
+
+<P>Previously, the new component tool built entires in the
+<STRONG>File</STRONG> table and left the version column blank.  For
+files with versions, you had to manually edit the version field in
+Orca.</P>
+
+<P>The new component tool now extracts the version number of the file
+from its version resource.</P>
+
+<LI><P><STRONG>New COM Registration Tool</STRONG></P>
+
+<P>Previously, all COM registration information had to be entered
+by hand through Orca in a tedious and error-prone process.</P>
+
+<P>The COM registration tool takes a self-registering COM server and
+monitors the changes made to the registry during self-registration.
+The changes in the registry are used to populate the
+<STRONG>AppId</STRONG>, <STRONG>Class</STRONG>,
+<STRONG>ProgId</STRONG>, <STRONG>TypeLib</STRONG>,
+<STRONG>Registry</STRONG>, <STRONG>ServiceControl</STRONG>, and
+<STRONG>ServiceInstall</STRONG> tables.</P>
+
 </UL>
 
 <H3>Future Work</H3>
@@ -159,7 +177,6 @@ tracker and the Tasks tracker.  If you are interested in helping with
 the development of izfree, join SourceForge and <A
 HREF="http://www.xmission.com/~legalize/mail.html">email Rich</A>, the
 project maintainer, and request to be added to the project.</P>
-
 
 </BODY>
 </HTML>
