@@ -167,7 +167,7 @@ sub create_package(template_dir, database, manufacturer, _
         "`Directory_Parent`,`DefaultDir`) VALUES (?,?,?)") : check
     set_dir view, "TARGETDIR", "", "SourceDir"
     set_dir view, target_root, "TARGETDIR", "."
-    set_dir view, "APPDIR", target_root, target_dir & ":."
+    set_dir view, "APPDIR", target_root, wit_filename(target_dir) & ":."
     view.close : check
     
     ' give the new package a root feature
@@ -296,14 +296,13 @@ sub window_onload
     read_tool_input "productVersion", "1.0"
     
     load_opts document.all("targetRoots"), array("AdminToolsFolder", _
-        "AppDataFolder", "AdminToolsFolder", "AppDataFolder", _
-        "CommonAppDataFolder", "CommonFilesFolder", "CommonFiles64Folder", _
-        "DesktopFolder", "FavoritesFolder", "FontsFolder", _
-        "LocalAppDataFolder", "MyPicturesFolder", "PersonalFolder", _
-        "ProgramFilesFolder", "ProgramFiles64Folder", "ProgramMenuFolder", _
-        "SendToFolder", "StartMenuFolder", "StartupFolder", "System16Folder", _
-        "SystemFolder", "System64Folder", "TempFolder", "TemplateFolder", _
-        "WindowsFolder", "WindowsVolume")
+        "AppDataFolder", "CommonAppDataFolder", "CommonFilesFolder", _
+        "CommonFiles64Folder", "DesktopFolder", "FavoritesFolder", _
+        "FontsFolder", "LocalAppDataFolder", "MyPicturesFolder", _
+        "PersonalFolder", "ProgramFilesFolder", "ProgramFiles64Folder", _
+        "ProgramMenuFolder", "SendToFolder", "StartMenuFolder", _
+        "StartupFolder", "SystemFolder", "System16Folder", "System64Folder", _
+        "TempFolder", "TemplateFolder", "WindowsFolder", "WindowsVolume")
         
     read_tool_input "targetRoots", "ProgramFilesFolder"
     read_tool_input "targetDir", document.all("productName").value
@@ -346,6 +345,7 @@ sub    productName_onChange : update_create_package : end sub
 sub productVersion_onChange : update_create_package : end sub
 sub    productCode_onChange : update_create_package : end sub
 sub    packageGuid_onChange : update_create_package : end sub
+sub    upgradeCode_onChange : update_create_package : end sub
 
 sub    templateDir_onKeyUp : update_create_package : end sub
 sub       database_OnKeyUp : update_create_package : end sub
@@ -354,6 +354,7 @@ sub    productName_onKeyUp : update_create_package : end sub
 sub productVersion_onKeyUp : update_create_package : end sub
 sub    productCode_onKeyUp : update_create_package : end sub
 sub    packageGuid_onKeyUp : update_create_package : end sub
+sub    upgradeCode_onKeyUp : update_create_package : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' guid_on_click
@@ -465,9 +466,7 @@ end sub
 <TD><INPUT NAME="productVersion" SIZE=8></TD></TR>
 <TR><TD>Installation Directory:</TD>
 <TD><SELECT ID="targetRoots"></SELECT>
-\ <INPUT ID="targetDir" SIZE=25>
-<INPUT ID="browseTargetDir" TYPE="button" VALUE="...">
-</TD></TR>
+\ <INPUT ID="targetDir" SIZE=25></TD></TR>
 <TR><TD>Product Code:</TD>
 <TD><INPUT NAME="productCode" SIZE=41>
 <INPUT TYPE="button" VALUE="New" id=guid1 name=guid1></TD></TR>
