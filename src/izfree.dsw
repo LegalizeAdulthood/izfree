@@ -27,6 +27,39 @@ Package=<4>
 
 ###############################################################################
 
+Project: "izfree"=.\izfree.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name extract
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name test
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "test"=.\guidgen\test\test.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name guidgen
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Global:
 
 Package=<5>
