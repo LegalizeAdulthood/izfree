@@ -241,8 +241,7 @@ class dynamic_library
 {
 public:
     dynamic_library(LPCTSTR file)
-        : m_file(file),
-        m_library(TWS(::LoadLibrary(file)))
+        : m_library(TWS(::LoadLibrary(file)))
     {
     }
     ~dynamic_library()
@@ -253,7 +252,6 @@ public:
     operator HMODULE() const { return m_library; }
 
 private:
-    tstring m_file;
     HMODULE m_library;
 };
 
@@ -286,8 +284,7 @@ class windows_service
 {
 public:
     windows_service(SC_HANDLE scm, LPCTSTR name, DWORD access = GENERIC_READ)
-        : m_name(name),
-        m_service(TWS(::OpenService(scm, name, access)))
+        : m_service(TWS(::OpenService(scm, name, access)))
     {
     }
     ~windows_service()
@@ -296,9 +293,9 @@ public:
         ATLASSERT(res);
     }
     operator SC_HANDLE() { return m_service; }
+
 private:
     SC_HANDLE m_service;
-    tstring m_name;
 };
 
 ///////////////////////////////////////////////////////////////////////////
