@@ -132,7 +132,7 @@ file_version(tstring file)
     }
     catch (...)
     {
-        return _T("0.0");
+        return _T("");
     }
 }
 
