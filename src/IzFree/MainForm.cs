@@ -1461,16 +1461,58 @@ namespace IzFree
             eventOrderingValueLabel.Text = "";
             eventConditionValueLabel.Text = "";
 
+            // populate the events list box
+            // need to handle the case where we have the following idiom:
+            //
+            //      Control [Property1] Target1     Condition1          1
+            //      Control [Property1] Target2     Condition2          2
+            //      Control [Property2] Target3     Condition3          3
+            //      Control [Property2] Target4     Condition4          4
+            //      Control NewDialog   [Property1] DialogCondition1    5
+            //      Control NewDialog   [Property2] DialogCondition2    6
+            //      Control NewDialog   [Property2] DialogCondition3    7
+            //
+            // Convert to:
+            //
+            //      Control Target1 Property1=Target1 AND Condition1 AND DialogCondition1     5
+            //      Control Target2 Property1=Target2 AND Condition2 AND DialogCondition1     5
+            //      Control Target3 Property2=Target3 AND Condition3 AND DialogCondition2     6
+            //      Control Target4 Property2=Target3 AND Condition4 AND DialogCondition2     6
+            //      Control Target3 Property2=Target3 AND Condition3 AND DialogCondition3     7
+            //      Control Target4 Property2=Target4 AND Condition4 AND DialogCondition3     7
+            //
+            // If no SetProperty events are in the ControlEvent table, then
+            // the formatted property alone can take you to any dialog.  However
+            // 'Left[Property1]Mid[Property2]Right' can only take you to dialogs that end in the
+            // containing the given literal text, in order.  This can be used
+            // to filter down the possible list of dialogs from all dialogs
+            //
             string dlg = dialogsListBox.SelectedItem as string;
             using (MSI.View view = ExecView(
-                       "SELECT `Control_`,`Argument` FROM `ControlEvent` " +
-                       "WHERE `Dialog_` = '" + dlg + "' AND " +
-                       "(`Event`='NewDialog' OR `Event`='SpawnDialog')"))
+                "SELECT `Control_`,`Event`,`Argument`,`Condition`,`Ordering` " + 
+                "FROM `ControlEvent` WHERE `Dialog_` = '" + dlg + "' " +
+                "ORDER BY `Control_`,`Ordering`"))
             {
                 for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
                 {
-                    eventsListBox.Items.Add(rec.GetString(1) + " -> " +
-                        rec.GetString(2));
+                    string controlEvent = rec.GetString(2);
+                    if ((controlEvent == "NewDialog") || (controlEvent == "SpawnDialog"))
+                    {
+                        string target = rec.GetString(3);
+                        if (target.IndexOf('[') >= 0)
+                        {
+                            // target dialog key contains a formatted property
+                            // skip for now
+                        }
+                        else
+                        {
+                            eventsListBox.Items.Add(rec.GetString(1) + " -> " + target);
+                        }
+                    }
+                    else if (controlEvent.IndexOf('[') >= 0)
+                    {
+                        // event is formatting a property
+                    }
                     rec.Dispose();
                 }
             }
