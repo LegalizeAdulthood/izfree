@@ -54,6 +54,7 @@
 //
 typedef std::basic_string<TCHAR> tstring;
 typedef std::basic_ostringstream<TCHAR> tostringstream;
+typedef std::basic_istringstream<TCHAR> tistringstream;
 
 ///////////////////////////////////////////////////////////////////////////
 // thread_args -- structure containing arguments passed to registration thread
@@ -316,8 +317,12 @@ struct s_monitor_key
     void extract_clsid_entry(const registry_key &subkey,
                              const tstring &component) const;
     void extract_prog_id(const tstring &component) const;
+    void extract_prog_id_entry(const registry_key &subkey,
+                               const tstring &component) const;
     void extract_registry(const tstring &component) const;
-    void extract_typelib(const tstring &component) const;
+    void extract_type_lib(const tstring &component) const;
+    void extract_type_lib_entry(const registry_key &subkey,
+                                const tstring &component) const;
 
     HKEY m_key;
     tstring m_name;
@@ -349,15 +354,15 @@ public:
 private:
     tstring m_file;
     bool m_servicep;
+    tstring m_component;
     std::vector<s_monitor_key> m_keys;
     std::vector<HANDLE> m_events;
-    std::set<tstring> m_values;
-    std::set<tstring> m_subkeys;
+    string_list_t m_services;
 
     static void __cdecl register_threadproc(void *pv);
 
-    void snapshot(const s_monitor_key &key);
-    void dump_tables(const string_list_t &services);
+    void dump_tables();
+    void diff_services();
 };
 
 //{{AFX_INSERT_LOCATION}}

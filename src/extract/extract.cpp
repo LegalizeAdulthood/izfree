@@ -19,7 +19,17 @@
 //
 
 #include "stdafx.h"
+#include <iomanip>
 
+tstring multi_sz(LPCTSTR);
+
+///////////////////////////////////////////////////////////////////////////
+// g_roots
+//
+// Text names of the various root keys that can be written to by the
+// Registry table.  The order of the values in this array must correspond
+// to the numeric values for the Root column of the Registry table.
+//
 LPCTSTR g_roots[] =
 {
     _T("HKCR\\"),
@@ -40,6 +50,9 @@ struct thread_args
     bool m_servicep;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// s_app_id -- structure to hold a row in the AppId table
+//
 struct s_app_id
 {
     s_app_id(const tstring &app_id, const tstring &remote_server,
@@ -53,6 +66,8 @@ struct s_app_id
         m_activate_at_storage(activate_at_storage),
         m_run_as_interactive_user(run_as)
     {}
+    ~s_app_id() {}
+
     tstring m_app_id;
     tstring m_remote_server_name;
     tstring m_local_service;
@@ -62,6 +77,9 @@ struct s_app_id
     DWORD m_run_as_interactive_user;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// s_class -- structure to hold a row in the Class table
+//
 struct s_class
 {
     s_class(const tstring &clsid, const tstring &context,
@@ -85,6 +103,8 @@ struct s_class
         m_feature(feature),
         m_attributes(attributes)
     {}
+    ~s_class() {}
+
     tstring m_clsid;
     tstring m_context;
     tstring m_component;
@@ -100,6 +120,9 @@ struct s_class
     DWORD m_attributes;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// s_registry -- structure to hold a row in the Registry table
+//
 struct s_registry
 {
     s_registry(const tstring &registry, DWORD root, const tstring &key,
@@ -118,6 +141,9 @@ struct s_registry
     tstring m_component;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// s_prog_id -- structure to hold a row in the ProgId table
+//
 struct s_prog_id
 {
     s_prog_id(const tstring &prog_id, const tstring &parent,
@@ -130,6 +156,8 @@ struct s_prog_id
         m_icon(icon),
         m_icon_index(icon_index)
     {}
+    ~s_prog_id() {}
+
     tstring m_prog_id;
     tstring m_prog_id_parent;
     tstring m_class;
@@ -138,6 +166,63 @@ struct s_prog_id
     DWORD m_icon_index;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// s_type_lib -- structure to hold a row in the TypeLib table
+//
+struct s_type_lib
+{
+    s_type_lib(const tstring &lib_id, DWORD language, const tstring &component,
+               DWORD version, const tstring &description,
+               const tstring &directory, const tstring &feature, DWORD cost)
+        : m_lib_id(lib_id),
+        m_language(language),
+        m_component(component),
+        m_version(version),
+        m_description(description),
+        m_directory(directory),
+        m_feature(feature),
+        m_cost(cost)
+    {}
+    ~s_type_lib() {}
+
+    tstring m_lib_id;
+    DWORD m_language;
+    tstring m_component;
+    DWORD m_version;
+    tstring m_description;
+    tstring m_directory;
+    tstring m_feature;
+    DWORD m_cost;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// s_service_control -- structure to hold a row in the ServiceControl table
+//
+struct s_service_control
+{
+    s_service_control(const tstring &key, const tstring &name,
+                      DWORD event, const tstring &args, DWORD wait,
+                      const tstring &component)
+        : m_service_control(key),
+        m_name(name),
+        m_event(event),
+        m_arguments(args),
+        m_wait(wait),
+        m_component(component)
+    {}
+    ~s_service_control() {}
+
+    tstring m_service_control;
+    tstring m_name;
+    DWORD m_event;
+    tstring m_arguments;
+    DWORD m_wait;
+    tstring m_component;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// s_service_install -- structure to hold a row in the ServiceInstall table
+//
 struct s_service_install
 {
     s_service_install(const tstring &key, const tstring &name,
@@ -161,6 +246,8 @@ struct s_service_install
         m_component(component),
         m_description(description)
     {}
+    ~s_service_install() {}
+
     tstring m_service_install;
     tstring m_name;
     tstring m_display_name;
@@ -176,18 +263,13 @@ struct s_service_install
     tstring m_description;
 };
 
-tstring
-reg_hex()
-{
-    return _T("deadbeef");
-}
-
-tstring
-reg_multi_sz()
-{
-    return _T("[~]");
-}
-
+///////////////////////////////////////////////////////////////////////////
+// registry_value
+//
+// Class that wraps some of the mess of dealing with registry values.  The
+// c'tor takes a parent key and an index to obtain the value information
+// with ::RegEnumValue.
+//
 class registry_value
 {
 public:
@@ -208,8 +290,18 @@ public:
 
     tstring name() const { return m_name; }
     DWORD type() const { return m_type; }
-    DWORD reg_dword() const { return *reinterpret_cast<const DWORD *>(&m_data[0]); }
-    tstring reg_sz() const { return reinterpret_cast<LPCTSTR>(&m_data[0]); }
+    DWORD reg_dword() const
+    {
+        return *reinterpret_cast<const DWORD *>(&m_data[0]);
+    }
+    tstring reg_sz() const
+    {
+        return reinterpret_cast<LPCTSTR>(&m_data[0]);
+    }
+    tstring reg_multi_sz() const
+    {
+        return multi_sz(reinterpret_cast<LPCTSTR>(&m_data[0]));
+    }
 
     void add_registry(DWORD root, const tstring &base, const tstring &component);
 
@@ -219,9 +311,24 @@ private:
     std::vector<BYTE> m_data;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// registry_key
+//
+// Class that wraps some of the mess of dealing with registy keys.  The
+// c'tor takes a parent key and an index to obtain the key information with
+// ::RegEnumKeyEx.
+//
 class registry_key
 {
 public:
+    enum e_add_flags
+    {
+        add_default = 0x01,
+        add_key     = 0x02,
+        add_values  = 0x04,
+        add_subkeys = 0x08,
+        add_all = add_default | add_key | add_values | add_subkeys
+    };
     registry_key(HKEY key, DWORD idx) : m_key(key), m_name()
     {
         FILETIME last_write;
@@ -237,7 +344,8 @@ public:
 
     tstring name() const { return m_name; }
 
-    void add_registry(DWORD root, const tstring &base, const tstring &component);
+    void add_registry(DWORD root, const tstring &base,
+                      const tstring &component, DWORD flags = add_all);
     tstring default_sz() const;
 
 private:
@@ -245,20 +353,29 @@ private:
     tstring m_name;
 };
 
+///////////////////////////////////////////////////////////////////////////
+// g_xxx_table -- Windows Installer table rows from parsing the registry
+//
 std::vector<s_app_id>           g_app_id_table;
 std::vector<s_class>            g_class_table;
 std::vector<s_registry>         g_registry_table;
 std::vector<s_prog_id>          g_prog_id_table;
+std::vector<s_service_control>  g_service_control_table;
 std::vector<s_service_install>  g_service_install_table;
+std::vector<s_type_lib>         g_type_lib_table;
 
-tstring sq(const tstring &);
-
-inline bool
-cis_equal(LPCTSTR lhs, const tstring &rhs)
+///////////////////////////////////////////////////////////////////////////
+// sq -- string quote; encapsulate a string in single quotes
+//
+inline tstring
+sq(const tstring &str)
 {
-    return (_tcslen(lhs) == rhs.size()) && (_tcsicmp(lhs, rhs.c_str()) == 0);
+    return _T("'") + str + _T("'");
 }
 
+///////////////////////////////////////////////////////////////////////////
+// registry_row -- append a row to the Registry table in memory
+//
 void
 registry_row(const tstring &registry, DWORD root, const tstring &key,
              const tstring &name, const tstring &value,
@@ -274,6 +391,9 @@ registry_row(const tstring &registry, DWORD root, const tstring &key,
     ::ODS(msg);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// app_id_row -- append a row to the AppId table in memory
+//
 void
 app_id_row(const tstring &app_id, const tstring &remote_server,
            const tstring &local_service, const tstring &service_params,
@@ -291,6 +411,9 @@ app_id_row(const tstring &app_id, const tstring &remote_server,
     ::ODS(msg);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// class_row -- append a row to the Class table in memory
+//
 void
 class_row(const tstring &clsid, const tstring &context,
           const tstring &component, const tstring &prog_id,
@@ -312,6 +435,129 @@ class_row(const tstring &clsid, const tstring &context,
         << _T(", ") << sq(argument) << _T(", ") << sq(feature)
         << _T(", ") << attributes << _T("\n");
     ::ODS(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// type_lib_row -- append a row to the TypeLib table in memory
+//
+void
+type_lib_row(const tstring &lib_id, DWORD language, const tstring &component,
+             DWORD version, const tstring &description,
+             const tstring &directory, const tstring &feature, DWORD cost)
+{
+    g_type_lib_table.push_back(s_type_lib(lib_id, language, component,
+        version, description, directory, feature, cost));
+    tostringstream msg;
+    msg << _T("TypeLib: ") << sq(lib_id) << _T(", ") << language << _T(", ")
+        << sq(component) << _T(", ") << version << _T(", ") << sq(description)
+        << _T(", ") << sq(directory) << _T(", ") << sq(feature) << _T(", ")
+        << cost << _T("\n");
+    ::ODS(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// prog_id_row -- append a row to the ProgId table in memory
+//
+void
+prog_id_row(const tstring &progid, const tstring &parent, const tstring &clsid,
+            const tstring &description, const tstring &icon, DWORD icon_index)
+{
+    g_prog_id_table.push_back(s_prog_id(progid, parent, clsid, description,
+        icon, icon_index));
+    tostringstream msg;
+    msg << _T("ProgId: ") << sq(progid) << _T(", ") << sq(parent) << _T(", ")
+        << sq(clsid) << _T(", ") << sq(description) << _T(", ")
+        << sq(icon) << _T(", ") << icon_index << _T("\n");
+    ::ODS(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// service_control_row -- append a row to the ServiceControl table in memory
+//
+void
+service_control_row(const tstring &key, const tstring &name,
+                    DWORD event, const tstring &args, DWORD wait,
+                    const tstring &component)
+{
+    g_service_control_table.push_back(
+        s_service_control(key, name, event, args, wait, component));
+    tostringstream msg;
+    msg << _T("ServiceControl: ") << sq(key) << _T(", ") << sq(name)
+        << _T(", ") << event << _T(", ") << sq(args) << _T(", ") << wait
+        << _T(", ") << sq(component) << _T("\n");
+    ::ODS(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// service_install_row -- append a row to the ServiceInstall table in memory
+//
+void
+service_install_row(const tstring &key, const tstring &name,
+                    const tstring &display_name, DWORD service_type,
+                    DWORD start_type, DWORD error_control,
+                    const tstring &load_order_group,
+                    const tstring &dependencies, const tstring &start_name,
+                    const tstring &password, const tstring &arguments,
+                    const tstring &component, const tstring &description)
+{
+    g_service_install_table.push_back(
+        s_service_install(key, name, display_name, service_type, start_type,
+            error_control, load_order_group, dependencies, start_name,
+            password, arguments, component, description));
+    tostringstream msg;
+    msg << _T("ServiceInstall: ") << sq(key) << _T(", ") << sq(name) << _T(", ")
+        << sq(display_name) << _T(", ") << service_type << _T(", ")
+        << start_type << _T(", ") << error_control << _T(", ")
+        << sq(load_order_group) << _T(", ") << sq(dependencies) << _T(", ")
+        << sq(start_name) << _T(", ") << sq(password) << _T(", ")
+        << sq(arguments) << _T(", ") << sq(component) << _T(", ")
+        << sq(description) << _T("\n");
+    ::ODS(msg);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// reg_hex -- format a BYTE array as hex data for the Registry table
+//
+tstring
+reg_hex(const std::vector<BYTE> &data)
+{
+    tostringstream str;
+    for (UINT i = 0; i < data.size(); i++)
+    {
+        str << std::hex << std::setfill(_T('0')) << std::setw(2) << data[i];
+    }
+    return str.str();
+}
+
+///////////////////////////////////////////////////////////////////////////
+// multi_sz -- format a MULTI_SZ string list for the Registry table
+//
+tstring
+multi_sz(LPCTSTR multi)
+{
+    tstring result = multi;
+    multi += _tcslen(multi)+1;
+    while (*multi)
+    {
+        result += _T("[~]");
+        result += multi;
+        multi += _tcslen(multi)+1;
+    }
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// cis_equal -- case-insensitive string equality predicate
+//
+inline bool
+cis_equal(LPCTSTR lhs, const tstring &rhs)
+{
+    return (_tcslen(lhs) == rhs.size()) && (_tcsicmp(lhs, rhs.c_str()) == 0);
+}
+inline bool
+cis_equal(const tstring &lhs, const tstring &rhs)
+{
+    return cis_equal(lhs.c_str(), rhs);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -516,22 +762,37 @@ capture_services(string_list_t &services)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// dump_service
+// add_service
 //
-// Dumps information about a newly created service
+// Dumps information about a newly created service into the ServiceInstall
+// table.
 //
 void
-dump_service(const tstring &name)
+add_service(const tstring &name, const tstring &component, DWORD idx)
 {
     windows_service_manager scm;
-    windows_service service(scm, name.c_str());
+    windows_service svc(scm, name.c_str());
     DWORD size_needed = 0;
     // this fails with buffer size too small, which is intentional
-    ::QueryServiceConfig(service, NULL, 0, &size_needed);
+    ::QueryServiceConfig(svc, NULL, 0, &size_needed);
     std::vector<BYTE> buff(size_needed);
     QUERY_SERVICE_CONFIG *config =
         reinterpret_cast<QUERY_SERVICE_CONFIG *>(&buff[0]);
-    TWS(::QueryServiceConfig(service, config, buff.size(), &size_needed));
+    TWS(::QueryServiceConfig(svc, config, buff.size(), &size_needed));
+
+    tostringstream key;
+    key << _T("si_") << component << _T("_") << (1+idx);
+    size_needed = 0;
+    SERVICE_DESCRIPTION sd;
+    TWS(::QueryServiceConfig2(svc, SERVICE_CONFIG_DESCRIPTION,
+        reinterpret_cast<BYTE *>(&sd), sizeof(sd), &size_needed));
+    ::service_install_row(key.str(), name, config->lpDisplayName,
+        config->dwServiceType, config->dwStartType, config->dwErrorControl,
+        config->lpLoadOrderGroup, multi_sz(config->lpDependencies),
+        cis_equal(_T("LocalSystem"), config->lpServiceStartName) ?
+            _T("") : config->lpServiceStartName,
+        _T(""), _T(""), component,
+        sd.lpDescription ? sd.lpDescription : _T(""));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -542,7 +803,7 @@ dump_service(const tstring &name)
 // registration.
 //
 void
-diff_services(const string_list_t &services)
+reg_monitor::diff_services()
 {
     string_list_t current;
     capture_services(current);
@@ -552,35 +813,40 @@ diff_services(const string_list_t &services)
     for (i = 0; i < current.size(); i++)
     {
         string_list_t::const_iterator me =
-            std::find(services.begin(), services.end(), current[i]);
-        if (me == services.end())
+            std::find(m_services.begin(), m_services.end(), current[i]);
+        if (me == m_services.end())
         {
             current_not_services.push_back(current[i]);
         }
     }
 
     string_list_t services_not_current;
-    for (i = 0; i < services.size(); i++)
+    for (i = 0; i < m_services.size(); i++)
     {
         string_list_t::iterator me =
-            std::find(current.begin(), current.end(), services[i]);
+            std::find(current.begin(), current.end(), m_services[i]);
         if (me == current.end())
         {
-            services_not_current.push_back(services[i]);
+            services_not_current.push_back(m_services[i]);
         }
     }
 
+    DWORD count = 0;
     for (i = 0; i < services_not_current.size(); i++)
     {
-        ::ODS(_T("- ") + services_not_current[i] + _T("\n"));
+        tostringstream key;
+        key << _T("sc_") << m_component << _T("_") << ++count;
+        ::service_control_row(key.str(), services_not_current[i],
+            8, // msidbServiceControlDelete
+            _T(""), 0, m_component);
     }
     for (i = 0; i < current_not_services.size(); i++)
     {
-        ::ODS(_T("+ ") + current_not_services[i] + _T("\n"));
-        dump_service(current_not_services[i]);
+        add_service(current_not_services[i], m_component, i);
     }
 }
 
+#if 0
 ///////////////////////////////////////////////////////////////////////////
 // enum_values
 //
@@ -625,7 +891,11 @@ enum_values(HKEY key, const tstring &name, UINT num_values)
         ::ODS(buff);
     }
 }
+#endif
 
+///////////////////////////////////////////////////////////////////////////
+// value_subkey_count -- return the number of values and subkeys for a key
+//
 void
 value_subkey_count(HKEY key, DWORD &num_values, DWORD &num_subkeys)
 {
@@ -644,6 +914,7 @@ value_subkey_count(HKEY key, DWORD &num_values, DWORD &num_subkeys)
         &max_value_name_len, &max_value_len, &security_len, &last_write));
 }
 
+#if 0
 ///////////////////////////////////////////////////////////////////////////
 // enum_registry
 //
@@ -693,6 +964,7 @@ enum_registry(HKEY key, const tstring &name)
         enum_registry(subkey, name + _T("\\") + child);
     }
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 // s_monitor_key::snapshot
@@ -739,18 +1011,15 @@ s_monitor_key::snapshot()
     }
 }
 
-void
-dbg_table(const s_monitor_key &key, LPCTSTR header)
-{
-    ::ODS(_T("\n") +
-        (header + (_T(": ") + key.m_name)) + _T("\\") + key.m_subkey + _T("\n"));
-}
-
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_app_id
+//
+// Extract AppId table row entries from this monitored registry key.  The
+// subkeys of this instance are the AppId GUIDs.
+//
 void
 s_monitor_key::extract_app_id(const tstring &component) const
 {
-    dbg_table(*this, _T("AppId Table"));
-
     DWORD num_values, num_subkeys;
     value_subkey_count(m_key, num_values, num_subkeys);
     UINT i;
@@ -775,13 +1044,31 @@ s_monitor_key::extract_app_id(const tstring &component) const
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+// find_bad
+//
+// Helper routine to massage arbitrary strings into database table primary
+// keys.  Returns the index of the first character that is not a letter, 
+// not a digit and not an underscore.
+//
 inline tstring::size_type
 find_bad(const tstring &str, tstring::size_type idx)
 {
     return str.find_first_not_of(
-        _T("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"), idx);
+        _T("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"),
+        idx);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// primary_key
+//
+// Given a wild and hairy string, massage it into a string that is useful
+// as the primary key to a database table.  First, all 'bad' characters are
+// replaced with underscores.  Next, multiple adjacent underscores are
+// replaced by a single underscore.  Finally, leading and trailing
+// underscores are stripped.  This routine is used to generate database
+// table keys from registry key paths.
+//
 tstring
 primary_key(const tstring &wild_key)
 {
@@ -806,23 +1093,20 @@ primary_key(const tstring &wild_key)
     return result;
 }
 
-inline tstring sq(const tstring &str) { return _T("'") + str + _T("'"); }
-
+///////////////////////////////////////////////////////////////////////////
+// registry_value::add_registry
+//
+// Add this value to the Registry table.
+//
 void
 registry_value::add_registry(DWORD root, const tstring &base,
                              const tstring &component)
 {
-    tstring Registry;
-    tstring Name;
     tostringstream Value;
-
-    Registry = primary_key(g_roots[root] + base);
-    Name = name();
-    //buff << _T("[") << base << _T("]\n\"") << name() << _T("\" = ");
     switch (type())
     {
     case REG_BINARY:
-        Value << _T("#x") << reg_hex();
+        Value << _T("#x") << reg_hex(m_data);
         break;
 
     case REG_DWORD:
@@ -840,9 +1124,14 @@ registry_value::add_registry(DWORD root, const tstring &base,
     default:
         ATLASSERT(false);
     }
-    ::registry_row(Registry, root, base, Name, Value.str(), component);
+    ::registry_row(primary_key(g_roots[root] + base + _T("\\") +
+                               (name().size() ? name() : tstring(_T("nul")))),
+        root, base, name(), Value.str(), component);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// registry_key::default_sz -- return the default key value as a string
+//
 tstring
 registry_key::default_sz() const
 {
@@ -861,9 +1150,17 @@ registry_key::default_sz() const
     return tstring(reinterpret_cast<LPCTSTR>(&data[0]));
 }
 
+///////////////////////////////////////////////////////////////////////////
+// registry_key::add_registry
+//
+// Add a registry key and all its values and subkeys to the Registry table.
+// The given flags say what pieces should be added: the key itself, the
+// values, the default value, and the subkeys.
+//
 void
 registry_key::add_registry(DWORD root, const tstring &base,
-                           const tstring &component)
+                           const tstring &component,
+                           DWORD flags)
 {
     CRegKey key;
     TRS(key.Open(m_key, m_name.c_str(), KEY_READ));
@@ -872,49 +1169,45 @@ registry_key::add_registry(DWORD root, const tstring &base,
 
     if (!num_values && !num_subkeys)
     {
-        ::registry_row(primary_key(g_roots[root] + base + _T("\\") + name()),
-            root, base + _T("\\") + name(), _T(""), _T(""), component);
+        if (flags & add_key)
+        {
+            ::registry_row(primary_key(g_roots[root] + base + _T("\\") + name()),
+                root, base + _T("\\") + name(), _T(""), _T(""), component);
+        }
     }
     else
     {
         UINT i;
         const tstring subname = base + _T("\\") + name();
-        for (i = 0; i < num_values; i++)
+        if (flags & add_values)
         {
-            registry_value(key, i).add_registry(root, subname, component);
+            for (i = 0; i < num_values; i++)
+            {
+                registry_value val(key, i);
+                if (val.name().size() || (flags & add_default))
+                {
+                    val.add_registry(root, subname, component);
+                }
+            }
         }
-        for (i = 0; i < num_subkeys; i++)
+        if (flags & add_subkeys)
         {
-            registry_key(key, i).add_registry(root, subname, component);
+            for (i = 0; i < num_subkeys; i++)
+            {
+                registry_key(key, i).add_registry(root, subname, component);
+            }
         }
     }
 }
 
-/*
-    for each subkey in AppId
-        guid = subkey
-        description = default value
-        foreach (name, value) in guid
-            if (name = "RemoteServerName") then
-                remote_server_name = value
-            else if (name = "ActivateAtStorage") then
-                activate_at_storage = value
-            else if (name = "LocalService") then
-                local_service = value
-            else if (name = "ServiceParameters") then
-                service_parameters = value
-            else if (name = "RunAs") then
-                run_as_interactive_user = value
-            else if (name = "DllSurrogate") then
-                dll_surrogate = value
-            else
-                add_registry name, value
-            endif
-        next
-        add_app_id guid, remote_server_name, local_service, service_parameters,
-            dll_surrogate, activate_at_storage, run_as_interactive_user
-    next
-*/
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_app_id_entry
+//
+// Scrape a row of the AppId table out of the registry, assuming that this
+// key is HKCR\AppId, and subkey corresponds to the AppId's GUID key.  The
+// appropriate values are scraped out into the AppId table and anything
+// else is dumped in the Registry table.
+//
 void
 s_monitor_key::extract_app_id_entry(const registry_key &subkey,
                                     const tstring &component) const
@@ -924,61 +1217,73 @@ s_monitor_key::extract_app_id_entry(const registry_key &subkey,
     DWORD num_values, num_subkeys;
     value_subkey_count(entry, num_values, num_subkeys);
     UINT i;
-    tstring AppId;
-    tstring RemoteServerName;
-    DWORD ActivateAtStorage = 0;
-    tstring LocalService;
-    tstring ServiceParameters;
-    DWORD RunAs = 0;
-    tstring DllSurrogate;
+    tstring remote_server;
+    DWORD activate_stg = 0;
+    tstring local_svc;
+    tstring svc_params;
+    DWORD run_as = 0;
+    tstring dll_surr;
 
-    AppId = subkey.name();
-    tstring subname = _T("AppID\\");
+    tstring subname = _T("AppID\\") + subkey.name();
     for (i = 0; i < num_values; i++)
     {
         registry_value val(entry, i);
         if (cis_equal(_T("RemoteServerName"), val.name()))
         {
-            RemoteServerName = val.reg_sz();
+            remote_server = val.reg_sz();
         }
         else if (cis_equal(_T("ActivateAtStorage"), val.name()))
         {
-            ActivateAtStorage = val.reg_dword();
+            activate_stg = val.reg_dword();
         }
         else if (cis_equal(_T("LocalService"), val.name()))
         {
-            LocalService = val.reg_sz();
+            local_svc = val.reg_sz();
         }
         else if (cis_equal(_T("ServiceParameters"), val.name()))
         {
-            ServiceParameters = val.reg_sz();
+            svc_params = val.reg_sz();
         }
         else if (cis_equal(_T("RunAs"), val.name()))
         {
-            RunAs = cis_equal(_T("InteractiveUser"), val.reg_sz());
+            // bug: docs state that this is the value written under the RunAs
+            // value, but the value is a string and the table column is an
+            // integer.  RunAs in the registry doesn't have to be
+            // InteractiveUser or NULL, so the table is overly restrictive
+            // here, probably because the tables pretty much punt on security
+            // and account names.
+            run_as = cis_equal(_T("InteractiveUser"), val.reg_sz());
         }
         else if (cis_equal(_T("DllSurrogate"), val.name()))
         {
-            DllSurrogate = val.reg_sz();
+            dll_surr = val.reg_sz();
         }
         else
         {
             // no column in the AppId table, record in the Registry table
-            val.add_registry(0, subname + subkey.name(), component);
+            val.add_registry(0, subname, component);
         }
     }
 
-    ::app_id_row(AppId, RemoteServerName, LocalService, ServiceParameters,
-        DllSurrogate, ActivateAtStorage, RunAs);
+    // dump a row into the AppId table
+    ::app_id_row(subkey.name(), remote_server, local_svc, svc_params,
+        dll_surr, activate_stg, run_as);
 
     // add all subkeys, even though there shouldn't be any
     for (i = 0; i < num_subkeys; i++)
     {
-        registry_key(entry, i).
-            add_registry(0, subname + subkey.name(), component);
+        registry_key(entry, i).add_registry(0, subname, component);
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_class
+//
+// Extract rows of the Class table out of the registry.  This key instance
+// is HKCR\CLSID.  Scrape out any new values into the Registry table and
+// assume that new keys are CLSID guids, each corresponding to a row in the
+// Class table.
+//
 void
 s_monitor_key::extract_class(const tstring &component) const
 {
@@ -1006,6 +1311,13 @@ s_monitor_key::extract_class(const tstring &component) const
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_clsid_entry
+//
+// Extract a row of the Class table from a HKCR\CLSID\{guid} key in the
+// registry.  Anything not directly created by the Class table is dumped
+// into the Registry table.
+//
 void
 s_monitor_key::extract_clsid_entry(const registry_key &subkey,
                                    const tstring &component) const
@@ -1015,40 +1327,32 @@ s_monitor_key::extract_clsid_entry(const registry_key &subkey,
     DWORD num_values, num_subkeys;
     value_subkey_count(entry, num_values, num_subkeys);
     UINT i;
-    tstring CLSID;
-    tstring Context;
-    tstring ProgId_Default;
-    tstring Description;
-    tstring AppId;
-    tstring FileTypeMask;
-    tstring Icon;
-    DWORD IconIndex = 0;
-    tstring DefInprocHandler;
-    tstring Argument;
-    tstring Feature;
-    DWORD Attributes = 0;
+    tstring context;
+    tstring prog_id;
+    tstring description;
+    tstring app_id;
+    tstring icon;
+    DWORD icon_index = 0;
 
-    CLSID = subkey.name();
-    tstring subname = _T("CLSID\\") + CLSID;
+    const tstring subname = _T("CLSID\\") + subkey.name();
     for (i = 0; i < num_values; i++)
     {
         registry_value val(entry, i);
         if (!val.name().size())
         {
-            Description = val.reg_sz();
+            description = val.reg_sz();
         }
         else if (cis_equal(_T("AppID"), val.name()))
         {
-            AppId = val.reg_sz();
+            app_id = val.reg_sz();
         }
         else
         {
-            // no column in the AppId table, record in the Registry table
+            // no column in the Class table, record in the Registry table
             val.add_registry(0, subname, component);
         }
     }
 
-    // add all subkeys, even though there shouldn't be any
     for (i = 0; i < num_subkeys; i++)
     {
         registry_key key(entry, i);
@@ -1057,10 +1361,12 @@ s_monitor_key::extract_clsid_entry(const registry_key &subkey,
             cis_equal(_T("InprocServer"), key.name()) ||
             cis_equal(_T("InprocServer32"), key.name()))
         {
-            if (!Context.size())
+            if (!context.size())
             {
-                Context = key.name();
-                // key.add_registry(0, subname, component, false);
+                context = key.name();
+                // add leftovers to Registry table
+                key.add_registry(0, subname, component,
+                    registry_key::add_values | registry_key::add_subkeys);
             }
             else
             {
@@ -1070,85 +1376,167 @@ s_monitor_key::extract_clsid_entry(const registry_key &subkey,
         }
         else if (cis_equal(_T("DefaultIcon"), key.name()))
         {
-            Icon = key.default_sz();
-            // key.add_registry(0, subname, component, false);
+            icon = key.default_sz();
+            const tstring::size_type comma = icon.rfind(_T(","));
+            if (comma != tstring::npos)
+            {
+                tistringstream str(icon.substr(comma+1));
+                str >> icon_index;
+            }
+            // add leftovers to Registry table
+            key.add_registry(0, subname, component,
+                registry_key::add_values | registry_key::add_subkeys);
         }
         else if (cis_equal(_T("ProgId"), key.name()))
         {
-            ProgId_Default = key.default_sz();
-            // key.add_registry(0, subname, component, false);
+            prog_id = key.default_sz();
+            // add leftovers to Registry table
+            key.add_registry(0, subname, component,
+                registry_key::add_values | registry_key::add_subkeys);
+        }
+        else if (cis_equal(_T("VersionIndependentProgId"), key.name()))
+        {
+            // the ProgId table takes care of the default value for this key,
+            // but there may be additional keys and values lurking there
+            key.add_registry(0, subname, component,
+                registry_key::add_values | registry_key::add_subkeys);
         }
         else
         {
+            // some random key -- put it in the Registry table verbatim
             key.add_registry(0, subname, component);
         }
     }
-    ::class_row(CLSID, Context, component, ProgId_Default, Description,
-        AppId, FileTypeMask, Icon, IconIndex, DefInprocHandler, Argument,
-        Feature, Attributes);
-}
 
-void
-s_monitor_key::extract_prog_id(const tstring &component) const
-{
-}
-
-void
-s_monitor_key::extract_registry(const tstring &component) const
-{
-}
-
-void
-s_monitor_key::extract_typelib(const tstring &component) const
-{
+    // add a row to the class table for this CLSID
+    ::class_row(subkey.name(), context, component, prog_id, description,
+        app_id, _T(""), icon, icon_index, _T(""), _T(""), component, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// s_monitor_key::diff
+// s_monitor_key::extract_prog_id
 //
-// Report a difference between this key's snapshot and its current settings
-// in the registry.
+// Extract new entries under HKCR\ as new rows of the ProgId table.
 //
-#if 0
 void
-s_monitor_key::diff() const
+s_monitor_key::extract_prog_id(const tstring &component) const
 {
     DWORD num_values, num_subkeys;
     value_subkey_count(m_key, num_values, num_subkeys);
     UINT i;
     if (num_values)
     {
-        tostringstream buff;
-        buff << _T("[") << m_name << _T("]\n");
-        UINT num_new = 0;
-
         for (i = 0; i < num_values; i++)
         {
             registry_value val(m_key, i);
             if (m_values.find(val.name()) == m_values.end())
             {
-                num_new++;
-
-                buff << _T("\"") << val.name() << _T("\" = ");
-                switch (val.type())
-                {
-                case REG_DWORD:
-                    buff << val.reg_dword();
-                    break;
-
-                case REG_SZ:
-                    buff << _T("\"") << val.reg_sz() << _T("\"");
-                    break;
-
-                default:
-                    ATLASSERT(false);
-                }
-                buff << _T("\n");
+                // add unexpected values to the Registry table
+                val.add_registry(0, m_name, component);
             }
         }
-        if (num_new)
+    }
+    for (i = 0; i < num_subkeys; i++)
+    {
+        registry_key subkey(m_key, i);
+        const tstring name = subkey.name();
+        if (m_subkeys.find(name) == m_subkeys.end())
         {
-            ::ODS(buff);
+            if (name[0] == _T('.') || (tstring::npos == name.find(_T("."))))
+            {
+                // doesn't look like a ProgId, add to Registry table
+                subkey.add_registry(0, m_name, component);
+            }
+            else
+            {
+                // looks like a progId with at least one '.' inside the string
+                extract_prog_id_entry(subkey, component);
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_prog_id_entry
+//
+// Extract information from a new entry in HKCR as a ProgId.
+//
+void
+s_monitor_key::extract_prog_id_entry(const registry_key &subkey,
+                                     const tstring &component) const
+{
+    CRegKey progid;
+    TRS(progid.Open(m_key, subkey.name().c_str()));
+    DWORD num_values, num_subkeys;
+    value_subkey_count(progid, num_values, num_subkeys);
+    tstring ProgId = subkey.name();
+    tstring ProgId_Parent;
+    tstring CLSID;
+    tstring Description = subkey.default_sz();
+    tstring Icon;
+    DWORD IconIndex = 0;
+
+    tstring subname = m_name + _T("\\") + subkey.name();
+    UINT i;
+    for (i = 0; i < num_values; i++)
+    {
+        registry_value val(progid, i);
+        if (val.name().size())
+        {
+            registry_value(progid, i).add_registry(0, subname, component);
+        }
+    }
+    for (i = 0; i < num_subkeys; i++)
+    {
+        registry_key progid_subkey(progid, i);
+        if (cis_equal(_T("CLSID"), progid_subkey.name()))
+        {
+            CLSID = progid_subkey.default_sz();
+        }
+        else if (cis_equal(_T("CurVer"), progid_subkey.name()))
+        {
+            ProgId_Parent = progid_subkey.default_sz();
+        }
+        else if (cis_equal(_T("DefaultIcon"), progid_subkey.name()))
+        {
+            const tstring def = progid_subkey.default_sz();
+            const tstring::size_type comma = def.rfind(_T(","));
+            Icon = def.substr(0, comma);
+            if (comma != tstring::npos)
+            {
+                tistringstream str(def.substr(comma+1));
+                str >> IconIndex;
+            }
+        }
+        else
+        {
+            progid_subkey.add_registry(0, subname, component);
+        }
+    }
+    ::prog_id_row(ProgId, ProgId_Parent, CLSID, Description, Icon, IconIndex);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_registry
+//
+// Extract all new things under a monitored registry key into the Registry
+// table.
+//
+void
+s_monitor_key::extract_registry(const tstring &component) const
+{
+    DWORD num_values, num_subkeys;
+    value_subkey_count(m_key, num_values, num_subkeys);
+    UINT i;
+    if (num_values)
+    {
+        for (i = 0; i < num_values; i++)
+        {
+            registry_value val(m_key, i);
+            if (m_values.find(val.name()) == m_values.end())
+            {
+                val.add_registry(0, m_name, component);
+            }
         }
     }
     for (i = 0; i < num_subkeys; i++)
@@ -1156,18 +1544,220 @@ s_monitor_key::diff() const
         registry_key subkey(m_key, i);
         if (m_subkeys.find(subkey.name()) == m_subkeys.end())
         {
-            CRegKey new_key;
-            TRS(new_key.Open(m_key, subkey.name().c_str()));
-            tstring name(m_name);
-            if (m_subkey.length())
-            {
-                name += _T("\\") + m_subkey;
-            }
-            enum_registry(new_key, name + _T("\\") + subkey.name());
+            subkey.add_registry(0, m_name, component);
         }
     }
 }
-#endif
+
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_type_lib
+//
+// Scan through the monitored key HKCR\TypeLib to look for new LibId subkeys
+//
+void
+s_monitor_key::extract_type_lib(const tstring &component) const
+{
+    DWORD num_values, num_subkeys;
+    value_subkey_count(m_key, num_values, num_subkeys);
+    UINT i;
+    if (num_values)
+    {
+        for (i = 0; i < num_values; i++)
+        {
+            registry_value val(m_key, i);
+            if (m_values.find(val.name()) == m_values.end())
+            {
+                val.add_registry(0, m_name, component);
+            }
+        }
+    }
+    for (i = 0; i < num_subkeys; i++)
+    {
+        registry_key subkey(m_key, i);
+        if (m_subkeys.find(subkey.name()) == m_subkeys.end())
+        {
+            extract_type_lib_entry(subkey, component);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+// is_version_number
+//
+// Returns true if the string looks like a version number: it has only
+// digits and periods and doesn't begin with a period.
+//
+bool
+is_version_number(const tstring &str)
+{
+    return !str.size() || ((str[0] != _T('.')) &&
+        (tstring::npos == str.find_first_not_of(_T("0123456789."))));
+}
+
+///////////////////////////////////////////////////////////////////////////
+// is_number -- returns true if the string consists entirely of digits
+//
+bool
+is_number(const tstring &str)
+{
+    return !str.size() ||
+        (tstring::npos == str.find_first_not_of(_T("0123456789")));
+}
+
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::extract_type_lib_entry
+//
+// Extract a row of the TypeLib table from the registry.  The TypeLib
+// COM registry entries are fairly deep, so we have to do quite a bit
+// of work to find the entries we want to scrape out for our component.
+//
+// The entries have the form:
+//
+// TypeLib\{guid}\<major.minor>:
+// \<language>\win32 = <path>
+// \FLAGS = 0
+// \HELPDIR = <path>
+//
+//      subkey is HKCR\TypeLib\{guid}
+//  ver_subkey is HKCR\TypeLib\{guid}\<major.minor>
+// lang_subkey is HKCR\TypeLib\{guid}\<major.minor>\<language>
+//
+void
+s_monitor_key::extract_type_lib_entry(const registry_key &subkey,
+                                     const tstring &component) const
+{
+    CRegKey entry;
+    TRS(entry.Open(m_key, subkey.name().c_str()));
+    DWORD num_values, num_subkeys;
+    value_subkey_count(entry, num_values, num_subkeys);
+
+    UINT i;
+    DWORD language = 0;
+    DWORD version = 0;
+    tstring description;
+    tstring directory;
+
+    bool lib_found = false;
+    tstring subname = _T("TypeLib\\") + subkey.name();
+    for (i = 0; i < num_values; i++)
+    {
+        registry_value(entry, i).add_registry(0, subname, component);
+    }
+
+    // add all subkeys, even though there shouldn't be any
+    for (i = 0; i < num_subkeys; i++)
+    {
+        registry_key key(entry, i);
+        if (!is_version_number(key.name()))
+        {
+            // add unrecognized keys to Registry table
+            key.add_registry(0, subname, component);
+        }
+        else
+        {
+            // it is a version number, look for our library
+            {
+                tistringstream str(key.name());
+                DWORD major, minor;
+                str >> major;
+                str.ignore(1); // consume the '.'
+                str >> minor;
+                version = 256*major + minor;
+            }
+            description = key.default_sz();
+
+            CRegKey ver;
+            ver.Open(entry, key.name().c_str());
+            DWORD num_ver_values = 0;
+            DWORD num_ver_subkeys = 0;
+            value_subkey_count(ver, num_ver_values, num_ver_subkeys);
+
+            tstring ver_subname = subname + _T("\\") + key.name();
+            UINT j;
+            for (j = 0; j < num_ver_values; j++)
+            {
+                registry_value val(ver, j);
+                if (val.name().size())
+                {
+                    registry_value(ver, j).
+                        add_registry(0, ver_subname, component);
+                }
+            }
+
+            for (j = 0; j < num_ver_subkeys; j++)
+            {
+                registry_key ver_subkey(ver, j);
+                if (is_number(ver_subkey.name()))
+                {
+                    {
+                        tistringstream str(ver_subkey.name());
+                        str >> language;
+                    }
+                    CRegKey lang;
+                    TRS(lang.Open(ver, ver_subkey.name().c_str()));
+                    DWORD num_lang_values = 0;
+                    DWORD num_lang_subkeys = 0;
+                    value_subkey_count(lang, num_lang_values, num_lang_subkeys);
+                    
+                    tstring lang_subname =
+                        ver_subname + _T("\\") + ver_subkey.name();
+                    UINT k;
+                    for (k = 0; k < num_lang_values; k++)
+                    {
+                        registry_value(lang, k).
+                            add_registry(0, lang_subname, component);
+                    }
+
+                    for (k = 0; k < num_lang_subkeys; k++)
+                    {
+                        registry_key lang_subkey(lang, k);
+                        if (cis_equal(_T("win32"), lang_subkey.name()))
+                        {
+                            tstring def = lang_subkey.default_sz();
+                            if (cis_equal(component,
+                                def.substr(def.size()- component.size())))
+                            {
+                                lib_found = true;
+                            }
+                            else
+                            {
+                                // add unrecognized keys to Registry table
+                                lang_subkey.add_registry(0, lang_subname,
+                                    component);
+                            }
+                        }
+                        else
+                        {
+                            // add unrecognized keys to Registry table
+                            lang_subkey.add_registry(0, lang_subname, component);
+                        }
+                    }
+                }
+                else if (cis_equal(_T("FLAGS"), ver_subkey.name()))
+                {
+                    // the TypeLib table takes care of this, skip it
+                }
+                else if (cis_equal(_T("HELPDIR"), ver_subkey.name()))
+                {
+                    // record help directory
+                    directory = ver_subkey.default_sz();
+                }
+                else
+                {
+                    // add unrecognized keys to Registry table
+                    ver_subkey.add_registry(0, ver_subname, component);
+                }
+            }
+        }
+    }
+
+    if (lib_found)
+    {
+        // add a row to the class table for this LibID
+        ::type_lib_row(subkey.name(), language, component, version, description,
+            directory, component, 0);
+    }
+}
 
 ///////////////////////////////////////////////////////////////////////////
 // reg_monitor::reg_monitor
@@ -1179,12 +1769,13 @@ reg_monitor::reg_monitor(LPCTSTR file, bool servicep)
     m_servicep(servicep),
     m_keys(),
     m_events(),
-    m_values(),
-    m_subkeys()
+    m_component()
 {
     m_keys.reserve(64);
     m_events.reserve(64);
     m_events.push_back(TWS(::CreateEvent(NULL, TRUE, FALSE, NULL)));
+    const tstring::size_type whack = m_file.rfind(_T("\\"));
+    m_component = (tstring::npos != whack) ? m_file.substr(whack+1) : m_file;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1247,10 +1838,9 @@ reg_monitor::process()
     THR(unregister_server(m_file.c_str()));
 
     // if necessary, capture a list of system services
-    string_list_t services;
     if (m_servicep)
     {
-        capture_services(services);
+        capture_services(m_services);
     }
 
     // start monitoring the registry keys
@@ -1310,7 +1900,12 @@ reg_monitor::process()
     }
 
     // dump the gathered information
-    dump_tables(services);
+    dump_tables();
+    if (m_servicep)
+    {
+        // ServiceInstall table, ServiceControl table
+        diff_services();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -1325,52 +1920,39 @@ match_key(const s_monitor_key &key, LPCTSTR name, LPCTSTR subkey)
 ///////////////////////////////////////////////////////////////////////////
 // reg_monitor::dump_tables
 //
-// Dump the captured registration information to the Windows Installer
+// Scrape the captured registration information to the Windows Installer
 // database.
+//
 void
-reg_monitor::dump_tables(const string_list_t &services)
+reg_monitor::dump_tables()
 {
-    const tstring::size_type whack = m_file.rfind(_T("\\"));
-    const tstring base = (tstring::npos == whack) ?
-        m_file : m_file.substr(whack+1);
     for (UINT i = 0; i < m_keys.size(); i++)
     {
         // AppId table
         if (match_key(m_keys[i], _T("HKCR"), _T("AppID")))
         {
-            m_keys[i].extract_app_id(base);
+            m_keys[i].extract_app_id(m_component);
         }
         // Class table
         else if (match_key(m_keys[i], _T("HKCR"), _T("CLSID")))
         {
-            m_keys[i].extract_class(base);
+            m_keys[i].extract_class(m_component);
         }
         // TypeLib table
-        else if (match_key(m_keys[i], _T("HKCR"), _T("Interface")))
-        {
-            // skip these
-            1;
-        }
         else if (match_key(m_keys[i], _T("HKCR"), _T("TypeLib")))
         {
-            m_keys[i].extract_typelib(base);
+            m_keys[i].extract_type_lib(m_component);
         }
         // ProgId, Extension table, MIME table, Verb table
         else if (match_key(m_keys[i], _T("HKCR"), _T("")))
         {
-            m_keys[i].extract_prog_id(base);
+            m_keys[i].extract_prog_id(m_component);
         }
         // Registry table
         else
         {
-            m_keys[i].extract_registry(base);
+            m_keys[i].extract_registry(m_component);
         }
-    }
-    if (m_servicep)
-    {
-        // ServiceInstall table, ServiceControl table
-        ::ODS(_T("\nServiceInstall, ServiceControl Table\n"));
-        diff_services(services);
     }
 }
 
@@ -1390,10 +1972,11 @@ WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
         reg_monitor monitor(extract_file, servicep);
         monitor.add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("AppID"))
             .add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("CLSID"))
-            .add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("Interface"))
+            // This isn't needed as the interfaces are registered
+            // when the type library is registered.
+            // .add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("Interface"))
             .add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("TypeLib"))
             .add(HKEY_CLASSES_ROOT, _T("HKCR"))
-            .add(HKEY_CURRENT_CONFIG, _T("HKEY_CURRENT_CONFIG"))
             .add(HKEY_CURRENT_USER, _T("HKCU"), _T("Software"))
             .add(HKEY_CURRENT_USER, _T("HKCU"))
             .add(HKEY_LOCAL_MACHINE, _T("HKLM"), _T("Software"))
