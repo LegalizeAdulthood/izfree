@@ -54,11 +54,7 @@ sub load_dialogs(list, db)
     set view = nothing
 
     sort dialogs    
-    
-    list.innerHTML = ""
-    dim i : for i = 0 to ubound(dialogs)
-        list.options.add new_option(dialogs(i))
-    next
+    load_opts list.options, dialogs
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -292,11 +288,13 @@ sub set_dialog_text(id)
     update_dialog_buttons
 end sub
 
-sub fatalErrorDlg_onClick
-    set_dialog_text "fatalErrorDlg"
-end sub
+sub fatalErrorDlg_onClick   : set_dialog_text "fatalErrorDlg"   : end sub
+sub userExitDlg_onClick     : set_dialog_text "userExitDlg"     : end sub
+sub exitDlg_onClick         : set_dialog_text "exitDlg"         : end sub
+sub errorDlg_onClick        : set_dialog_text "errorDlg"        : end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub window_onUnload
+sub window_onBeforeUnload
     if (not g_preview is nothing) then
         g_preview.viewdialog("")
         set g_preview = nothing
@@ -305,11 +303,6 @@ end sub
 --></SCRIPT>
 </HEAD>
 <BODY>
-
-<P><TABLE WIDTH=100%>
-<TR><TD ALIGN="left"><H3>Dialog Tools</H3></TD>
-<TD ALIGN="right" VALIGN="top"><SPAN ID="help" CLASS="anchor">Help?</SPAN></TD></TR>
-</TABLE></P>
 
 <P><FORM NAME="DialogTool">
 <TABLE>
@@ -331,11 +324,11 @@ end sub
         <TR><TD ALIGN="right"><STRONG>Fatal Error (-3):</STRONG></TD>
         <TD ID="fatalErrorDlg" CLASS="anchor"></TD></TR>
         <TR><TD ALIGN="right"><STRONG>User Exit (-2):</STRONG></TD>
-        <TD ID="userExitDlg"></TD></TR>
+        <TD ID="userExitDlg" CLASS="anchor"></TD></TR>
         <TR><TD ALIGN="right"><STRONG>Exit (-1):</STRONG></TD>
-        <TD ID="exitDlg"></TD></TR>
+        <TD ID="exitDlg" CLASS="anchor"></TD></TR>
         <TR><TD ALIGN="right"><STRONG>ErrorDialog Property:</STRONG></TD>
-        <TD ID="errorDlg"></TD></TR>
+        <TD ID="errorDlg" CLASS="anchor"></TD></TR>
     </TABLE>
 </TD></TR>
 </TABLE>
