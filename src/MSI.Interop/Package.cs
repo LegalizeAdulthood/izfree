@@ -63,6 +63,20 @@ namespace Pahvant.MSI
             int platform, int options);
         #endregion
 
+        #region Install
+        public void Install()
+        {
+            Install("");
+        }
+        public void Install(string commandLine)
+        {
+            TR(MsiInstallProduct(m_path, commandLine));
+        }
+        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
+        private static extern UInt32 MsiInstallProduct(string packagePath,
+            string commandLine);
+        #endregion
+
         #region Open
         public Database Open()
         {

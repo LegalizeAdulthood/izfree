@@ -39,12 +39,12 @@ namespace Pahvant.MSI
             string feature, int state);
         #endregion
 
-        #region ConfigureProduct
-        public void ConfigureProduct(int installLevel, MSI.InstallState state)
+        #region Configure
+        public void Configure(int installLevel, MSI.InstallState state)
         {
             TR(MsiConfigureProduct(m_code, installLevel, (int) state));
         }
-        public void ConfigureProduct(int installLevel, MSI.InstallState state,
+        public void Configure(int installLevel, MSI.InstallState state,
             string commandLine)
         {
             TR(MsiConfigureProductEx(m_code, installLevel, (int) state,
@@ -130,8 +130,8 @@ namespace Pahvant.MSI
             string feature, out UInt32 usageCount, out UInt16 dateUsed);
         #endregion
 
-        #region GetProductInfo
-        public string GetProductInfo(string property)
+        #region GetInfo
+        public string GetInfo(string property)
         {
             int dataLength = Installer.MaxGuidLength+1;
             StringBuilder data = new StringBuilder(dataLength);
@@ -187,8 +187,8 @@ namespace Pahvant.MSI
             string file);
         #endregion
 
-        #region InstallProduct
-        public void InstallProduct(string commandLine)
+        #region Install
+        public void Install(string commandLine)
         {
             TR(MsiInstallProduct(m_code, commandLine));
         }
@@ -197,8 +197,8 @@ namespace Pahvant.MSI
             string commandLine);
         #endregion
 
-        #region ProductElevated
-        public bool ProductElevated
+        #region Elevated
+        public bool Elevated
         {
             get
             {
@@ -212,8 +212,8 @@ namespace Pahvant.MSI
             out int elevated);
         #endregion
 
-        #region OpenProduct
-        public Database OpenProduct()
+        #region Open
+        public Database Open()
         {
             IntPtr handle;
             TR(MsiOpenProduct(m_code, out handle));
@@ -251,10 +251,13 @@ namespace Pahvant.MSI
             string feature);
         #endregion
 
-        #region QueryProductState
-        public MSI.InstallState QueryProductState()
+        #region QueryState
+        public MSI.InstallState InstallState
         {
-            return (MSI.InstallState) MsiQueryProductState(m_code);
+            get
+            {
+                return (MSI.InstallState) MsiQueryProductState(m_code);
+            }
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiQueryProductState(string product);
@@ -270,8 +273,8 @@ namespace Pahvant.MSI
             string feature, int reinstallMode);
         #endregion
 
-        #region ReinstallProduct
-        public void ReinstallProduct(int reinstallMode)
+        #region Reinstall
+        public void Reinstall(int reinstallMode)
         {
             TR(MsiReinstallProduct(m_code, reinstallMode));
         }

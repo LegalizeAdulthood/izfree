@@ -32,8 +32,8 @@ namespace Pahvant.MSI
             int index, StringBuilder product);
         #endregion
 
-        #region EnumComponentQualifiers
-        public void EnumComponentQualifiers(int index,
+        #region EnumQualifiers
+        public void EnumQualifiers(int index,
             out string qualifier, out string applicationData)
         {
             int qualifiersLength = 0;
@@ -89,8 +89,8 @@ namespace Pahvant.MSI
             StringBuilder path, ref int pathLength);
         #endregion
 
-        #region ProvideQualifiedComponent
-        public string ProvideQualifiedComponent(string qualifier,
+        #region ProvideQualified
+        public string ProvideQualified(string qualifier,
             InstallMode installMode)
         {
             int pathLength = Installer.MaxPathLength;
@@ -104,7 +104,7 @@ namespace Pahvant.MSI
             string component, string qualifier, UInt32 installMode,
             StringBuilder path, ref int pathLength);
 
-        public string ProvideQualifiedComponent(
+        public string ProvideQualified(
             string qualifier, InstallMode installMode, string product)
         {
             int pathLength = Installer.MaxPathLength;

@@ -554,17 +554,32 @@ namespace Pahvant.MSI
             int reinstallMode);
         #endregion
 
+        public enum ControlIds
+        {
+            IDOK = 1,
+            IDCANCEL = 2,
+            IDABORT = 3,
+            IDRETRY = 4,
+            IDIGNORE = 5,
+            IDYES = 6,
+            IDNO = 7,
+            IDCLOSE = 8,
+            IDHELP = 9,
+            IDTRYAGAIN = 10,
+            IDCONTINUE = 11
+        }
+
         #region SetExternalUI
         // need a delegate to handle function pointer here
-        public delegate int InstallUIHandler(IntPtr context, 
+        public delegate int UIHandlerDelegate(IntPtr context, 
             int messageType, string message);
-        public static void SetExternalUI(InstallUIHandler handler,
+        public static void SetExternalUI(UIHandlerDelegate handler,
             int messageFilter, IntPtr context)
         {
             TR(MsiSetExternalUI(handler, messageFilter, context));
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiSetExternalUI(InstallUIHandler handler,
+        private static extern UInt32 MsiSetExternalUI(UIHandlerDelegate handler,
             int messageFilter, IntPtr context);
         #endregion
 
