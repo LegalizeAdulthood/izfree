@@ -60,7 +60,7 @@
 		<revnumber>{3EF116B2-B7A6-42EC-A2CB-DA13516EBFD8}</revnumber>
 		<lastprinted>12/19/2001 14:21</lastprinted>
 		<createdtm>12/19/2001 14:21</createdtm>
-		<lastsavedtm>12/23/2001 18:07</lastsavedtm>
+		<lastsavedtm>12/23/2001 18:25</lastsavedtm>
 		<pagecount>110</pagecount>
 		<wordcount>0</wordcount>
 		<charcount>0</charcount>
@@ -11075,7 +11075,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f00_ATLRegistration.html</td>
 			<td>izfree.hta</td>
 			<td>ATLRegis.htm|ATLRegistration.html</td>
-			<td>10656</td>
+			<td>8719</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11085,7 +11085,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f01_NewComponents.html</td>
 			<td>izfree.hta</td>
 			<td>NewCompo.htm|NewComponents.html</td>
-			<td>17231</td>
+			<td>18285</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11095,7 +11095,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f02_NewGUID.html</td>
 			<td>izfree.hta</td>
 			<td>NewGUID.htm|NewGUID.html</td>
-			<td>912</td>
+			<td>800</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11105,7 +11105,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f03_NewPackage.html</td>
 			<td>izfree.hta</td>
 			<td>NewPacka.htm|NewPackage.html</td>
-			<td>11352</td>
+			<td>12013</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11115,7 +11115,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f04_PreviewDialogs.html</td>
 			<td>izfree.hta</td>
 			<td>PreviewD.htm|PreviewDialogs.html</td>
-			<td>10031</td>
+			<td>10564</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11125,7 +11125,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f05_EditDialog.html</td>
 			<td>izfree.hta</td>
 			<td>EditDial.htm|EditDialog.html</td>
-			<td>9606</td>
+			<td>9237</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11155,7 +11155,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f08_izfree.hta</td>
 			<td>izfree.hta</td>
 			<td>izfree.hta</td>
-			<td>2666</td>
+			<td>4499</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11175,7 +11175,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f10_izfree.vbs</td>
 			<td>Top</td>
 			<td>izfree.vbs</td>
-			<td>9565</td>
+			<td>11440</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11195,7 +11195,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f12_MergeModule.html</td>
 			<td>izfree.hta</td>
 			<td>MergeMod.htm|MergeModule.html</td>
-			<td>3580</td>
+			<td>6275</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11426,6 +11426,26 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>izfree.hta</td>
 			<td>izfree.ico</td>
 			<td>766</td>
+			<td/>
+			<td/>
+			<td>0</td>
+			<td>1</td>
+		</row>
+		<row>
+			<td>f36_license.txt</td>
+			<td>Top</td>
+			<td>license.txt</td>
+			<td>19867</td>
+			<td/>
+			<td/>
+			<td>0</td>
+			<td>1</td>
+		</row>
+		<row>
+			<td>f37_izfree.msi.xml</td>
+			<td>Top</td>
+			<td>izfree_m.xml|izfree.msi.xml</td>
+			<td>637902</td>
 			<td/>
 			<td/>
 			<td>0</td>
