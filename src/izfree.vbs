@@ -549,15 +549,24 @@ function null_str(rec, field)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clear_opts
+'
+' Clear out all the <OPTION>s in a <SELECT>
+'
+sub clear_opts(opts)
+    do while (opts.length > 0)
+        opts.remove 0
+    loop
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' load_opts
 '
 ' Load a <SELECT> container full of <OPTION> elements based on the
 ' values in an array.
 '
 sub load_opts(opts, ary)
-    do while (opts.length > 0)
-        opts.remove 0
-    loop
+    clear_opts opts
     dim len : len = -1
     on error resume next : err.clear : len = ubound(ary)
     if (len >= 0) then
