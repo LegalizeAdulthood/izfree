@@ -150,6 +150,13 @@ function registry_row(rec)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' type_lib_row
+'
+' Generate a row in the TypeLib table from the monitor data.  Force any
+' non-zero help directory for the type lib to "APPDIR".  A more sophisticated
+' approach would try to determine the Directory table entry corresponding
+' to the directory scraped from the registry.
+' 
 function type_lib_row(rec)
     dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.LibID
@@ -161,7 +168,11 @@ function type_lib_row(rec)
     row.stringdata(3) = rec.component
     row.integerdata(4) = rec.version
     row.stringdata(5) = rec.description
-    row.stringdata(6) = rec.directory
+    if (rec.directory <> "") then
+        row.stringdata(6) = "APPDIR"
+    else
+        row.stringdata(6) = ""
+    end if
     row.stringdata(7) = rec.feature
     row.integerdata(8) = rec.cost
     set type_lib_row = row
