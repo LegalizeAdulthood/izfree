@@ -305,6 +305,27 @@ sub preview_dialog(dlg)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub load_standard_dialogs(all, db)
+    on error resume next : err.clear
+    dim test : test = db().PrimaryKeys("InstallUISequence")
+    if (err) then
+        all("fatalErrorDlg").innerText = ""
+        all("userExitDlg").innerText = ""
+        all("exitDlg").innerText = ""
+    else
+        all("fatalErrorDlg").innerText = get_ui_action(db, -3)
+        all("userExitDlg").innerText = get_ui_action(db, -2)
+        all("exitDlg").innerText = get_ui_action(db, -1)
+    end if
+    err.clear : test = db().PrimaryKeys("Property")
+    if (err) then
+        all("errorDlg").innerText = ""
+    else
+        all("errorDlg").innerText = get_property(db, "ErrorDialog")
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' dialogs_onChange
 '
 ' Update the display to contain information for a new dialog.  Load the
@@ -391,19 +412,19 @@ sub events_onDblClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub load_standard_dialogs(all, db)
-    all("fatalErrorDlg").innerText = get_ui_action(db, -3)
-    all("userExitDlg").innerText = get_ui_action(db, -2)
-    all("exitDlg").innerText = get_ui_action(db, -1)
-    all("errorDlg").innerText = get_property(db, "ErrorDialog")
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
     dim all : set all = document.forms("Wizards").all
     load_standard_dialogs all, db()
-    load_wizards all("actions"), db()
-    set g_preview = db().enableuipreview
+    on error resume next : err.clear
+    dim test : test = db().PrimaryKeys("Dialog")
+    if (err) then
+        clear_opts all("actions")
+        clear_opts all("dialogs")
+        set g_preview = nothing
+    else
+        load_wizards all("actions"), db()
+        set g_preview = db().enableuipreview
+    end if
     set all = nothing
     update_dialog_buttons
 end sub
