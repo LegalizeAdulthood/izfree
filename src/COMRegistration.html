@@ -38,7 +38,7 @@ function db()
 end function
 
 function app_id_row(rec)
-    dim row : set row = installer().CreateRecord(7) : check
+    dim row : set row = installer().CreateRecord(7)
     row.stringdata(1) = rec.AppId
     row.stringdata(2) = rec.RemoteServername
     row.stringdata(3) = rec.LocalService
@@ -50,24 +50,25 @@ function app_id_row(rec)
 end function
 
 function class_row(rec)
-    dim row : set row = installer().CreateRecord(12) : check
+    dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.CLSID
     row.stringdata(2) = rec.context
     row.stringdata(3) = rec.component
     row.stringdata(4) = rec.ProgIdDefault
     row.stringdata(5) = rec.description
-    row.stringdata(6) = rec.FileTypeMask
-    row.stringdata(7) = rec.icon
-    row.integerdata(8) = rec.IconIndex
-    row.stringdata(9) = rec.DefInprocHandler
-    row.stringdata(10) = rec.argument
-    row.stringdata(11) = rec.feature
-    row.integerdata(12) = rec.attributes
+    row.stringdata(6) = rec.AppId
+    row.stringdata(7) = rec.FileTypeMask
+    row.stringdata(8) = rec.icon
+    row.integerdata(9) = rec.IconIndex
+    row.stringdata(10) = rec.DefInprocHandler
+    row.stringdata(11) = rec.argument
+    row.stringdata(12) = rec.feature
+    row.integerdata(13) = rec.attributes
     set class_row = row
 end function
 
 function prog_id_row(rec)
-    dim row : set row = installer().CreateRecord(6) : check
+    dim row : set row = installer().CreateRecord(6)
     row.stringdata(1) = rec.ProgId
     row.stringdata(2) = rec.Parent
     row.stringdata(3) = rec.Class
@@ -78,9 +79,9 @@ function prog_id_row(rec)
 end function
 
 function registry_row(rec)
-    dim row : set row = installer().CreateRecord(6) : check
+    dim row : set row = installer().CreateRecord(6)
     row.stringdata(1) = rec.registry
-    row.stringdata(2) = rec.root
+    row.integerdata(2) = rec.root
     row.stringdata(3) = rec.key
     row.stringdata(4) = rec.name
     row.stringdata(5) = rec.value
@@ -89,9 +90,13 @@ function registry_row(rec)
 end function
 
 function type_lib_row(rec)
-    dim row : set row = installer().CreateRecord(13) : check
+    dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.LibID
-    row.integerdata(2) = rec.language
+    if (rec.language = "" and rec.version <> "") then
+        row.integerdata(2) = 0
+    else
+        row.integerdata(2) = rec.language
+    end if
     row.stringdata(3) = rec.component
     row.integerdata(4) = rec.version
     row.stringdata(5) = rec.description
@@ -102,7 +107,7 @@ function type_lib_row(rec)
 end function
 
 function service_control_row(rec)
-    dim row : set row = installer().CreateRecord(13) : check
+    dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.ServiceControl
     row.stringdata(2) = rec.name
     row.integerdata(3) = rec.event
@@ -113,7 +118,7 @@ function service_control_row(rec)
 end function
 
 function service_install_row(rec)
-    dim row : set row = installer().CreateRecord(13) : check
+    dim row : set row = installer().CreateRecord(13)
     row.stringdata(1) = rec.ServiceInstall
     row.stringdata(2) = rec.name
     row.stringdata(3) = rec.DisplayName
@@ -131,18 +136,19 @@ function service_install_row(rec)
 end function
 
 sub save_app_id(table)
+    on error resume next
     dim view : set view = db().openview("INSERT INTO `AppId`" &_
         "(`AppId`,`RemoteServerName`,`LocalService`,`ServiceParameters`," &_
         "`DllSurrogate`,`ActivateAtStorage`,`RunAsInteractiveUser`)" &_
         " VALUES (?,?,?,?,?,?,?)") : check
     dim rec : for each rec in table
-        dim row : set row = app_id_row(rec)
-        view.execute row : check
+        view.execute app_id_row(rec) : check
     next
-    view.close
+    view.close : check
 end sub
 
 sub save_class(table)
+    on error resume next
     dim view : set view = db().OpenView("insert into `Class`" &_
         "(`CLSID`,`Context`,`Component_`,`ProgId_Default`,`Description`," &_
         "`AppId_`,`FileTypeMask`,`Icon_`,`IconIndex`,`DefInprocHandler`," &_
@@ -151,50 +157,55 @@ sub save_class(table)
     dim rec : for each rec in table
         view.execute class_row(rec) : check
     next
-    view.close
+    view.close : check
 end sub
 
 sub save_prog_id(table)
+    on error resume next
     dim view : set view = db().OpenView("insert into `ProgId`" &_
         "(`ProgId`,`ProgId_Parent`,`Class_`,`Description`,`Icon_`," &_
         "`IconIndex`) VALUES (?,?,?,?,?,?)") : check
     dim rec : for each rec in table
         view.execute prog_id_row(rec) : check
     next
-    view.close
+    view.close : check
 end sub
 
 sub save_type_lib(table)
+    on error resume next
     dim view : set view = db().OpenView("insert into `TypeLib`" &_
         "(`LibID`,`Language`,`Component_`,`Version`,`Description`," &_
         "`Directory_`,`Feature_`,`Cost`) VALUES (?,?,?,?,?,?,?,?)") : check
     dim rec : for each rec in table
         view.execute type_lib_row(rec) : check
     next
-    view.close
+    view.close : check
 end sub
 
 sub save_registry(table)
+    on error resume next
     dim view : set view = db().OpenView("insert into `Registry`" &_
         "(`Registry`,`Root`,`Key`,`Name`,`Value`,`Component_`)" &_
         " VALUES (?,?,?,?,?,?)") : check
     dim rec : for each rec in table
         view.execute registry_row(rec) : check
     next
-    view.close
+    view.close : check
 end sub
 
 sub save_service_control(table)
+    on error resume next
     dim view : set view = db().OpenView("insert into `ServiceControl`" &_
         "(`ServiceControl`,`Name`,`Event`,`Arguments`,`Wait`,`Component_`)" &_
         " VALUES (?,?,?,?,?,?)") : check
     dim rec : for each rec in table
         view.execute service_control_row(rec) : check
     next
-    view.close
+    view.close : check
 end sub
 
 sub save_service_install(table)
+    on error resume next
     dim view : set view = db().OpenView("insert into `ServiceInstall`" &_
         "(`ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`," &_
         "`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`," &_
@@ -203,12 +214,11 @@ sub save_service_install(table)
     dim rec : for each rec in table
         view.execute service_install_row(rec)
     next
-    view.close
+    view.close : check
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_tables(mon)
-    on error resume next
     save_app_id mon.AppIdTable
     save_class mon.ClassTable
     save_prog_id mon.ProgIdTable
@@ -225,9 +235,11 @@ sub extract_onClick
     dim file : file = document.all("server").value
     dim svc : svc = document.all("service").checked
     on error resume next
+    Err.Clear
     g_monitor.Process file, svc
     if (Err) then
-        MsgBox Err.description, vbOKOnly, "Error While Registering Server:"
+        MsgBox "Description: " & Err.description & vbCRLF &_
+            "Source: " & Err.Source, vbOKOnly, "Error While Registering Server:"
         Err.Clear
         exit sub
     end if
@@ -236,36 +248,51 @@ sub extract_onClick
     db_modified
 end sub
 
+sub write_tool_input(name)
+    write_input "COMRegistration", document.forms("Register").all, name
+end sub
+sub read_tool_input(name, fallback)
+    read_input "COMRegistration", document.forms("Register").all, name, _
+        fallback
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
     set g_monitor = check_object("izfree.Monitor")
-    g_monitor.WatchKey "HKCR\AppID"
-    g_monitor.WatchKey "HKCR\CLSID"
-    g_monitor.WatchKey "HKCR\TypeLib"
-    g_monitor.WatchKey "HKCR\Component Categories"
-    g_monitor.WatchKey "HKCR"
-    g_monitor.WatchKey "HKCU\Software"
-    g_monitor.WatchKey "HKCU"
-    g_monitor.WatchKey "HKLM\Software"
-    g_monitor.WatchKey "HKLM"
-    g_monitor.WatchKey "HKU"
+    
+    dim keys : keys = array("HKEY_CLASSES_ROOT\AppID", _
+        "HKEY_CLASSES_ROOT\CLSID", "HKEY_CLASSES_ROOT\TypeLib", _
+        "HKEY_CLASSES_ROOT\Component Categories", "HKEY_CLASSES_ROOT", _
+        "HKEY_CURRENT_USER\Software", "HKEY_CURRENT_USER", _
+        "HKEY_LOCAL_MACHINE\Software", "HKEY_LOCAL_MACHINE", "HKEY_USERS")
+    dim key : for each key in keys
+        document.all("keys").options.add new_option(key)
+        g_monitor.WatchKey key
+    next
+    read_tool_input "server", ""
+    read_tool_input "service", 0
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onUnload
     set g_monitor = nothing
+    write_tool_input "server"
+    write_tool_input "service"
 end sub
 --></SCRIPT>
 </HEAD>
 <BODY>
-<FORM NAME="ExtractCOM">
-<P>Path to COM server:<BR>
-<INPUT ID="server" TYPE="text" SIZE=30 VALUE="c:\tmp\service\debug\service.exe">
-<INPUT NAME="service" TYPE="checkbox" CHECKED> Service EXE<BR>
-<INPUT ID="extract" TYPE="button" VALUE="Go"></P>
+<P><FORM NAME="Register">
+<TABLE><TR><TD><STRONG>Path to COM server:</STRONG></TD></TR>
+<TR><TD><INPUT ID="server" TYPE="text" SIZE=30 VALUE="">
+<INPUT NAME="service" TYPE="checkbox"> <STRONG>Service EXE</STRONG></TD></TR>
+<TR><TD><STRONG>Monitored Registry keys:</STRONG>
+<INPUT ID="addKey" TYPE="button" VALUE="Add..."></TD></TR>
+<TR><TD><SELECT ID="keys" STYLE="width: 100%" SIZE=12></SELECT>
+<TR><TD><INPUT ID="extract" TYPE="button" VALUE="Go"></TD></TR>
+</TABLE>
+</FORM></P>
 
-<P>
-</FORM>
 <P ID="debug"></P>
 </BODY>
 </HTML>
