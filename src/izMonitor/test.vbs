@@ -100,18 +100,19 @@ function service_install_str(rec)
         "description: " & rec.description & vbCRLF
 end function
 
-sub test_monitor
+sub test_monitor(file, service)
     dim mon : set mon = CreateObject("izfree.Monitor")
     mon.WatchKey "HKCR\AppID"
     mon.WatchKey "HKCR\CLSID"
     mon.WatchKey "HKCR\TypeLib"
+    mon.WatchKey "HKCR\Component Categories"
     mon.WatchKey "HKCR"
     mon.WatchKey "HKCU\Software"
     mon.WatchKey "HKCU"
     mon.WatchKey "HKLM\Software"
     mon.WatchKey "HKLM"
     mon.WatchKey "HKU"
-    mon.Process "c:\tmp\service\debug\service.exe", true
+    mon.Process file, service
     dim table : set table = mon.AppIdTable
     dim msg : msg = "AppId Count: " & table.Count & vbCRLF & vbCRLF
     dim rec : for each rec in table
@@ -165,4 +166,7 @@ sub test_monitor
     'mon.WatchKey "HKEY_CURRENT_CONFIG\Software\Pahvant"
 end sub
 
-test_monitor
+'test_monitor "c:\tmp\service\debug\service.exe", true
+' this should fail:
+' test_monitor "c:\data\projects\izfree\dll\guidgen.dll", true
+test_monitor "c:\data\projects\izfree\dll\guidgen.dll", false
