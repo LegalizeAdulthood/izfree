@@ -280,15 +280,7 @@ SOURCE=.\AppIdRecord.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\AppIdTable.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ClassRecord.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ClassTable.cpp
 # End Source File
 # Begin Source File
 
@@ -313,15 +305,7 @@ SOURCE=.\ProgIdRecord.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ProgIdTable.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\RegistryRecord.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RegistryTable.cpp
 # End Source File
 # Begin Source File
 
@@ -329,15 +313,7 @@ SOURCE=.\ServiceControlRecord.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServiceControlTable.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ServiceInstallRecord.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServiceInstallTable.cpp
 # End Source File
 # Begin Source File
 
@@ -347,10 +323,6 @@ SOURCE=.\StdAfx.cpp
 # Begin Source File
 
 SOURCE=.\TypeLibRecord.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\TypeLibTable.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -362,15 +334,7 @@ SOURCE=.\AppIdRecord.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\AppIdTable.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ClassRecord.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ClassTable.h
 # End Source File
 # Begin Source File
 
@@ -382,15 +346,11 @@ SOURCE=.\ProgIdRecord.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ProgIdTable.h
+SOURCE=.\props.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\RegistryRecord.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\RegistryTable.h
 # End Source File
 # Begin Source File
 
@@ -406,15 +366,7 @@ SOURCE=.\ServiceControlRecord.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServiceControlTable.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ServiceInstallRecord.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServiceInstallTable.h
 # End Source File
 # Begin Source File
 
@@ -428,30 +380,10 @@ SOURCE=.\tstring.h
 
 SOURCE=.\TypeLibRecord.h
 # End Source File
-# Begin Source File
-
-SOURCE=.\TypeLibTable.h
-# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=.\AppIdRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\AppIdTable.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ClassRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\IClassTable.rgs
-# End Source File
 # Begin Source File
 
 SOURCE=.\izMonitor.rgs
@@ -459,46 +391,6 @@ SOURCE=.\izMonitor.rgs
 # Begin Source File
 
 SOURCE=.\Monitor.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ProgIdRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ProgIdTable.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\RegistryRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\RegistryTable.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServiceControlRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServiceControlTable.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServiceInstallRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServiceInstallTable.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\TypeLibRecord.rgs
-# End Source File
-# Begin Source File
-
-SOURCE=.\TypeLibTable.rgs
 # End Source File
 # End Group
 # Begin Source File
