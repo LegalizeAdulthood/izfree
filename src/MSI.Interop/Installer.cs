@@ -46,33 +46,6 @@ namespace Pahvant.MSI
         private static extern IntPtr MsiGetLastErrorRecord();
         #endregion
 
-        #region AdvertiseProduct
-        static public void AdvertiseProduct(string packagePath, string scriptFilePath,
-            string transforms, int language)
-        {
-            TR(MsiAdvertiseProduct(packagePath, scriptFilePath, transforms,
-                language));
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiAdvertiseProduct(string packagePath,
-            string scriptFilePath, string transforms, int language);
-
-        static public void AdvertiseProduct(string packagePath,
-            string scriptFilePath,
-            string transforms,
-            int language,
-            ArchitectureFlags platform,
-            AdvertiseOptionFlags options)
-        {
-            TR(MsiAdvertiseProductEx(packagePath, scriptFilePath, transforms,
-                language, (int) platform, (int) options));
-        }
-        [DllImport(Installer.MSI_DLL, CharSet=CharSet.Auto)]
-        private static extern UInt32 MsiAdvertiseProductEx(string packagePath,
-            string scriptFilePath, string transforms, int language,
-            int platform, int options);
-        #endregion
-
         #region AdvertiseScript
         public static void AdvertiseScript(string scriptPath,
             MSI.ScriptFlags flags, Microsoft.Win32.RegistryKey data,
@@ -149,43 +122,6 @@ namespace Pahvant.MSI
             int attributes);
         #endregion
 
-        #region EnumClients
-        public static void EnumClients(string component, int index,
-            string product)
-        {
-            TR(MsiEnumClients(component, index, product));
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiEnumClients(string component,
-            int index, string product);
-        #endregion
-
-        #region EnumComponentQualifiers
-        public static void EnumComponentQualifiers(string component,
-            int index, out string qualifier, out string applicationData)
-        {
-            int qualifiersLength = 0;
-            int appDataLength = 0;
-            TR(MsiEnumComponentQualifiers(component, index,
-                null, ref qualifiersLength,
-                null, ref appDataLength));
-
-            StringBuilder qualifiers = new StringBuilder(qualifiersLength+1);
-            StringBuilder appData  = new StringBuilder(appDataLength+1);
-            TR(MsiEnumComponentQualifiers(component, index,
-                qualifiers, ref qualifiersLength,
-                appData, ref appDataLength));
-
-            qualifier = qualifiers.ToString();
-            applicationData = appData.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiEnumComponentQualifiers(
-            string component, int index,
-            StringBuilder qualifiers, ref int qualifiersLength,
-            StringBuilder applicationData, ref int applicationDataLength);
-        #endregion
-
         #region EnumComponents
         public static string EnumComponents(int index)
         {
@@ -196,47 +132,6 @@ namespace Pahvant.MSI
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiEnumComponents(int index,
             out string component);
-        #endregion
-
-        #region EnumFeatures
-        public static string EnumFeatures(string product, int index)
-        {
-            string parent;
-            return EnumFeatures(product, index, out parent);
-        }
-        public static string EnumFeatures(string product, int index,
-            out string parentFeature)
-        {
-            StringBuilder parent =
-                new StringBuilder(Installer.MaxFeatureLength+1);
-            StringBuilder feature =
-                new StringBuilder(Installer.MaxFeatureLength+1);
-            TR(MsiEnumFeatures(product, index, feature, parent));
-            parentFeature = parent.ToString();
-            return feature.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiEnumFeatures(string product,
-            int index, StringBuilder feature, StringBuilder parent);
-        #endregion
-
-        #region EnumPatches
-        public static string EnumPatches(string product, int index,
-            out Guid patch)
-        {
-            StringBuilder patchGuid =
-                new StringBuilder(Installer.MaxGuidLength+1);
-            int transformLength = Installer.MaxPathLength;
-            StringBuilder transforms = new StringBuilder(transformLength);
-            TR(MsiEnumPatches(product, index, patchGuid,
-                transforms, ref transformLength));
-            patch = new Guid(patchGuid.ToString());
-            return transforms.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiEnumPatches(string product,
-            int index, StringBuilder patch, StringBuilder transforms,
-            ref int transformsLength);
         #endregion
 
         #region EnumProducts
@@ -275,28 +170,6 @@ namespace Pahvant.MSI
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiGetComponentPath(string product,
             string component, StringBuilder path, ref int pathLength);
-        #endregion
-
-        #region GetFeatureInfo
-        public static void GetFeatureInfo(IntPtr product, string feature,
-            InstallFeatureAttribute attributes,
-            out string title, out string help)
-        {
-            int titleLength = Installer.MaxPathLength;
-            StringBuilder titleBuff = new StringBuilder(titleLength);
-            int helpLength = Installer.MaxPathLength;
-            StringBuilder helpBuff = new StringBuilder(helpLength);
-            UInt32 attributeBuffer = (UInt32) attributes;
-            TR(MsiGetFeatureInfo(product, feature, ref attributeBuffer,
-                titleBuff, ref titleLength, helpBuff, ref helpLength));
-            title = titleBuff.ToString();
-            help = helpBuff.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiGetFeatureInfo(
-            IntPtr product, string feature, ref UInt32 attributes,
-            StringBuilder title, ref int titleLength,
-            StringBuilder help, ref int helpLength);
         #endregion
 
         #region GetFeatureUsage
@@ -404,18 +277,6 @@ namespace Pahvant.MSI
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiGetPatchInfo(string patch,
             string attribute, StringBuilder val, ref int valueLength);
-        #endregion
-
-        #region GetProductCode
-        static public System.Guid ProductCode(string product)
-        {
-            StringBuilder guid = new StringBuilder(Installer.MaxGuidLength+1);
-            TR(MsiGetProductCode(product, guid));
-            return new System.Guid(guid.ToString());
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiGetProductCode(string product,
-            StringBuilder productCode);
         #endregion
 
         #region GetProductInfo
@@ -565,35 +426,22 @@ namespace Pahvant.MSI
             out int elevated);
         #endregion
 
-        #region LocateComponent
-        public static string LocateComponent(string component)
-        {
-            int pathLength = Installer.MaxPathLength;
-            StringBuilder path = new StringBuilder(pathLength);
-            TR(MsiLocateComponent(component, path, ref pathLength));
-            return path.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiLocateComponent(string component,
-            StringBuilder path, ref int pathLength);
-        #endregion
-
         #region OpenPackage
-        public static IntPtr OpenPackage(string package)
+        public static Database OpenPackage(string package)
         {
             IntPtr product;
             TR(MsiOpenPackage(package, out product));
-            return product;
+            return new Database(product);
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiOpenPackage(string package,
             out IntPtr product);
 
-        public static IntPtr OpenPackage(string package, int options)
+        public static Database OpenPackage(string package, int options)
         {
             IntPtr product;
             TR(MsiOpenPackageEx(package, options, out product));
-            return product;
+            return new Database(product);
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiOpenPackageEx(string package,
@@ -601,11 +449,11 @@ namespace Pahvant.MSI
         #endregion
 
         #region OpenProduct
-        public static IntPtr OpenProduct(string product)
+        public static Database OpenProduct(string product)
         {
             IntPtr handle;
             TR(MsiOpenProduct(product, out handle));
-            return handle;
+            return new MSI.Database(handle);
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiOpenProduct(string product,
@@ -662,38 +510,6 @@ namespace Pahvant.MSI
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiProvideComponent(string product,
             string feature, string component, UInt32 installMode, 
-            StringBuilder path, ref int pathLength);
-        #endregion
-
-        #region ProvideQualifiedComponent
-        public static string ProvideQualifiedComponent(string component,
-            string qualifier, InstallMode installMode)
-        {
-            int pathLength = Installer.MaxPathLength;
-            StringBuilder path = new StringBuilder(pathLength);
-            TR(MsiProvideQualifiedComponent(component, qualifier,
-                (UInt32) installMode, path, ref pathLength));
-            return path.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiProvideQualifiedComponent(
-            string component, string qualifier, UInt32 installMode,
-            StringBuilder path, ref int pathLength);
-
-        public static string ProvideQualifiedComponent(
-            string component, string qualifier, InstallMode installMode,
-            string product)
-        {
-            int pathLength = Installer.MaxPathLength;
-            StringBuilder path = new StringBuilder(pathLength);
-            TR(MsiProvideQualifiedComponentEx(component, qualifier,
-                (UInt32) installMode, product, 0, 0, path, ref pathLength));
-            return path.ToString();
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiProvideQualifiedComponentEx(
-            string component, string qualifier, UInt32 installMode,
-            string product, int reserved1, int reserved2,
             StringBuilder path, ref int pathLength);
         #endregion
 
@@ -817,12 +633,12 @@ namespace Pahvant.MSI
         #endregion
 
         #region VerifyPackage
-        public static void VerifyPackage(string product)
+        public static void VerifyPackage(string package)
         {
-            TR(MsiVerifyPackage(product));
+            TR(MsiVerifyPackage(package));
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiVerifyPackage(string product);
+        private static extern UInt32 MsiVerifyPackage(string package);
         #endregion
 
         public static string FormatRecord(Record record)
