@@ -144,27 +144,31 @@ CMonitor::WatchKey(BSTR registry_key)
     HKEY root = 0;
     tstring key = W2T(registry_key);
     const tstring::size_type whack = key.find(_T("\\"));
-    const tstring root_name = (whack != tstring::npos) ?
+    tstring root_name = (whack != tstring::npos) ?
         key.substr(0, whack) : key;
     if (cis_equal(_T("HKCR"), root_name) ||
         cis_equal(_T("HKEY_CLASSES_ROOT"), root_name))
     {
         root = HKEY_CLASSES_ROOT;
+        root_name = _T("HKCR");
     }
     else if (cis_equal(_T("HKCU"), root_name)
              || cis_equal(_T("HKEY_CURRENT_USER"), root_name))
     {
         root = HKEY_CURRENT_USER;
+        root_name = _T("HKCU");
     }
     else if (cis_equal(_T("HKLM"), root_name)
              || cis_equal(_T("HKEY_LOCAL_MACHINE"), root_name))
     {
         root = HKEY_LOCAL_MACHINE;
+        root_name = _T("HKLM");
     }
     else if (cis_equal(_T("HKU"), root_name)
              || cis_equal(_T("HKEY_USERS"), root_name))
     {
         root = HKEY_USERS;
+        root_name = _T("HKU");
     }
     else
     {
