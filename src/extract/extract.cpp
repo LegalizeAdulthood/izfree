@@ -20,7 +20,95 @@
 
 #include "stdafx.h"
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// thread_args
+//
+// Structure containing arguments passed to the registration thread.
+//
+struct thread_args
+{
+    LPCTSTR m_file;
+    HANDLE m_event;
+    bool m_servicep;
+};
+
+struct s_app_id
+{
+    tstring m_app_id;
+    tstring m_remote_server_name;
+    tstring m_local_service;
+    tstring m_service_parameters;
+    tstring m_dll_surrogate;
+    DWORD m_activate_at_storage;
+    DWORD m_run_as_interactive_user;
+};
+
+struct s_class
+{
+    tstring m_clsid;
+    tstring m_context;
+    tstring m_component;
+    tstring m_prog_id_default;
+    tstring m_description;
+    tstring m_app_id;
+    tstring m_file_type_mask;
+    tstring m_icon;
+    DWORD m_icon_index;
+    tstring m_def_inproc_handler;
+    tstring m_argument;
+    tstring m_feature;
+    DWORD m_attributes;
+};
+
+struct s_registry
+{
+    tstring m_registry;
+    DWORD m_root;
+    tstring m_name;
+    tstring m_value;
+    tstring m_component;
+};
+
+struct s_prog_id
+{
+    tstring m_prog_id;
+    tstring m_prog_id_parent;
+    tstring m_class;
+    tstring m_description;
+    tstring m_icon;
+    DWORD m_icon_index;
+};
+
+struct s_service_install
+{
+    tstring m_service_install;
+    tstring m_name;
+    tstring m_display_name;
+    DWORD m_service_type;
+    DWORD m_start_type;
+    DWORD m_error_control;
+    tstring m_load_order_group;
+    tstring m_dependencies;
+    tstring m_start_name;
+    tstring m_password;
+    tstring m_arguments;
+    tstring m_component;
+    tstring m_description;
+};
+
+std::vector<s_app_id>           g_app_id_table;
+std::vector<s_class>            g_class_table;
+std::vector<s_registry>         g_registry_table;
+std::vector<s_prog_id>          g_prog_id_table;
+std::vector<s_service_install>  g_service_install_table;
+
+///////////////////////////////////////////////////////////////////////////
+// check_registry
+//
+// Checks the return values from ::RegXXX functions.  These functions don't
+// set the value of ::GetLastError(), so they have to be treated special.
+// Throw an exception on failure.
+//
 LONG
 check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context)
 {
@@ -42,7 +130,11 @@ check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context)
     return result;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// check_hr
+//
+// Throw an exception on a FAILED HRESULT.
+//
 HRESULT
 check_hr(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR context)
 {
@@ -64,27 +156,33 @@ check_hr(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR context)
     return hr;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// dynamic_library::dynamic_library
+//
+// Create a wrapper for a dynamic library if we could load it.
+//
 dynamic_library::dynamic_library(LPCTSTR file)
     : m_file(file),
     m_library(TWS(::LoadLibrary(file)))
 {
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// dynamic_library::~dynamic_library
+//
+// Free the library loaded in the c'tor.
+//
 dynamic_library::~dynamic_library()
 {
     const BOOL res = ::FreeLibrary(m_library);
     ATLASSERT(res);
 }
 
-//-------------------------------------------------------------------------
-dynamic_library::operator HMODULE() const
-{
-    return m_library;
-}
-
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// register_proc
+//
+// Return the result of the registration procedure for a file, or error.
+//
 HRESULT
 register_proc(bool register_not_unregister, LPCTSTR file)
 {
@@ -97,14 +195,18 @@ register_proc(bool register_not_unregister, LPCTSTR file)
     return proc ? (*proc)() : E_POINTER;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// run_executable
+//
+// Call ::CreateProcess on a file and attempt to make it register itself.
+//
 HRESULT
 run_executable(LPCTSTR file, const tstring &cmd_line)
 {
     STARTUPINFO si = { 0 };
     PROCESS_INFORMATION pi = { 0 };
-    TWS(::CreateProcess(file, const_cast<LPTSTR>(cmd_line.c_str()), NULL, NULL, false,
-        0, NULL, NULL, &si, &pi));
+    TWS(::CreateProcess(file, const_cast<LPTSTR>(cmd_line.c_str()), NULL,
+        NULL, false, 0, NULL, NULL, &si, &pi));
     bool wait = true;
     DWORD status = WAIT_TIMEOUT;
     while (WAIT_TIMEOUT == status)
@@ -123,7 +225,13 @@ run_executable(LPCTSTR file, const tstring &cmd_line)
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// register_server
+//
+// Self-Register a COM server in order to monitor its registration
+// information.  Services are always EXEs, so just run it with '-service'.
+// Otherwise, first try to use it like a DLL and then as an EXE.
+//
 HRESULT
 register_server(LPCTSTR file, bool servicep)
 {
@@ -137,7 +245,11 @@ register_server(LPCTSTR file, bool servicep)
         run_executable(file, tstring(file) + _T(" -regserver")) : hr;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// unregister_server
+//
+// Make a self-registering COM server unregister itself.
+//
 HRESULT
 unregister_server(LPCTSTR file)
 {
@@ -146,7 +258,13 @@ unregister_server(LPCTSTR file)
         run_executable(file, tstring(file) + _T(" -unregserver")) : hr;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// reg_monitor::register_threadproc
+//
+// Thread procedure for the registration thread.  The registration thread
+// registers the COM server and sets an event to notify the main thread that
+// registration has completed.
+//
 void __cdecl
 reg_monitor::register_threadproc(void *pv)
 {
@@ -163,7 +281,12 @@ reg_monitor::register_threadproc(void *pv)
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// capture_services
+//
+// Enumerates the currently installed services and returns a atring list
+// of service names.
+//
 void
 capture_services(string_list_t &services)
 {
@@ -203,6 +326,11 @@ capture_services(string_list_t &services)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+// dump_service
+//
+// Dumps information about a newly created service
+//
 void
 dump_service(const tstring &name)
 {
@@ -217,7 +345,13 @@ dump_service(const tstring &name)
     TWS(::QueryServiceConfig(service, config, buff.size(), &size_needed));
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// diff_services
+//
+// Compare currently installed services to a list of services previously
+// installed to determine the names of services added or removed during
+// registration.
+//
 void
 diff_services(const string_list_t &services)
 {
@@ -258,7 +392,11 @@ diff_services(const string_list_t &services)
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// enum_values
+//
+// Enumerate values in the registry.
+//
 void
 enum_values(HKEY key, const tstring &name, UINT num_values)
 {
@@ -299,7 +437,11 @@ enum_values(HKEY key, const tstring &name, UINT num_values)
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// enum_registry
+//
+// Enumerate a hive in the registry.
+//
 void
 enum_registry(HKEY key, const tstring &name)
 {
@@ -345,7 +487,11 @@ enum_registry(HKEY key, const tstring &name)
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// reg_monitor::reg_monitor
+//
+// C'tor reserves space and creates an event for notification.
+//
 reg_monitor::reg_monitor(LPCTSTR file, bool servicep)
     : m_file(file),
     m_servicep(servicep),
@@ -359,12 +505,11 @@ reg_monitor::reg_monitor(LPCTSTR file, bool servicep)
     m_events.push_back(TWS(::CreateEvent(NULL, TRUE, FALSE, NULL)));
 }
 
-//-------------------------------------------------------------------------
-reg_monitor::~reg_monitor()
-{
-}
-
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// reg_monitor::add
+//
+// Add a registry key/subkey for monitoring.
+//
 reg_monitor &
 reg_monitor::add(HKEY key, LPCTSTR name, LPCTSTR subkey)
 {
@@ -382,7 +527,11 @@ reg_monitor::add(HKEY key, LPCTSTR name, LPCTSTR subkey)
     return *this;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::snapshot
+//
+// Take a snapshot of this key's values and subkeys.
+//
 void
 s_monitor_key::snapshot()
 {
@@ -423,8 +572,14 @@ s_monitor_key::snapshot()
     }
 }
 
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key::diff
+//
+// Report a difference between this key's snapshot and its current settings
+// in the registry.
+//
 void
-s_monitor_key::diff()
+s_monitor_key::diff(e_com_table table) const
 {
     TCHAR class_name[1024];
     DWORD num_class_name = NUM_OF(class_name);
@@ -460,8 +615,8 @@ s_monitor_key::diff()
 
                 std::vector<BYTE> data(num_data);
                 num_value_name = NUM_OF(val_name);
-                TRS(::RegEnumValue(m_key, i, &val_name[0], &num_value_name, NULL,
-                    NULL, &data[0], &num_data));
+                TRS(::RegEnumValue(m_key, i, &val_name[0], &num_value_name,
+                    NULL, NULL, &data[0], &num_data));
 
                 buff << _T("\"") << val_name << _T("\" = ");
                 switch (type)
@@ -471,7 +626,8 @@ s_monitor_key::diff()
                     break;
 
                 case REG_SZ:
-                    buff << _T("\"") << reinterpret_cast<LPTSTR>(&data[0]) << _T("\"");
+                    buff << _T("\"") << reinterpret_cast<LPTSTR>(&data[0])
+                        << _T("\"");
                     break;
 
                 default:
@@ -508,17 +664,28 @@ s_monitor_key::diff()
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// reg_monitor::process
+//
+// Perform the registration process for a COM server and monitor the current
+// set of registry keys for changes.  Report the changes after the COM server
+// has been registered.  The changes contain the registration information for
+// the COM server.
+//
 void
 reg_monitor::process()
 {
-    string_list_t services;
+    // unregister the existing server so that our snapshot shows the new keys
     THR(unregister_server(m_file.c_str()));
+
+    // if necessary, capture a list of system services
+    string_list_t services;
     if (m_servicep)
     {
         capture_services(services);
     }
 
+    // start monitoring the registry keys
     UINT i;
     for (i = 0; i < m_keys.size(); i++)
     {
@@ -529,13 +696,14 @@ reg_monitor::process()
         m_keys[i].snapshot();
     }
 
+    // launch the registration thread
     thread_args args = { m_file.c_str(), m_events[0], m_servicep };
     DWORD thread_id = 0;
     unsigned long thread_handle =
         TCR(_beginthread(register_threadproc, 0, &args));
 
+    // keep processing notifications until the registration thread completes
     bool more = true;
-
     while (more)
     {
         const DWORD res = ::WaitForMultipleObjects(m_events.size(),
@@ -548,15 +716,18 @@ reg_monitor::process()
                 s_monitor_key &target = m_keys[which-1];
                 target.m_modified = true;
                 TWS(::ResetEvent(m_events[which]));
-                ::ODS(target.m_name + _T("\\") + target.m_subkey + _T(" changed.\n"));
+                ::ODS(target.m_name + _T("\\") + target.m_subkey +
+                    _T(" changed.\n"));
             }
             else
             {
+                // event 0 tells us the thread is done.
                 more = false;
             }
         }
         else
         {
+            // ::WaitForMultipleObjects freaked
             tostringstream buff;
             for (UINT i = 0; i < m_events.size(); i++)
             {
@@ -570,96 +741,78 @@ reg_monitor::process()
         }
     }
 
+    // dump the gathered information
     dump_tables(services);
 }
 
+///////////////////////////////////////////////////////////////////////////
+// match_key -- inline helper
+//
+inline bool
+match_key(const s_monitor_key &key, LPCTSTR name, LPCTSTR subkey)
+{
+    return (key.m_name == name) && (key.m_subkey == subkey);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// reg_monitor::dump_tables
+//
+// Dump the captured registration information to the Windows Installer
+// database.
 void
 reg_monitor::dump_tables(const string_list_t &services)
 {
     for (UINT i = 0; i < m_keys.size(); i++)
     {
-        if (m_keys[i].m_name == _T("HKCR"))
+        if (match_key(m_keys[i], _T("HKCR"), _T("AppID")))
         {
-            if (m_keys[i].m_subkey == _T("AppID"))
-            {
-                // AppId table
-                ::OutputDebugString(_T("\nAppId Table\n"));
-                m_keys[i].diff();
-            }
-            else if (m_keys[i].m_subkey == _T("CLSID"))
-            {
-                // Class table
-                ::OutputDebugString(_T("\nClass Table\n"));
-                m_keys[i].diff();
-            }
-            else if (m_keys[i].m_subkey == _T("Interface"))
-            {
-                // TypeLib table
-                ::OutputDebugString(_T("\nTypeLib Table, IIDs\n"));
-                m_keys[i].diff();
-            }
-            else if (m_keys[i].m_subkey == _T("TypeLib"))
-            {
-                // TypeLib table
-                ::OutputDebugString(_T("\nTypeLib Table\n"));
-                m_keys[i].diff();
-            }
-            else if (m_keys[i].m_subkey == _T(""))
-            {
-                // ProgId, Extension table, MIME table, Verb table
-                ::OutputDebugString(_T("\nProgId, Extension, MIME, Verb Tables\n"));
-                m_keys[i].diff();
-            }
-            else
-            {
-                // Registry table?
-                ::OutputDebugString(_T("\nRegistry Table, HKCR\\?\n"));
-                m_keys[i].diff();
-                ATLASSERT(0);
-            }
+            // AppId table
+            ::ODS(_T("\nAppId Table\n"));
+            m_keys[i].diff(CT_APPID);
         }
-        else if (m_keys[i].m_name == _T("HKLM"))
+        else if (match_key(m_keys[i], _T("HKCR"), _T("CLSID")))
         {
-            // Registry table
-                ::OutputDebugString(_T("\nRegistry Table, HKLM\n"));
-            m_keys[i].diff();
+            // Class table
+            ::ODS(_T("\nClass Table\n"));
+            m_keys[i].diff(CT_CLASS);
         }
-        else if (m_keys[i].m_name == _T("HKCU"))
+        else if (match_key(m_keys[i], _T("HKCR"), _T("Interface")))
         {
-            // Registry table
-                ::OutputDebugString(_T("\nRegistry Table, HKCU\n"));
-            m_keys[i].diff();
+            // TypeLib table
+            ::ODS(_T("\nTypeLib Table, IIDs\n"));
+            m_keys[i].diff(CT_TYPELIB);
         }
-        else if (m_keys[i].m_name == _T("HKEY_USERS"))
+        else if (match_key(m_keys[i], _T("HKCR"), _T("TypeLib")))
         {
-            // Registry table
-                ::OutputDebugString(_T("\nRegistry Table, HKEY_USERS\n"));
-            m_keys[i].diff();
+            // TypeLib table
+            ::ODS(_T("\nTypeLib Table\n"));
+            m_keys[i].diff(CT_TYPELIB);
         }
-        else if (m_keys[i].m_name == _T("HKEY_CURRENT_CONFIG"))
+        else if (match_key(m_keys[i], _T("HKCR"), _T("")))
         {
-            // Registry table
-            ::OutputDebugString(_T("\nRegistry Table, HKEY_CURRENT_CONFIG\n"));
-            m_keys[i].diff();
+            // ProgId, Extension table, MIME table, Verb table
+            ::ODS(_T("\nProgId, Extension, MIME, Verb Tables: key\n"));
+            m_keys[i].diff(CT_PROGID);
         }
         else
         {
             // Registry table
-            ::OutputDebugString((_T("\nRegistry Table, ") + m_keys[i].m_name +
-                _T("?\n")).c_str());
-            m_keys[i].diff();
-            ATLASSERT(0);
+            ::ODS((_T("\nRegistry Table, ") + m_keys[i].m_name +
+                _T("\\") + m_keys[i].m_subkey + _T("\n")).c_str());
+            m_keys[i].diff(CT_REGISTRY);
         }
     }
     if (m_servicep)
     {
         // ServiceInstall table, ServiceControl table
-        ::OutputDebugString(_T("\nServiceInstall, ServiceControl Table\n"));
+        ::ODS(_T("\nServiceInstall, ServiceControl Table\n"));
         diff_services(services);
     }
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// WinMain -- test the whole thing with a stub service EXE COM server
+//
 int APIENTRY
 WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {

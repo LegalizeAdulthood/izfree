@@ -44,26 +44,34 @@
 #include <tchar.h>
 #include <atlbase.h>
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// NUM_OF -- gets the size of a fixed-size array
+//
 #define NUM_OF(ary_) (sizeof(ary_)/sizeof((ary_)[0]))
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// tstring, tostringstream -- C++ standard library strings of TCHARs
+//
 typedef std::basic_string<TCHAR> tstring;
 typedef std::basic_ostringstream<TCHAR> tostringstream;
 
-//-------------------------------------------------------------------------
-struct thread_args
-{
-    LPCTSTR m_file;
-    HANDLE m_event;
-    bool m_servicep;
-};
+///////////////////////////////////////////////////////////////////////////
+// thread_args -- structure containing arguments passed to registration thread
+//
+struct thread_args;
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// ODS -- ::OutputDebugString shortcut for tstrings
+//
 inline void ODS(const tstring &s)          { ::OutputDebugString(s.c_str()); }
 inline void ODS(const tostringstream &s)   { ::OutputDebugString(s.str().c_str()); }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// TRS, TWS, TCR, THR
+//
+// check registry, win32, C runtime and HRESULTs for failure and throw when
+// they fail with a meaningful context message.
+//
 #define TRS(expr_) \
     check_registry((expr_), _T(__FILE__), __LINE__, _T(#expr_))
 #define TWS(expr_) \
@@ -73,7 +81,11 @@ inline void ODS(const tostringstream &s)   { ::OutputDebugString(s.str().c_str()
 #define THR(expr_) \
     check_hr((expr_), _T(__FILE__), __LINE__, _T(#expr_))
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// source_error
+//
+// Structure holding source file context information for an unexpected error.
+//
 struct source_error
 {
     source_error(LPCTSTR file, UINT line, LPCTSTR msg)
@@ -83,7 +95,9 @@ struct source_error
     LPCTSTR m_msg;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// win32_error -- source error context and a Win32 return value
+//
 struct win32_error : source_error
 {
     win32_error(DWORD result, LPCTSTR file, UINT line, LPCTSTR msg)
@@ -91,7 +105,9 @@ struct win32_error : source_error
     DWORD m_result;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// crt_error -- source error context and a C runtime return value
+//
 struct crt_error : source_error
 {
     crt_error(unsigned long result, LPCTSTR file, UINT line, LPCTSTR msg)
@@ -99,7 +115,9 @@ struct crt_error : source_error
     unsigned long m_result;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// hresult_error -- source error context and an HRESULT
+//
 struct hresult_error : source_error
 {
     hresult_error(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR msg)
@@ -107,7 +125,13 @@ struct hresult_error : source_error
     HRESULT m_hr;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// check_win32
+//
+// Check the return value of a Win32 function for failure and throw when
+// it fails.  This needs to be a template typename to work with functions
+// that return GDI opaque pointers or NULL.
+//
 template <typename T>
 T
 check_win32(T result, LPCTSTR file, UINT line, LPCTSTR context)
@@ -135,7 +159,12 @@ check_win32(T result, LPCTSTR file, UINT line, LPCTSTR context)
     return result;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// check_cruntime
+//
+// Check the return value of a C runtime function for failure, indicated by
+// -1, and throw an exception when it fails.
+//
 template <typename T>
 T
 check_cruntime(T result, LPCTSTR file, UINT line, LPCTSTR context)
@@ -155,43 +184,20 @@ check_cruntime(T result, LPCTSTR file, UINT line, LPCTSTR context)
     return result;
 }
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// check_registry, check_hr
+//
+// Checks the return values of registry API functions and functions that
+// return HRESULT.  Throws on failure.
+//
 LONG
 check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context);
 HRESULT
 check_hr(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR context);
 
-
-//-------------------------------------------------------------------------
-class reg_override
-{
-public:
-    reg_override(HKEY key, LPCTSTR redirect)
-        : m_key(key),
-        m_redirect()
-    {
-        ::SetLastError(0);
-        TRS(m_redirect.Create(HKEY_LOCAL_MACHINE, redirect));
-        TRS(::RegOverridePredefKey(m_key, m_redirect));
-    }
-
-    ~reg_override()
-    {
-        LONG res = ::RegOverridePredefKey(m_key, NULL);
-        ATLASSERT(ERROR_SUCCESS == res);
-        res = m_redirect.Close();
-        ATLASSERT(ERROR_SUCCESS == res);
-    }
-
-    HKEY redirect() const { return m_redirect; }
-    HKEY key() const { return m_key; }
-
-private:
-    HKEY m_key;
-    CRegKey m_redirect;
-};
-
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// com_runtime -- acquire the COM runtime as a resource in c'tor
+//
 class com_runtime
 {
 public:
@@ -199,19 +205,24 @@ public:
     ~com_runtime() { ::CoUninitialize(); }
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// dynamic_library -- LoadLibrary a file as a resource in c'tor
+//
 class dynamic_library
 {
 public:
     dynamic_library(LPCTSTR file);
     ~dynamic_library();
-    operator HMODULE() const;
+    operator HMODULE() const { return m_library; }
+
 private:
     tstring m_file;
     HMODULE m_library;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// windows_service_manager -- acquire a SCM handle as a resource in c'tor
+//
 class windows_service_manager
 {
 public:
@@ -231,7 +242,9 @@ private:
     SC_HANDLE m_scm;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// windows_service -- acquire a service's handle as a resource in c'tor
+//
 class windows_service
 {
 public:
@@ -251,7 +264,9 @@ private:
     tstring m_name;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// scm_lock -- acquire a SCM lock as a resource in c'tor
+//
 class scm_lock
 {
 public:
@@ -268,7 +283,21 @@ private:
     SC_LOCK m_lock;
 };
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// e_com_table -- enumerant for table in which to put registry differences
+//
+enum e_com_table
+{
+    CT_APPID    = 0x01,
+    CT_CLASS    = 0x02,
+    CT_TYPELIB  = 0x04,
+    CT_PROGID   = 0x08,
+    CT_REGISTRY = 0x10
+};
+
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key -- structure to monitor a registry key's differences
+//
 struct s_monitor_key
 {
     s_monitor_key()
@@ -290,7 +319,7 @@ struct s_monitor_key
     ~s_monitor_key() {}
 
     void snapshot();
-    void diff();
+    void diff(e_com_table table) const;
 
     HKEY m_key;
     tstring m_name;
@@ -303,12 +332,17 @@ struct s_monitor_key
 
 typedef std::vector<tstring> string_list_t;
 
-//-------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////
+// reg_monitor
+//
+// Self-Register a COM server and monitor the registry for changes, dumping
+// them back out as Windows Installer database information.
+//
 class reg_monitor
 {
 public:
     reg_monitor(LPCTSTR file, bool servicep);
-    ~reg_monitor();
+    ~reg_monitor() {}
 
     reg_monitor &add(HKEY key, LPCTSTR name, LPCTSTR subkey = NULL);
 
