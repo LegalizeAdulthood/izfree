@@ -430,27 +430,23 @@ sub browseTargetDir_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onHelp -- display CHM file
+'
+sub window_onHelp
+    show_help "NewPackage"
+end sub
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 --></SCRIPT>
 </HEAD>
 <BODY LEFTMARGIN=20 RIGHTMARGIN=20>
-
-<!-- <H3><A NAME="CreatePackage">Create a New Installation Package</A></H3>
-
-<P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
--->
 <FORM NAME="CreateForm">
 <P><TABLE WIDTH=100%>
 <TR><TD COLSPAN=2>
-    <TABLE><TR>
-        <TD WIDTH=100%>
-            <H3><A NAME="CreatePackage">Create a New Installation Package</A></H3>
-        </TD>
-        <TD VALIGN="top">
-            <SPAN ID="help" CLASS="anchor">Help?</SPAN>
-        </TD>
-    </TR></TABLE>
+    <TABLE WIDTH=100%><TR><TD ALIGN="left"><H3>Create a New Installation Package</H3></TD>
+    <TD ALIGN="right" VALIGN="top">Press F1 for Help.</TD></TR>
+    </TABLE>
 </TD></TR>
 <TR><TD>Template Directory:</TD>
 <TD><INPUT NAME="templateDir" SIZE=50>

@@ -27,11 +27,13 @@
 option explicit
 on error resume next
 
+dim g_main_frame : set g_main_frame = window.parent
+
 sub create_onClick
     set_guid_button "CreateGUID", "GUID"
 end sub
 
-sub help_onClick
+sub window_onHelp
     show_help "NewGUID"
 end sub
 --></SCRIPT>

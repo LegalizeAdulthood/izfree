@@ -231,15 +231,15 @@ sub database_onValueChange
     enable_db_buttons
 end sub
 
+Sub window_onhelp
+    wsh().Run("hh .\izfree.chm")
+End Sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' resize the window immediately, don't wait for document to load.
 window.resizeTo MAIN_WIDTH, MAIN_HEIGHT
 --></SCRIPT>
 </HEAD><BODY ID="Main"><TABLE WIDTH="100%" HEIGHT="100%" CELLPADDING="0">
-<!--<TR VALIGN="top"><TD COLSPAN=2 WIDTH="100%">
-<H1>izfree Tools for Windows Installer 1.1</H1>
-<HR>
-</TD></TR>-->
 <TR><TD COLSPAN=2><FORM ID="dbForm">
 <TABLE WIDTH=100%><TR><TD>
 <INPUT ID="open" TYPE="button" VALUE="Open...">
@@ -268,7 +268,8 @@ Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
 
 <HR>
 <P><INPUT TYPE="button" ID="quit" VALUE="Quit" NAME="quit"></P>
-<HR>
+<HR><BR>
+(Press F1 for Help.)
 </TD>
 <TD WIDTH="85%" HEIGHT="100%">
 <P ID="debug"></P>
