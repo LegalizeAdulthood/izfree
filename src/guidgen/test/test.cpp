@@ -84,7 +84,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         ComRuntime com;
 
         CComPtr<IGenerator> generator;
-        THR(generator.CoCreateInstance(L"Guidgen.Generator"));
+        THR(generator.CoCreateInstance(L"izfree.Guidgen"));
 
         CComBSTR guid;
         THR(generator->Generate(&guid));

@@ -1,20 +1,20 @@
 HKCR
 {
-    Guidgen.Generator.1 = s 'Generator Class'
+    izfree.GUIDGen.1 = s 'GUID Generator Class'
     {
-        CLSID = s '{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}'
+        CLSID = s '{221E47F3-2F9B-4A88-BD14-7719E41550BC}'
     }
-    Guidgen.Generator = s 'Generator Class'
+    izfree.GUIDGen = s 'GUID Generator Class'
     {
-        CLSID = s '{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}'
-        CurVer = s 'Guidgen.Generator.1'
+        CLSID = s '{221E47F3-2F9B-4A88-BD14-7719E41550BC}'
+        CurVer = s 'izfree.GUIDGen.1'
     }
     NoRemove CLSID
     {
-        ForceRemove {186D8B3C-C050-4F03-BC33-64B24FEAE4A1} = s 'Generator Class'
+        ForceRemove {221E47F3-2F9B-4A88-BD14-7719E41550BC} = s 'Generator Class'
         {
-            ProgID = s 'Guidgen.Generator.1'
-            VersionIndependentProgID = s 'Guidgen.Generator'
+            ProgID = s 'izfree.GUIDGen.1'
+            VersionIndependentProgID = s 'izfree.GUIDGen'
             ForceRemove 'Programmable'
             InprocServer32 = s '%MODULE%'
             {

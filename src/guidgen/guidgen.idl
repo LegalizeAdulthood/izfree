@@ -64,7 +64,7 @@ library GUIDGENLib
     importlib("stdole2.tlb");
 
     [
-        uuid(186D8B3C-C050-4F03-BC33-64B24FEAE4A1),
+        uuid(221E47F3-2F9B-4A88-BD14-7719E41550BC),
         helpstring("Generator Class")
     ]
     coclass Generator
