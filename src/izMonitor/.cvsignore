@@ -1,0 +1,7 @@
+Debug
+Release
+dlldata.c
+izMonitor.h
+*.tlb
+*_i.c
+*_p.c

@@ -95,14 +95,6 @@
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
                 <Reference
-                    Name = "GUIDGENLib"
-                    Guid = "{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}"
-                    VersionMajor = "1"
-                    VersionMinor = "0"
-                    Lcid = "0"
-                    WrapperTool = "tlbimp"
-                />
-                <Reference
                     Name = "MagicLibrary"
                     AssemblyName = "MagicLibrary"
                     HintPath = "..\..\Program Files\Crownwood Consulting Ltd\Magic Library 1.7\Bin\MagicLibrary.dll"
@@ -112,6 +104,14 @@
                     Name = "System.Design"
                     AssemblyName = "System.Design"
                     HintPath = "..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.Design.dll"
+                />
+                <Reference
+                    Name = "GUIDGENLib"
+                    Guid = "{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}"
+                    VersionMajor = "1"
+                    VersionMinor = "0"
+                    Lcid = "0"
+                    WrapperTool = "tlbimp"
                 />
             </References>
         </Build>

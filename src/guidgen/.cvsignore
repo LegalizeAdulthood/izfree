@@ -1,0 +1,7 @@
+Debug
+Release
+dlldata.c
+guidgen.h
+guidgen.tlb
+guidgen_i.c
+guidgen_p.c
