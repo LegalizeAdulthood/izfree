@@ -88,14 +88,11 @@ Global
 	GlobalSection(SolutionItems) = postSolution
 		ATLRegistration.html = ATLRegistration.html
 		COMRegistration.html = COMRegistration.html
-		EditDialog.html = EditDialog.html
 		help.html = help.html
 		izfree.hta = izfree.hta
 		izfree.vbs = izfree.vbs
 		MergeModule.html = MergeModule.html
 		NewComponents.html = NewComponents.html
-		Policies.html = Policies.html
-		PreviewDialogs.html = PreviewDialogs.html
 		ReadMe.txt = ReadMe.txt
 		ValidateTable.html = ValidateTable.html
 	EndGlobalSection

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using MSI = Pahvant.MSI;
 
 namespace IzFree
 {
@@ -39,8 +40,8 @@ namespace IzFree
         private System.Windows.Forms.PropertyGrid tableRowPropertyGrid;
         private System.Windows.Forms.ListView primaryKeyListView;
         private System.Windows.Forms.ListBox tablesListBox;
-        private System.Windows.Forms.MenuItem tasksMenu;
-        private System.Windows.Forms.MenuItem taskScanDirectoryItem;
+        private System.Windows.Forms.MenuItem toolsMenu;
+        private System.Windows.Forms.MenuItem toolScanDirectoryItem;
         private System.Windows.Forms.MenuItem windowsMenu;
         private System.Windows.Forms.MenuItem windowTablesItem;
         private System.Windows.Forms.MenuItem windowFeaturesItem;
@@ -51,7 +52,7 @@ namespace IzFree
         private System.Windows.Forms.MenuItem windowIniFilesItem;
         private System.Windows.Forms.MenuItem windowCOMRegistrationItem;
         private System.Windows.Forms.MenuItem windowAssembliesItem;
-        private System.Windows.Forms.MenuItem taskExtractCOMItem;
+        private System.Windows.Forms.MenuItem toolExtractCOMItem;
         private System.Windows.Forms.MenuItem fileCloseItem;
         private System.Windows.Forms.MenuItem fileSeparatorItem;
         private System.Windows.Forms.MenuItem fileSummaryInformationItem;
@@ -81,6 +82,8 @@ namespace IzFree
         private System.Windows.Forms.Button showButton;
         private System.Windows.Forms.Button hideButton;
         private System.Windows.Forms.Button cloneButton;
+        private System.Windows.Forms.MenuItem menuItem1;
+        private System.Windows.Forms.MenuItem groupPolicyItem;
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -89,14 +92,7 @@ namespace IzFree
 
         public MainForm()
         {
-            //
-            // Required for Windows Form Designer support
-            //
             InitializeComponent();
-
-            //
-            // TODO: Add any constructor code after InitializeComponent call
-            //
         }
 
         #region Dispose
@@ -139,9 +135,9 @@ namespace IzFree
             this.editPasteItem = new System.Windows.Forms.MenuItem();
             this.editPasteNewGuidItem = new System.Windows.Forms.MenuItem();
             this.editSelectAllItem = new System.Windows.Forms.MenuItem();
-            this.tasksMenu = new System.Windows.Forms.MenuItem();
-            this.taskScanDirectoryItem = new System.Windows.Forms.MenuItem();
-            this.taskExtractCOMItem = new System.Windows.Forms.MenuItem();
+            this.toolsMenu = new System.Windows.Forms.MenuItem();
+            this.toolScanDirectoryItem = new System.Windows.Forms.MenuItem();
+            this.toolExtractCOMItem = new System.Windows.Forms.MenuItem();
             this.windowsMenu = new System.Windows.Forms.MenuItem();
             this.windowTablesItem = new System.Windows.Forms.MenuItem();
             this.windowFeaturesItem = new System.Windows.Forms.MenuItem();
@@ -191,6 +187,8 @@ namespace IzFree
             this.label1 = new System.Windows.Forms.Label();
             this.dialogsListBox = new System.Windows.Forms.ListBox();
             this.dialogsLabel = new System.Windows.Forms.Label();
+            this.menuItem1 = new System.Windows.Forms.MenuItem();
+            this.groupPolicyItem = new System.Windows.Forms.MenuItem();
             this.projectTabControl.SuspendLayout();
             this.tablesTab.SuspendLayout();
             this.featuresTab.SuspendLayout();
@@ -204,7 +202,7 @@ namespace IzFree
             this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
                                                                                      this.fileMenu,
                                                                                      this.editMenu,
-                                                                                     this.tasksMenu,
+                                                                                     this.toolsMenu,
                                                                                      this.windowsMenu});
             // 
             // fileMenu
@@ -305,26 +303,28 @@ namespace IzFree
             this.editSelectAllItem.Index = 4;
             this.editSelectAllItem.Text = "Select &All";
             // 
-            // tasksMenu
+            // toolsMenu
             // 
-            this.tasksMenu.Index = 2;
-            this.tasksMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                                                                                      this.taskScanDirectoryItem,
-                                                                                      this.taskExtractCOMItem});
-            this.tasksMenu.Text = "Tasks";
+            this.toolsMenu.Index = 2;
+            this.toolsMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+                                                                                      this.toolScanDirectoryItem,
+                                                                                      this.toolExtractCOMItem,
+                                                                                      this.menuItem1,
+                                                                                      this.groupPolicyItem});
+            this.toolsMenu.Text = "Tools";
             // 
-            // taskScanDirectoryItem
+            // toolScanDirectoryItem
             // 
-            this.taskScanDirectoryItem.Enabled = false;
-            this.taskScanDirectoryItem.Index = 0;
-            this.taskScanDirectoryItem.Text = "Scan &Directory for Components...";
-            this.taskScanDirectoryItem.Click += new System.EventHandler(this.taskScanDirectoryItem_Click);
+            this.toolScanDirectoryItem.Enabled = false;
+            this.toolScanDirectoryItem.Index = 0;
+            this.toolScanDirectoryItem.Text = "Scan &Directory for Components...";
+            this.toolScanDirectoryItem.Click += new System.EventHandler(this.toolScanDirectoryItem_Click);
             // 
-            // taskExtractCOMItem
+            // toolExtractCOMItem
             // 
-            this.taskExtractCOMItem.Enabled = false;
-            this.taskExtractCOMItem.Index = 1;
-            this.taskExtractCOMItem.Text = "Extract COM Registration...";
+            this.toolExtractCOMItem.Enabled = false;
+            this.toolExtractCOMItem.Index = 1;
+            this.toolExtractCOMItem.Text = "Extract COM Registration...";
             // 
             // windowsMenu
             // 
@@ -558,6 +558,7 @@ namespace IzFree
             this.cloneButton.Size = new System.Drawing.Size(80, 23);
             this.cloneButton.TabIndex = 11;
             this.cloneButton.Text = "Clone...";
+            this.cloneButton.Click += new System.EventHandler(this.cloneButton_Click);
             // 
             // hideButton
             // 
@@ -787,6 +788,17 @@ namespace IzFree
             this.dialogsLabel.TabIndex = 0;
             this.dialogsLabel.Text = "Dialogs:";
             // 
+            // menuItem1
+            // 
+            this.menuItem1.Index = 2;
+            this.menuItem1.Text = "-";
+            // 
+            // groupPolicyItem
+            // 
+            this.groupPolicyItem.Index = 3;
+            this.groupPolicyItem.Text = "System Group Policy";
+            this.groupPolicyItem.Click += new System.EventHandler(this.groupPolicyItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -842,8 +854,8 @@ namespace IzFree
         {
             fileCloseItem.Enabled = openNotClosed;
             fileSummaryInformationItem.Enabled = openNotClosed;
-            taskScanDirectoryItem.Enabled = openNotClosed;
-            taskExtractCOMItem.Enabled = openNotClosed;
+            toolScanDirectoryItem.Enabled = openNotClosed;
+            toolExtractCOMItem.Enabled = openNotClosed;
             windowTablesItem.Enabled = openNotClosed;
             windowFeaturesItem.Enabled = openNotClosed;
             windowComponentsItem.Enabled = openNotClosed;
@@ -1151,6 +1163,96 @@ namespace IzFree
             }
         }
 
+        private void CloneDialogRows(string table, string insertQuery,
+            string parent, string clone, string column)
+        {
+            ArrayList records = new ArrayList();
+            // gather source records
+            using (MSI.View view = ExecView("SELECT * FROM `" + table +
+                       "` WHERE `" + table + "`.`" + column + "` = '" +
+                       parent + "'"))
+            {
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    rec.SetString(1, clone);
+                    records.Add(rec);
+                }
+                view.Close();
+            }
+
+            // insert cloned records
+            using (MSI.View view = Database.OpenView(
+                       "INSERT INTO `" + table + "` " + insertQuery))
+            {
+                for (int i = 0; i < records.Count; i++)
+                {
+                    MSI.Record rec = records[i] as MSI.Record;
+                    view.Execute(rec);
+                    rec.Dispose();
+                }
+                view.Close();
+            }
+        }
+
+        private void CloneDialog(string dialog, string clone)
+        {
+            CloneDialogRows("Dialog",
+                "(`Dialog`,`HCentering`,`VCentering`,`Width`,`Height`," +
+                "`Attributes`,`Title`,`Control_First`,`Control_Default`," +
+                "`Control_Cancel`) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                dialog, clone, "Dialog");
+        }
+
+        private void CloneControls(string dialog, string clone)
+        {
+            CloneDialogRows("Control",
+                "(`Dialog_`,`Control`,`Type`,`X`,`Y`,`Width`,`Height`," +
+                "`Attributes`,`Property`,`Text`,`Control_Next`,`Help`) " +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                dialog, clone, "Dialog_");
+        }
+
+        private void CloneControlConditions(string dialog, string clone)
+        {
+            CloneDialogRows("ControlCondition",
+                "(`Dialog_`,`Control_`,`Action`,`Condition`) VALUES (?,?,?,?)",
+                dialog, clone, "Dialog_");
+        }
+
+        private void CloneControlEvents(string dialog, string clone)
+        {
+            CloneDialogRows("ControlEvent",
+                "(`Dialog_`,`Control_`,`Event`,`Argument`,`Condition`,`Ordering`) " +
+                "VALUES (?,?,?,?,?,?)",
+                dialog, clone, "Dialog_");
+        }
+
+        private void CloneEventMappings(string dialog, string clone)
+        {
+            CloneDialogRows("EventMapping",
+                "(`Dialog_`,`Control_`,`Event`,`Attribute`) VALUES (?,?,?,?)",
+                dialog, clone, "Dialog_");
+        }
+
+        private void Preview()
+        {
+            string dialog = dialogsListBox.SelectedItem as string;
+            if (m_previewEnabled && (m_currentDialog != dialog))
+            {
+                m_currentDialog = dialog;
+                m_preview.PreviewDialog(m_currentDialog);
+                Activate();
+            }
+        }
+
+        private static string NullInteger(MSI.Record rec, int field)
+        {
+            return rec.IsNull(field) ? "" : rec.GetInteger(field).ToString();
+        }
+        private static string NullString(MSI.Record rec, int field)
+        {
+            return rec.IsNull(field) ? "" : rec.GetString(field);
+        }
         #endregion
 
         #region Event Handlers
@@ -1269,8 +1371,8 @@ namespace IzFree
         }
         #endregion
 
-        #region Tasks Menu
-        private void taskScanDirectoryItem_Click(object sender, System.EventArgs e)
+        #region Tools Menu
+        private void toolScanDirectoryItem_Click(object sender, System.EventArgs e)
         {
             using (NewComponentsForm dlg =
                        new NewComponentsForm(Project))
@@ -1282,6 +1384,10 @@ namespace IzFree
                     Modified = true;
                 }
             }
+        }
+        private void groupPolicyItem_Click(object sender, System.EventArgs e)
+        {
+            // launch mmc gpedit.msc (and preselect windows installer node?)
         }
         #endregion
 
@@ -1312,46 +1418,9 @@ namespace IzFree
         
         }
         #endregion
-        #endregion
 
-        #region Properties
-        #region Project
-        private Project Project
-        {
-            get { return m_application.Project; }
-        }
-        #endregion
-
-        #region Database
-        private MSI.Database Database
-        {
-            get { return Project.Database; }
-        }
-        #endregion
-
-        #region Modified
-        private bool Modified
-        {
-            get { return m_modified; }
-            set
-            {
-                if (m_modified && !value)
-                {
-                    // was modified, now isn't modified -- discard changes?
-                }
-                m_modified = value;
-                ShowModified(m_modified);
-                SetTitle();
-            }
-        }
-        bool m_modified = false;
-        #endregion
-        #endregion
-
-        #region Private Instance Data
-        Application m_application = new Application();
-        #endregion
-
+        #region Dialog Preview
+        #region Link Labels
         private void LinkDialog(LinkLabel control)
         {
             dialogsListBox.SelectedIndex = dialogsListBox.FindString(control.Text);
@@ -1375,26 +1444,13 @@ namespace IzFree
         {
             LinkDialog(errorDialogLinkLabel);
         }
+        #endregion
 
         private void actionsComboBox_SelectedIndexChanged(object sender, System.EventArgs e)
         {
             dialogsListBox.SelectedIndex = dialogsListBox.FindString(
                 actionsComboBox.SelectedItem as string);
         }
-
-        private void Preview()
-        {
-            string dialog = dialogsListBox.SelectedItem as string;
-            if (m_previewEnabled && (m_currentDialog != dialog))
-            {
-                m_currentDialog = dialog;
-                m_preview.PreviewDialog(m_currentDialog);
-                Activate();
-            }
-        }
-        private bool m_previewEnabled = false;
-        private string m_currentDialog = "";
-        private MSI.UIPreview m_preview = null;
 
         private void dialogsListBox_SelectedIndexChanged(object sender, System.EventArgs e)
         {
@@ -1442,15 +1498,6 @@ namespace IzFree
             showButton.Focus();
         }
 
-        private static string NullInteger(MSI.Record rec, int field)
-        {
-            return rec.IsNull(field) ? "" : rec.GetInteger(field).ToString();
-        }
-        private static string NullString(MSI.Record rec, int field)
-        {
-            return rec.IsNull(field) ? "" : rec.GetString(field);
-        }
-
         private void eventsListBox_SelectedIndexChanged(object sender, System.EventArgs e)
         {
             eventNameValueLabel.Text = "";
@@ -1486,5 +1533,61 @@ namespace IzFree
                 Split(new char[] { ' ' })[2];
             dialogsListBox.SelectedIndex = dialogsListBox.FindString(dialog);
         }
+
+        private void cloneButton_Click(object sender, System.EventArgs e)
+        {
+            string clone = "NewClone";
+            string dialog = dialogsListBox.SelectedItem as string;
+            CloneDialog(dialog, clone);
+            CloneControls(dialog, clone);
+            CloneControlConditions(dialog, clone);
+            CloneControlEvents(dialog, clone);
+            CloneEventMappings(dialog, clone);
+            Modified = true;
+            // refresh dialog list
+        }
+        #endregion
+        #endregion
+
+        #region Properties
+        #region Project
+        private Project Project
+        {
+            get { return m_application.Project; }
+        }
+        #endregion
+
+        #region Database
+        private MSI.Database Database
+        {
+            get { return Project.Database; }
+        }
+        #endregion
+
+        #region Modified
+        private bool Modified
+        {
+            get { return m_modified; }
+            set
+            {
+                if (m_modified && !value)
+                {
+                    // was modified, now isn't modified -- discard changes?
+                }
+                m_modified = value;
+                ShowModified(m_modified);
+                SetTitle();
+            }
+        }
+        bool m_modified = false;
+        #endregion
+        #endregion
+
+        #region Private Instance Data
+        Application m_application = new Application();
+        private bool m_previewEnabled = false;
+        private string m_currentDialog = "";
+        private MSI.UIPreview m_preview = null;
+        #endregion
     }
 }

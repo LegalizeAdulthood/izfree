@@ -113,6 +113,14 @@
                     Project = "{1C1D0396-A400-42A0-A2A5-5FFCC334E92F}"
                     Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
+                <Reference
+                    Name = "MsmMergeTypeLib"
+                    Guid = "{0ADDA82F-2C26-11D2-AD65-00A0C9AF11A6}"
+                    VersionMajor = "2"
+                    VersionMinor = "0"
+                    Lcid = "0"
+                    WrapperTool = "tlbimp"
+                />
             </References>
         </Build>
         <Files>
@@ -120,6 +128,16 @@
                 <File
                     RelPath = "App.ico"
                     BuildAction = "Content"
+                />
+                <File
+                    RelPath = "ApplyMergeModuleForm.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ApplyMergeModuleForm.resx"
+                    DependentUpon = "ApplyMergeModuleForm.cs"
+                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "AssemblyInfo.cs"
