@@ -118,7 +118,9 @@ public:
             &class_name[0], &num_class_name, &last_write));
         m_name = name;
     }
-    ~registry_key() {}
+    ~registry_key()
+    {
+    }
 
     tstring name() const { return m_name; }
 
@@ -139,12 +141,23 @@ class event_stack : public std::vector<HANDLE>
 {
 public:
     typedef std::vector<HANDLE> base_t;
-    event_stack() : base_t()
+    event_stack(std::vector<s_monitor_key> &keys)
+        : base_t(),
+        m_keys(keys)
     {
-        base_t::reserve(64);
+        base_t::push_back(TWS(::CreateEvent(NULL, TRUE, FALSE, NULL)));
+        for (UINT i = 0; i < keys.size(); i++)
+        {
+            keys[i].snapshot();
+            base_t::push_back(keys[i].subscribe());
+        }
     }
     ~event_stack()
     {
+        for (UINT i = 0; i < m_keys.size(); i++)
+        {
+            m_keys[i].unsubscribe();
+        }
         while (base_t::size() > 0)
         {
             HANDLE event = base_t::back();
@@ -154,10 +167,8 @@ public:
         }
     }
 
-    void push()
-    {
-        base_t::push_back(TWS(::CreateEvent(NULL, TRUE, FALSE, NULL)));
-    }
+private:
+    std::vector<s_monitor_key> &m_keys;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -486,6 +497,25 @@ registry_key::default_sz() const
 }
 
 ///////////////////////////////////////////////////////////////////////////
+HANDLE
+s_monitor_key::subscribe()
+{
+    HANDLE event = TWS(::CreateEvent(NULL, TRUE, FALSE, NULL));
+    TRS(::RegNotifyChangeKeyValue(m_key, FALSE, REG_NOTIFY_CHANGE_NAME,
+        event, TRUE));
+    return event;
+}
+
+///////////////////////////////////////////////////////////////////////////
+void
+s_monitor_key::unsubscribe()
+{
+    TRS(::RegCloseKey(m_key));
+    m_key = 0;
+    TRS(::RegOpenKey(m_root, m_subkey.c_str(), &m_key));
+}
+
+///////////////////////////////////////////////////////////////////////////
 // registry_key::add_registry
 //
 // Add a registry key and all its values and subkeys to the Registry table.
@@ -564,7 +594,9 @@ s_monitor_key::snapshot()
     TRS(::RegQueryInfoKey(m_key, &class_name[0], &num_class_name,
         NULL, &num_subkeys, &max_subkey_len, &max_class_len, &num_values,
         &max_value_name_len, &max_value_len, &security_len, &last_write));
+
     DWORD i;
+    m_subkeys.clear();
     for (i = 0; i < num_subkeys; i++)
     {
         FILETIME last_write;
@@ -576,6 +608,8 @@ s_monitor_key::snapshot()
             &class_name[0], &num_class_name, &last_write));
         m_subkeys.insert(child_name);
     }
+
+    m_values.clear();
     for (i = 0; i < num_values; i++)
     {
         DWORD type = 0;
@@ -1400,9 +1434,6 @@ CMonitor::Process(BSTR file, BOOL service, BSTR component, BSTR feature)
     m_service_install->Clear();
     m_type_lib->Clear();
 
-    event_stack events;
-    events.push();
-
     // unregister the existing server so that our snapshot shows the new keys
     THR(unregister_server(m_file.c_str()));
 
@@ -1413,15 +1444,7 @@ CMonitor::Process(BSTR file, BOOL service, BSTR component, BSTR feature)
     }
 
     // start monitoring the registry keys
-    UINT i;
-    for (i = 0; i < m_keys.size(); i++)
-    {
-        const HANDLE event = TWS(::CreateEvent(NULL, TRUE, FALSE, NULL));
-        TRS(::RegNotifyChangeKeyValue(m_keys[i].m_key, FALSE,
-            REG_NOTIFY_CHANGE_NAME, event, TRUE));
-        events.push_back(event);
-        m_keys[i].snapshot();
-    }
+    event_stack events(m_keys);
 
     // launch the registration thread
     thread_args args(m_file.c_str(), events[0], m_service);
@@ -1433,40 +1456,36 @@ CMonitor::Process(BSTR file, BOOL service, BSTR component, BSTR feature)
     bool more = true;
     while (more)
     {
-        for (UINT offset = 0; offset < events.size(); offset += 64)
+        const DWORD res = ::WaitForMultipleObjects(events.size(), &events[0],
+            FALSE, INFINITE);
+        if ((res >= WAIT_OBJECT_0) && (res-WAIT_OBJECT_0 < events.size()))
         {
-            const UINT count = min(events.size() - offset, 64);
-            const DWORD res =
-                ::WaitForMultipleObjects(count, &events[offset], FALSE, 200);
-            if ((res >= WAIT_OBJECT_0) && (res-WAIT_OBJECT_0 < count))
+            const DWORD which = res-WAIT_OBJECT_0;
+            if (which)
             {
-                const DWORD which = res-WAIT_OBJECT_0;
-                if (which)
-                {
-                    s_monitor_key &target = m_keys[offset + which - 1];
-                    target.m_modified = true;
-                    TWS(::ResetEvent(events[offset + which]));
-                }
-                else
-                {
-                    // event 0 tells us the thread is done.
-                    more = false;
-                }
+                s_monitor_key &target = m_keys[which - 1];
+                target.m_modified = true;
+                TWS(::ResetEvent(events[which]));
             }
-            else if (WAIT_TIMEOUT != res)
+            else
             {
-                // ::WaitForMultipleObjects freaked
-                tostringstream buff;
-                for (UINT i = 0; i < events.size(); i++)
-                {
-                    buff << i << _T(": ") << (void *)(events[i])
-                        << _T("\n");
-                }
-                ::ODS(buff);
-                TWS(::GetLastError());
-                ATLASSERT(false);
+                // event 0 tells us the thread is done.
                 more = false;
             }
+        }
+        else
+        {
+            // ::WaitForMultipleObjects freaked
+            tostringstream buff;
+            for (UINT i = 0; i < events.size(); i++)
+            {
+                buff << i << _T(": ") << (void *)(events[i])
+                    << _T("\n");
+            }
+            ::ODS(buff);
+            TWS(::GetLastError());
+            ATLASSERT(false);
+            more = false;
         }
     }
 
