@@ -104,8 +104,8 @@ sub update_db_buttons
     set_tool_class "NewComponents", tool_class
     set_tool_class "PreviewDialogs", tool_class
     set_tool_class "ValidateTable", tool_class
+    set_tool_class "COMRegistration", tool_class
     'all("ATLRegistration").className = tool_class
-    'all("COMRegistration").className = tool_class
     'all("MergeModule").className = tool_class
     'all(""EditDialog").className = tool_class
 end sub
@@ -165,11 +165,13 @@ end sub
 sub NewGUID_onClick         : change_tool : end sub
 sub NewPackage_onClick      : change_tool : end sub
 sub NewComponents_onClick   : change_tool : end sub
+sub COMRegistration_onClick : change_tool : end sub
 sub PreviewDialogs_onClick  : change_tool : end sub
-sub ATLCOM_onClick          : change_tool : end sub
-sub MergeModule_onClick     : change_tool : end sub
-sub EditDialog_onClick      : change_tool : end sub
 sub ValidateTable_onClick   : change_tool : end sub
+
+'sub ATLCOM_onClick          : change_tool : end sub
+'sub MergeModule_onClick     : change_tool : end sub
+'sub EditDialog_onClick      : change_tool : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' window_onLoad
@@ -250,16 +252,17 @@ Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
 <P><SPAN ID="NewGUID" CLASS="anchor">New GUID</SPAN></P>
 <P><SPAN ID="NewPackageX" CLASS="invisible">New Package</SPAN></P>
 <P><SPAN ID="NewComponents" CLASS="invisible">New Components</SPAN></P>
+<P><SPAN ID="COMRegistration" CLASS="invisible">COM Registration</SPAN></P>
 <P><SPAN ID="PreviewDialogs" CLASS="invisible">Preview Dialogs</SPAN></P>
-<!-- COM registration extraction from an ATL .rgs file is in development. -->
-<P CLASS="invisible"><SPAN ID="ATLRegistration" CLASS="anchor">ATL COM</SPAN></P>
-<!-- Automatic COM registration extraction from a binary image is in development. -->
-<P CLASS="invisible"><SPAN ID="COMRegistration" CLASS="anchor">COM Registration</SPAN></P>
-<!-- Use Orca for merge modules -->
-<P CLASS="invisible"><SPAN ID="MergeModule" CLASS="anchor">Merge Module</SPAN></P>
-<!-- A dialog editor is in development. -->
-<P CLASS="invisible"><SPAN ID="EditDialog" CLASS="anchor">Edit Dialog</SPAN></P>
 <P><SPAN ID="ValidateTable" CLASS="invisible">Table Validation</SPAN></P>
+
+<!-- COM registration extraction from an ATL .rgs file is in development. -->
+<P CLASS="invisible"><SPAN ID="ATLRegistration" CLASS="invisible">ATL COM</SPAN></P>
+<!-- Use Orca for merge modules -->
+<P CLASS="invisible"><SPAN ID="MergeModule" CLASS="invisible">Merge Module</SPAN></P>
+<!-- A dialog editor is in development. -->
+<P CLASS="invisible"><SPAN ID="EditDialog" CLASS="invisible">Edit Dialog</SPAN></P>
+
 <HR>
 <P><INPUT TYPE="button" ID="quit" VALUE="Quit" NAME="quit"></P>
 <HR>
