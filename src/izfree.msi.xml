@@ -60,7 +60,7 @@
 		<revnumber>{3EF116B2-B7A6-42EC-A2CB-DA13516EBFD8}</revnumber>
 		<lastprinted>12/19/2001 14:21</lastprinted>
 		<createdtm>12/19/2001 14:21</createdtm>
-		<lastsavedtm>12/24/2001 18:45</lastsavedtm>
+		<lastsavedtm>01/09/2002 00:42</lastsavedtm>
 		<pagecount>110</pagecount>
 		<wordcount>0</wordcount>
 		<charcount>0</charcount>
@@ -8823,15 +8823,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>Next</td>
 			<td>NewDialog</td>
 			<td>SetupTypeDlg</td>
-			<td>IAgree = "Yes" AND ShowUserRegistrationDlg &lt;&gt; 1</td>
-			<td>3</td>
-		</row>
-		<row>
-			<td>LicenseAgreementDlg</td>
-			<td>Next</td>
-			<td>NewDialog</td>
-			<td>SetupTypeDlg</td>
-			<td>IAgree = "Yes" AND ShowUserRegistrationDlg = 1</td>
+			<td>IAgree = "Yes"</td>
 			<td>1</td>
 		</row>
 		<row>
@@ -9087,15 +9079,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>Back</td>
 			<td>NewDialog</td>
 			<td>LicenseAgreementDlg</td>
-			<td>ShowUserRegistrationDlg &lt;&gt; 1</td>
-			<td/>
-		</row>
-		<row>
-			<td>SetupTypeDlg</td>
-			<td>Back</td>
-			<td>NewDialog</td>
-			<td>LicenseAgreementDlg</td>
-			<td>ShowUserRegistrationDlg = 1</td>
+			<td>1</td>
 			<td/>
 		</row>
 		<row>
@@ -14020,7 +14004,7 @@ AA//AAAf/wAAPw==
 			<td>izfreeShortcutFolder</td>
 			<td>izfree</td>
 			<td>izfree.hta</td>
-			<td>izfree</td>
+			<td>[#f08_izfree.hta]</td>
 			<td/>
 			<td>izfree Tools for Windows Installer</td>
 			<td/>
