@@ -1,0 +1,271 @@
+<HTML>
+<HEAD>
+<!--
+    izfree Tools for Windows Installer
+    Copyright (C) 2001-2002 Pahvant Technologies, Inc.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<META NAME=VI60_defaultClientScript CONTENT=VBScript>
+<META NAME="GENERATOR" CONTENT="Microsoft Visual Studio 6.0">
+<TITLE>Extract COM Registration Information</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+on error resume next
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim g_monitor
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim g_main_frame : set g_main_frame = window.parent
+
+function db()
+    set db = g_main_frame.g_database
+end function
+
+function app_id_row(rec)
+    dim row : set row = installer().CreateRecord(7) : check
+    row.stringdata(1) = rec.AppId
+    row.stringdata(2) = rec.RemoteServername
+    row.stringdata(3) = rec.LocalService
+    row.stringdata(4) = rec.ServiceParameters
+    row.stringdata(5) = rec.DllSurrogate
+    row.integerdata(6) = rec.ActivateAtStorage
+    row.integerdata(7) = rec.RunAsInteractiveUser
+    set app_id_row = row
+end function
+
+function class_row(rec)
+    dim row : set row = installer().CreateRecord(12) : check
+    row.stringdata(1) = rec.CLSID
+    row.stringdata(2) = rec.context
+    row.stringdata(3) = rec.component
+    row.stringdata(4) = rec.ProgIdDefault
+    row.stringdata(5) = rec.description
+    row.stringdata(6) = rec.FileTypeMask
+    row.stringdata(7) = rec.icon
+    row.integerdata(8) = rec.IconIndex
+    row.stringdata(9) = rec.DefInprocHandler
+    row.stringdata(10) = rec.argument
+    row.stringdata(11) = rec.feature
+    row.integerdata(12) = rec.attributes
+    set class_row = row
+end function
+
+function prog_id_row(rec)
+    dim row : set row = installer().CreateRecord(6) : check
+    row.stringdata(1) = rec.ProgId
+    row.stringdata(2) = rec.Parent
+    row.stringdata(3) = rec.Class
+    row.stringdata(4) = rec.description
+    row.stringdata(5) = rec.icon
+    row.integerdata(6) = rec.IconIndex
+    set prog_id_row = row
+end function
+
+function registry_row(rec)
+    dim row : set row = installer().CreateRecord(6) : check
+    row.stringdata(1) = rec.registry
+    row.stringdata(2) = rec.root
+    row.stringdata(3) = rec.key
+    row.stringdata(4) = rec.name
+    row.stringdata(5) = rec.value
+    row.stringdata(6) = rec.component
+    set registry_row = row
+end function
+
+function type_lib_row(rec)
+    dim row : set row = installer().CreateRecord(13) : check
+    row.stringdata(1) = rec.LibID
+    row.integerdata(2) = rec.language
+    row.stringdata(3) = rec.component
+    row.integerdata(4) = rec.version
+    row.stringdata(5) = rec.description
+    row.stringdata(6) = rec.directory
+    row.stringdata(7) = rec.feature
+    row.integerdata(8) = rec.cost
+    set type_lib_row = row
+end function
+
+function service_control_row(rec)
+    dim row : set row = installer().CreateRecord(13) : check
+    row.stringdata(1) = rec.ServiceControl
+    row.stringdata(2) = rec.name
+    row.integerdata(3) = rec.event
+    row.stringdata(4) = rec.arguments
+    row.integerdata(5) = rec.wait
+    row.stringdata(6) = rec.component
+    set service_control_row = row
+end function
+
+function service_install_row(rec)
+    dim row : set row = installer().CreateRecord(13) : check
+    row.stringdata(1) = rec.ServiceInstall
+    row.stringdata(2) = rec.name
+    row.stringdata(3) = rec.DisplayName
+    row.integerdata(4) = rec.ServiceType
+    row.integerdata(5) = rec.StartType
+    row.integerdata(6) = rec.ErrorControl
+    row.stringdata(7) = rec.LoadOrderGroup
+    row.stringdata(8) = rec.dependencies
+    row.stringdata(9) = rec.StartName
+    row.stringdata(10) = rec.password
+    row.stringdata(11) = rec.arguments
+    row.stringdata(12) = rec.component
+    row.stringdata(13) = rec.description
+    set service_install_row = row
+end function
+
+sub save_app_id(table)
+    dim view : set view = db().openview("INSERT INTO `AppId`" &_
+        "(`AppId`,`RemoteServerName`,`LocalService`,`ServiceParameters`," &_
+        "`DllSurrogate`,`ActivateAtStorage`,`RunAsInteractiveUser`)" &_
+        " VALUES (?,?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        dim row : set row = app_id_row(rec)
+        view.execute row : check
+    next
+    view.close
+end sub
+
+sub save_class(table)
+    dim view : set view = db().OpenView("insert into `Class`" &_
+        "(`CLSID`,`Context`,`Component_`,`ProgId_Default`,`Description`," &_
+        "`AppId_`,`FileTypeMask`,`Icon_`,`IconIndex`,`DefInprocHandler`," &_
+        "`Argument`,`Feature_`,`Attributes`)" &_
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute class_row(rec) : check
+    next
+    view.close
+end sub
+
+sub save_prog_id(table)
+    dim view : set view = db().OpenView("insert into `ProgId`" &_
+        "(`ProgId`,`ProgId_Parent`,`Class_`,`Description`,`Icon_`," &_
+        "`IconIndex`) VALUES (?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute prog_id_row(rec) : check
+    next
+    view.close
+end sub
+
+sub save_type_lib(table)
+    dim view : set view = db().OpenView("insert into `TypeLib`" &_
+        "(`LibID`,`Language`,`Component_`,`Version`,`Description`," &_
+        "`Directory_`,`Feature_`,`Cost`) VALUES (?,?,?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute type_lib_row(rec) : check
+    next
+    view.close
+end sub
+
+sub save_registry(table)
+    dim view : set view = db().OpenView("insert into `Registry`" &_
+        "(`Registry`,`Root`,`Key`,`Name`,`Value`,`Component_`)" &_
+        " VALUES (?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute registry_row(rec) : check
+    next
+    view.close
+end sub
+
+sub save_service_control(table)
+    dim view : set view = db().OpenView("insert into `ServiceControl`" &_
+        "(`ServiceControl`,`Name`,`Event`,`Arguments`,`Wait`,`Component_`)" &_
+        " VALUES (?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute service_control_row(rec) : check
+    next
+    view.close
+end sub
+
+sub save_service_install(table)
+    dim view : set view = db().OpenView("insert into `ServiceInstall`" &_
+        "(`ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`," &_
+        "`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`," &_
+        "`Password`,`Arguments`,`Component_`,`Description`)" &_
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute service_install_row(rec)
+    next
+    view.close
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub save_tables(mon)
+    on error resume next
+    save_app_id mon.AppIdTable
+    save_class mon.ClassTable
+    save_prog_id mon.ProgIdTable
+    save_type_lib mon.TypeLibTable
+    save_registry mon.RegistryTable
+    if (mon.Service) then
+        save_service_control mon.ServiceControlTable
+        save_service_install mon.ServiceInstallTable
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub extract_onClick
+    dim file : file = document.all("server").value
+    dim svc : svc = document.all("service").checked
+    on error resume next
+    g_monitor.Process file, svc
+    if (Err) then
+        MsgBox Err.description, vbOKOnly, "Error While Registering Server:"
+        Err.Clear
+        exit sub
+    end if
+    
+    save_tables g_monitor
+    db_modified
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onLoad
+    set g_monitor = check_object("izfree.Monitor")
+    g_monitor.WatchKey "HKCR\AppID"
+    g_monitor.WatchKey "HKCR\CLSID"
+    g_monitor.WatchKey "HKCR\TypeLib"
+    g_monitor.WatchKey "HKCR\Component Categories"
+    g_monitor.WatchKey "HKCR"
+    g_monitor.WatchKey "HKCU\Software"
+    g_monitor.WatchKey "HKCU"
+    g_monitor.WatchKey "HKLM\Software"
+    g_monitor.WatchKey "HKLM"
+    g_monitor.WatchKey "HKU"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onUnload
+    set g_monitor = nothing
+end sub
+--></SCRIPT>
+</HEAD>
+<BODY>
+<FORM NAME="ExtractCOM">
+<P>Path to COM server:<BR>
+<INPUT ID="server" TYPE="text" SIZE=30 VALUE="c:\tmp\service\debug\service.exe">
+<INPUT NAME="service" TYPE="checkbox" CHECKED> Service EXE<BR>
+<INPUT ID="extract" TYPE="button" VALUE="Go"></P>
+
+<P>
+</FORM>
+<P ID="debug"></P>
+</BODY>
+</HTML>
