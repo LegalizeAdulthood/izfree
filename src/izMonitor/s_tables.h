@@ -18,6 +18,7 @@
 #if !defined(S_TABLES_H)
 #define S_TABLES_H
 
+#include <vector>
 #include "tstring.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -159,6 +160,7 @@ struct s_prog_id
     {}
     s_prog_id()
         : m_prog_id(),
+        m_prog_id_parent(),
         m_class(),
         m_description(),
         m_icon(),
@@ -303,5 +305,16 @@ struct s_service_install
     tstring m_component;
     tstring m_description;
 };
+
+///////////////////////////////////////////////////////////////////////////
+// xxx_table_t -- typedefs for the table containers
+//
+typedef std::vector<s_app_id> app_id_table_t;
+typedef std::vector<s_class> class_table_t;
+typedef std::vector<s_registry> registry_table_t;
+typedef std::vector<s_prog_id> prog_id_table_t;
+typedef std::vector<s_type_lib> type_lib_table_t;
+typedef std::vector<s_service_control> service_control_table_t;
+typedef std::vector<s_service_install> service_install_table_t;
 
 #endif
