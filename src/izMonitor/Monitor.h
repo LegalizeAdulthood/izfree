@@ -172,9 +172,18 @@ DEFINE_COM_TABLE(ServiceInstall, s_service_install, service_install_table_t);
 //
 struct thread_args
 {
-    LPCTSTR m_file;
+    thread_args(const tstring &file, HANDLE event, bool service)
+        : m_file(file),
+        m_event(event),
+        m_service(service),
+        m_result(S_OK),
+        m_bang(_T(__FILE__), __LINE__, _T(""))
+    {}
+    tstring m_file;
     HANDLE m_event;
     bool m_service;
+    HRESULT m_result;
+    source_error m_bang;
 };
 
 ///////////////////////////////////////////////////////////////////////////
