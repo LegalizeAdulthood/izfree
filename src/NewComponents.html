@@ -28,7 +28,7 @@
 option explicit
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-dim g_main_frame
+dim g_main_frame : set g_main_frame = window.parent
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 const PAGE_DIRECTORY = 1
@@ -381,6 +381,160 @@ sub scan_directory
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub write_tool_input(name)
+    write_input "NewComponents", document.forms("CreateComponents").all, name
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub read_tool_input(name, fallback)
+    read_input "NewComponents", document.forms("CreateComponents").all, _
+        name, fallback
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub update_scan
+    dim val : val = document.all("dir").value
+    dim enabled : enabled = (val <> "") and fso().FolderExists(val)
+    document.all("next").disabled = not enabled
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub add_features(byref tree, tv, parent_label, parent)
+    dim kids : kids = split(tree(parent), ",")
+    sort kids
+    dim i : for i = 0 to ubound(kids)
+        dim label : label = parent_label & ".F" & i
+        tv.nodes.add parent_label, tvwChild, label, kids(i)
+        add_features tree, tv, label, kids(i)
+    next
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub display_features
+    dim view : set view = exec_view(g_main_frame.g_database, _
+        "select `Feature`,`Feature_Parent` from `Feature`" &_
+        " order by `Feature_Parent`")
+    dim rec : set rec = view.fetch
+    dim roots()
+    dim tree : set tree = check_object("Scripting.Dictionary")
+    if (rec is nothing) then
+        exit sub
+    end if
+    do while (not rec is nothing)
+        if (rec.isnull(2)) then
+            push roots, rec.stringdata(1)
+        else
+            dim kids
+            if (tree.exists(rec.stringdata(2))) then
+                kids = tree(rec.stringdata(2)) & ","
+                tree.remove rec.stringdata(2)
+            else
+                kids = ""
+            end if
+            tree.add rec.stringdata(2), kids & rec.stringdata(1)
+        end if
+        set rec = view.fetch
+    loop
+    view.close : check
+    set view = nothing
+    set rec = nothing
+    
+    sort roots
+    
+    dim tv : set tv = document.all("features")
+    tv.nodes.clear
+    dim i : for i = 0 to ubound(roots)
+        dim label : label = "R" & i
+        tv.nodes.add ,, label, roots(i)
+        add_features tree, tv, label, roots(i)
+    next
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' commit_components
+'
+' Store File, Directory, Media, Component, Feature and FeatureComponent
+' rows in the database from information in the arrays.
+'
+sub commit_components(db)
+    save_file_table db
+    save_directory_table db
+    save_media_table db
+    save_component_table db
+    save_feature_table db, "All", true
+    save_feature_components_table db
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub back_next_update
+    dim first : first = (g_page = 1)
+    dim last : last = (g_page = PAGE_LAST)
+    dim features : features = (g_page = PAGE_FEATURES)
+    dim no_comps : no_comps = (num_components = 0)
+    document.all("back").disabled = first
+    document.all("next").disabled = last or (not first and no_comps) or _
+        (features and (document.all("features").selectedItem is nothing))
+    dim disabled : disabled = no_comps or first
+    document.all("finish").disabled = disabled
+    document.all("cancel").disabled = disabled
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub display_totals
+    document.all("componentCount").innerText = num_components
+    document.all("directoryCount").innerText = num_dirs
+    document.all("fileCount").innerText = num_files
+    document.all("rootFeature").innerText = document.all("features").selectedItem.text
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub do_step
+    select case g_page
+    case PAGE_DIRECTORY:        scan_directory
+    case PAGE_COMPONENTS:       display_features
+    case PAGE_FEATURES:         display_totals
+    case PAGE_LAST:             commit_components
+    end select
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub undo_step
+    select case g_page
+    case PAGE_FEATURES:         display_features
+    case PAGE_COMPONENTS:       scan_directory
+    end select
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_directories
+'
+' Load the primary keys of the directory table for the new feature form
+'
+sub load_directories
+    dim opts
+    set opts = document.forms("CreateComponents").all("directory").options
+    do while (opts.length > 0)
+        opts.remove 0
+    loop
+    dim view : set view = exec_view(g_main_frame.g_database, _
+        "select `Directory` from `Directory`")
+    dim rec : set rec = view.fetch
+    dim dirs()
+    do while (not rec is nothing)
+        dim dir : dir = rec.stringdata(1)
+        if (instr(dir, ".") = 0) then
+            push dirs, dir
+        end if
+        set rec = view.fetch
+    loop
+    view.close : check
+    sort dirs
+    dim i : for i = 0 to ubound(dirs)
+        opts.add new_option(dirs(i))
+    next
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -395,10 +549,12 @@ end sub
 '
 sub ComponentTree_AfterLabelEdit(cancel, newstring)
     if (not cancel) then
-        dim tv : set tv = document.forms("CreateComponents").all("ComponentTree")
+        dim tv : set tv = _
+            document.forms("CreateComponents").all("ComponentTree")
         select case left(tv.SelectedItem.key, 1)
         case "R"
-            components(cmp_name, cint(mid(tv.selecteditem.key, 2))) = newstring
+            components(cmp_name, cint(mid(tv.selecteditem.key, 2))) = _
+                newstring
         end select
         set tv = nothing
     end if
@@ -433,38 +589,8 @@ sub ComponentTree_NodeClick(node)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub write_tool_input(name)
-    write_input "NewComponents", document.forms("CreateComponents").all, name
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub read_tool_input(name, fallback)
-    read_input "NewComponents", document.forms("CreateComponents").all, name, _
-        fallback
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub window_onLoad
-    set g_main_frame = window.parent
-    read_tool_input "dir", ""
-    update_scan
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub window_onUnload
-    write_tool_input "dir"
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub help_onClick
     show_help "NewComponents"
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub update_scan
-    dim val : val = document.all("dir").value
-    dim enabled : enabled = (val <> "") and fso().FolderExists(val)
-    document.all("next").disabled = not enabled
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -472,47 +598,6 @@ sub dir_onChange : update_scan : end sub
 sub dir_onKeyUp  : update_scan : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub display_features
-    dbgout "Display features"
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' commit_components
-'
-' Store File, Directory, Media, Component, Feature and FeatureComponent
-' rows in the database from information in the arrays.
-'
-sub commit_components(db)
-    save_file_table db
-    save_directory_table db
-    save_media_table db
-    save_component_table db
-    save_feature_table db, "All", true
-    save_feature_components_table db
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub back_next_update
-    dim first : first = (g_page = 1)
-    dim last : last = (g_page = PAGE_LAST)
-    dim no_comps : no_comps = (num_components = 0)
-    document.all("back").disabled = first
-    document.all("next").disabled = last or (not first and no_comps)
-    dim disabled : disabled = no_comps or first
-    document.all("finish").disabled = disabled
-    document.all("cancel").disabled = disabled
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub do_step
-    select case g_page
-    case PAGE_DIRECTORY:        scan_directory
-    case PAGE_COMPONENTS:       display_features
-    case PAGE_FEATURES:
-    case PAGE_LAST:             commit_components
-    end select
-end sub
-
 sub next_onClick
     do_step
     
@@ -535,17 +620,19 @@ sub back_onClick
     if (g_page >= 1) then
         document.all("page" & g_page).className = ""
    end if
-   back_next_update
+   undo_step
+   back_next_update 
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub browse_onClick
-    dim dir : dir = browse_for_existing_dir("Output directory:")
+    dim dir : dir = browse_for_existing_dir("Scan directory:")
     if (dir <> "") then
         document.all("dir").value = dir
     end if
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub cancel_onClick
     document.all("page" & g_page).className = "invisible"
     g_page = 1
@@ -553,6 +640,11 @@ sub cancel_onClick
     back_next_update
 end sub
     
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub features_Click : back_next_update : end sub
+sub features_KeyUp : back_next_update : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub finish_onClick
     document.all("page" & g_page).className = "invisible"
     do while (g_page < PAGE_LAST)
@@ -564,11 +656,45 @@ sub finish_onClick
     back_next_update
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub newFeature_onClick
+    dim view : set view = g_main_frame.g_database.openview( _
+        "INSERT INTO `Feature`(`Feature`,`Feature_Parent`,`Title`," &_
+        "`Description`,`Display`,`Level`,`Directory_`,`Attributes`)" &_
+        " VALUES (?,?,?,?,?,?,?,?)") : check
+    dim rec : set rec = installer().CreateRecord(8) : check
+    dim all : set all = document.forms("newFeature").all
+    rec.stringdata(1) = all("name").value
+    rec.stringdata(2) = all("parent").value
+    rec.stringdata(3) = all("title").value
+    rec.stringdata(4) = all("description").value
+    rec.integerdata(5) = all("display").value
+    rec.integerdata(6) = all("level").value
+    rec.stringdata(7) = selected_option(all("directory"))
+    rec.integerdata(8) = all("attributes").value
+    view.execute rec : check
+    view.close : check
+    
+    db_modified
+    display_features
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onLoad
+    read_tool_input "dir", ""
+    load_directories
+    update_scan
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onUnload
+    write_tool_input "dir"
+end sub
 --></SCRIPT>
 </HEAD>
 <BODY>
 
-<FORM NAME="CreateComponents"><TABLE WIDTH=100%>
+<FORM ID="CreateComponents" NAME="CreateComponents"><TABLE WIDTH=100%>
 <TR ID="page1"><TD COLSPAN=3>
 <P><STRONG>1. Select Scan Directory:</STRONG></P>
 
@@ -597,14 +723,59 @@ end sub
 
 <TR ID="page3" CLASS="invisible"><TD COLSPAN=3>
 <P><STRONG>3. Locate New Components Under a Feature</STRONG></P>
-<P><OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 id="features" style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="0"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT></TD>
-</P></TD></TR>
+
+<P><TABLE><TR>
+<TD><OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 id="features" name="features" style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="1"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT>
+</TD>
+<TD VALIGN="top"><TABLE>
+    <TR>
+        <TD ALIGN="right"><STRONG>Name:</STRONG></TD>
+        <TD><INPUT ID="name" TYPE="text" SIZE=15></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Parent:</STRONG></TD>
+        <TD><INPUT ID="parent" TYPE="text" SIZE=15></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Title:</STRONG></TD>
+        <TD><INPUT ID="title" TYPE="text" SIZE=15></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Description:</STRONG></TD>
+        <TD><INPUT ID="description" TYPE="text" SIZE=30></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Display:</STRONG></TD>
+        <TD><INPUT ID="display" TYPE="text" SIZE=5> (integer)</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Level:</STRONG></TD>
+        <TD><INPUT ID="level" TYPE="text" SIZE=5> (integer)</TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Parent:</STRONG></TD>
+        <TD><SElECT ID="directory" SIZE=1></SELECT></TD>
+    </TR>
+    <TR>
+        <TD ALIGN="right"><STRONG>Attributes:</STRONG></TD>
+        <TD><INPUT ID="attributes" TYPE="text" SIZE=5> (integer)</TD>
+    </TR>
+    <TR>
+        <TD> </TD>
+        <TD><INPUT ID="newFeature" TYPE="button" VALUE="New..."></TD>
+    </TR>
+</TABLE></TD>
+</TR></TABLE></P>
 
 <TR ID="page4" CLASS="invisible"><TD COLSPAN=3>
 <P><STRONG>4. Commit Components to the Database</STRONG></P>
-<P>Commit xx features, yy components and zz files under parent feature 'All'?</P>
+<P>Commit <SPAN ID="componentCount"></SPAN>&nbsp;components,
+<SPAN ID="directoryCount"></SPAN>&nbsp;directories and
+<SPAN ID="fileCount"></SPAN>&nbsp;files under parent feature
+'<SPAN ID="rootFeature"></SPAN>'?</P>
 </TD></TR>
-<TR>
+
+<P><TR>
 <TD STYLE="width: 150px" ALIGN="center">
 <INPUT ID="back" TYPE="button" VALUE="< Back" DISABLED></TD>
 <TD STYLE="width: 150px" ALIGN="center">
@@ -612,8 +783,8 @@ end sub
 <TD STYLE="width: 150px" ALIGN="center">
 <INPUT ID="cancel" TYPE="button" VALUE="Cancel" DISABLED>
 <INPUT ID="finish" TYPE="button" VALUE="Finish" DISABLED></TD>
-</TR>
-</TABLE></FORM></P>
+</TR></P>
+</TABLE></FORM>
 
 <P ID="debug"></P>
 
