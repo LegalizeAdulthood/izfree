@@ -242,7 +242,8 @@ function wit_filename(wildname)
     if (bad_short) then
         if (len(short) > 8) then short = left(short, 8)
         if (len(ext) > 3) then ext = left(ext, 3)
-        wit_filename = short & "." & ext & "|" & wildname
+        if (dot <> 0) then ext = "." & ext
+        wit_filename = short & ext & "|" & wildname
     else
         wit_filename = wildname
     end if
