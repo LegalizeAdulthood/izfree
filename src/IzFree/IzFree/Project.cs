@@ -251,8 +251,8 @@ namespace IzFree
                 }
 
                 // insert records
-                using (View view = Application.ExecView(m_db,
-                           "INSERT INTO `IzProperty`(`Name`,`Value`) VALUES (?,?)"))
+                using (View view = m_db.OpenView(
+                    "INSERT INTO `IzProperty`(`Name`, `Value`) VALUES (?, ?)"))
                 {
                     using (Record rec = new Record(2))
                     {
