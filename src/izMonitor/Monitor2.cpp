@@ -1340,10 +1340,16 @@ CMonitor::register_threadproc(void *pv)
     ATLASSERT(pv);
     thread_args *args = static_cast<thread_args *>(pv);
 
+    args->m_result = S_OK;
     try
     {
-        args->m_result =
-            register_server(args->m_file.c_str(), args->m_service);
+        com_runtime com;
+        THR(register_server(args->m_file.c_str(), args->m_service));
+    }
+    catch (const hresult_error &bang)
+    {
+        args->m_result = bang.m_hr;
+        args->m_bang = static_cast<source_error>(bang);
     }
     catch (const source_error &bang)
     {
