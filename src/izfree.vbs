@@ -578,11 +578,12 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub init_izfree_props(db)
     on error resume next
-    set g_main_frame.g_izfree_props = check_object("Scripting.Dictionary")
+    dim props : set props  = check_object("Scripting.Dictionary")
+    set g_main_frame.g_izfree_props = props
     dim view : set view = exec_view(db, "SELECT * FROM `izProperty`")
     dim rec : set rec = view.fetch
     do while not rec is nothing
-        g_izfree_props(rec.stringdata(1)) = rec.stringdata(2)
+        props(rec.stringdata(1)) = rec.stringdata(2)
         set rec = view.fetch
     loop
     view.close : check
@@ -653,6 +654,7 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub set_izfree_property(db, name, value)
     on error resume next
+    dim props : set props = g_main_frame.g_izfree_props
     dim keys : set keys = db.PrimaryKeys("izProperty")
     if (err.number <> 0) then
         err.clear
@@ -660,15 +662,15 @@ sub set_izfree_property(db, name, value)
         insert_izfree_property db, name, value
         init_izfree_props db
     else
-        if (g_izfree_props is nothing) then
+        if (props is nothing) then
             init_izfree_props db
         end if
-        if (not g_izfree_props.exists(name)) then
+        if (not props.exists(name)) then
             insert_izfree_property db, name, value
         else
             update_izfree_property db, name, value
         end if
-        g_izfree_props(name) = value
+        props(name) = value
     end if
 end sub
 
