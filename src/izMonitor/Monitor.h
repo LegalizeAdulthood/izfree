@@ -30,6 +30,22 @@
 #include "ServiceInstallRecord.h"
 #include "s_tables.h"
 
+/////////////////////////////////////////////////////////////////////////////
+// THR_TRY, THR_CATCH, THR_CATCH_EI
+//
+// Uniform error handling macros
+//
+#define THR_TRY() if (1) try { 0
+
+// returns HRESULT
+#define THR_CATCH() } catch (const hresult_error &bang) { \
+return bang.m_hr; } catch (...) { return E_UNEXPECTED; } else 0
+
+// returns HRESULT + ISupportsErrorInfo
+#define THR_CATCH_EI(iid_) } catch (const hresult_error &bang) { \
+return Error(bang.m_msg.c_str(), iid_, bang.m_hr); } catch (...) { \
+return E_UNEXPECTED; } else 0
+
 ///////////////////////////////////////////////////////////////////////////
 // CopyVariantFromRecord
 //
@@ -149,10 +165,86 @@ DEFINE_COM_TABLE(TypeLib, s_type_lib, type_lib_table_t);
 DEFINE_COM_TABLE(ServiceControl, s_service_control, service_control_table_t);
 DEFINE_COM_TABLE(ServiceInstall, s_service_install, service_install_table_t);
 
+///////////////////////////////////////////////////////////////////////////
+// thread_args
+//
+// Structure containing arguments passed to the registration thread.
+//
+struct thread_args
+{
+    LPCTSTR m_file;
+    HANDLE m_event;
+    bool m_service;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// s_monitor_key -- structure to monitor a registry key's differences
+//
+struct s_monitor_key
+{
+    s_monitor_key()
+        : m_key(NULL),
+        m_name(),
+        m_subkey(),
+        m_modified(false),
+        m_values(),
+        m_subkeys()
+    {}
+    s_monitor_key(HKEY root, LPCTSTR name, LPCTSTR subkey = NULL)
+        : m_key(root),
+        m_name(name),
+        m_subkey(subkey ? subkey : _T("")),
+        m_modified(false),
+        m_values(),
+        m_subkeys()
+    {}
+    ~s_monitor_key() {}
+
+    void snapshot();
+    void extract_app_id(app_id_table_t &appid,
+                        registry_table_t &registry,
+                        const tstring &component) const;
+    void extract_app_id_entry(app_id_table_t &appid,
+                              registry_table_t &registry,
+                              const registry_key &subkey,
+                              const tstring &component) const;
+    void extract_class(class_table_t &klass,
+                       registry_table_t &registry,
+                       const tstring &component) const;
+    void extract_clsid_entry(class_table_t &klass,
+                             registry_table_t &registry,
+                             const registry_key &subkey,
+                             const tstring &component) const;
+    void extract_prog_id(prog_id_table_t &prog_id,
+                         registry_table_t &registry,
+                         const tstring &component) const;
+    void extract_prog_id_entry(prog_id_table_t &prog_id,
+                               registry_table_t &registry,
+                               const registry_key &subkey,
+                               const tstring &component) const;
+    void extract_registry(registry_table_t &registry,
+                          const tstring &component) const;
+    void extract_type_lib(type_lib_table_t &type_lib,
+                          registry_table_t &registry,
+                          const tstring &component) const;
+    void extract_type_lib_entry(type_lib_table_t &type_lib,
+                                registry_table_t &registry,
+                                const registry_key &subkey,
+                                const tstring &component) const;
+
+    HKEY m_key;
+    tstring m_name;
+    tstring m_subkey;
+    bool m_modified;
+
+    std::set<tstring> m_values;
+    std::set<tstring> m_subkeys;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CMonitor
-class ATL_NO_VTABLE CMonitor : 
-    public CComObjectRootEx<CComSingleThreadModel>,
+class ATL_NO_VTABLE CMonitor
+    : public CComObjectRootEx<CComSingleThreadModel>,
     public CComCoClass<CMonitor, &CLSID_Monitor>,
     public IDispatchImpl<IMonitor, &IID_IMonitor, &LIBID_IZMONITORLib>
 {
@@ -171,8 +263,11 @@ BEGIN_COM_MAP(CMonitor)
     COM_INTERFACE_ENTRY(IDispatch)
 END_COM_MAP()
 
-// IMonitor
+    // IMonitor
 public:
+	STDMETHOD(ClearKeys)();
+	STDMETHOD(get_Service)(/*[out, retval]*/ long *pVal);
+	STDMETHOD(get_File)(/*[out, retval]*/ BSTR *pVal);
     STDMETHOD(get_ServiceInstallTable)(/*[out, retval]*/ IServiceInstallTable * *pVal);
     STDMETHOD(get_ServiceControlTable)(/*[out, retval]*/ IServiceControlTable * *pVal);
     STDMETHOD(get_TypeLibTable)(/*[out, retval]*/ ITypeLibTable * *pVal);
@@ -184,15 +279,27 @@ public:
     STDMETHOD(get_AppIdTable)(/*[out, retval]*/ IAppIdTable * *pVal);
 
 private:
-    CComObject<CAppIdTable> *m_app_id;
-    CComObject<CClassTable> *m_class;
-    CComObject<CProgIdTable> *m_prog_id;
-    CComObject<CRegistryTable> *m_registry;
-    CComObject<CTypeLibTable> *m_type_lib;
+    void dump_tables();
+    void diff_services();
+
+    // database tables scraped out of the registry
+    CComObject<CAppIdTable>          *m_app_id;
+    CComObject<CClassTable>          *m_class;
+    CComObject<CProgIdTable>         *m_prog_id;
+    CComObject<CRegistryTable>       *m_registry;
+    CComObject<CTypeLibTable>        *m_type_lib;
     CComObject<CServiceControlTable> *m_service_control;
     CComObject<CServiceInstallTable> *m_service_install;
-    tstring m_file;
-    bool m_service;
+
+    tstring m_file;                     // file being processed
+    tstring m_component;                // component name used in tables
+    bool m_service;                     // true to extract service tables
+
+    std::vector<s_monitor_key> m_keys;  // registry keys being monitored
+    string_list_t m_services;           // captured list of services
+
+    // threadproc for registration thread
+    static void __cdecl register_threadproc(void *pv);
 };
 
 #endif //__MONITOR_H_

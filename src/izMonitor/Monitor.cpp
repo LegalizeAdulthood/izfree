@@ -21,6 +21,8 @@
 #include "AppIdRecord.h"
 #include "Monitor.h"
 
+#include <process.h>
+
 /////////////////////////////////////////////////////////////////////////////
 // CHECK_POINTER
 //
@@ -64,8 +66,10 @@ release_table(CComObject<Wrapper> *&table)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CMonitor
-
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor c'tor, d'tor
+//
 CMonitor::CMonitor()
     : m_app_id(NULL),
     m_class(NULL),
@@ -73,39 +77,47 @@ CMonitor::CMonitor()
     m_registry(NULL),
     m_type_lib(NULL),
     m_service_control(NULL),
-    m_service_install(NULL)
+    m_service_install(NULL),
+    m_file(),
+    m_component(),
+    m_service(false),
+    m_keys(),
+    m_services()
 {
+    m_keys.reserve(64);
 }
 
 CMonitor::~CMonitor()
 {
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor::FinalConstruct
+//
+// Construct all the table objects we will fill up while scraping the
+// registry.
+//
 HRESULT
 CMonitor::FinalConstruct()
 {
-    try
-    {
-        construct_table(m_app_id);
-        construct_table(m_class);
-        construct_table(m_prog_id);
-        construct_table(m_registry);
-        construct_table(m_type_lib);
-        construct_table(m_service_control);
-        construct_table(m_service_install);
-    }
-    catch (const hresult_error &bang)
-    {
-        return bang.m_hr;
-    }
-    catch (...)
-    {
-        return E_UNEXPECTED;
-    }
+    THR_TRY();
+    construct_table(m_app_id);
+    construct_table(m_class);
+    construct_table(m_prog_id);
+    construct_table(m_registry);
+    construct_table(m_type_lib);
+    construct_table(m_service_control);
+    construct_table(m_service_install);
+    THR_CATCH();
 
     return S_OK;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor::FinalRelease
+//
+// Release all the table objects.
+//
 void
 CMonitor::FinalRelease()
 {
@@ -117,37 +129,41 @@ CMonitor::FinalRelease()
     release_table(m_service_install);
 }
 
-STDMETHODIMP
-CMonitor::Process(BSTR file, BOOL service)
-{
-    USES_CONVERSION;
-    m_file = W2T(file);
-    m_service = (service != 0);
-    return S_OK;
-}
-
 ///////////////////////////////////////////////////////////////////////////
+// CMonitor::WatchKey
+//
+// Add a registry key to the list of keys that will be monitored during
+// registration.  Since Windows Installer only supports writing keys into
+// HKCR, HKCU, HKLM, and HKU, return E_INVALIDARG for any other root hive.
+//
 STDMETHODIMP
 CMonitor::WatchKey(BSTR registry_key)
 {
     USES_CONVERSION;
+    HKEY root = 0;
     tstring key = W2T(registry_key);
-    tstring::size_type whack = key.find(_T("\\"));
-    const tstring root = (whack != tstring::npos) ? key.substr(0, whack) : key;
-    if (cis_equal(_T("HKCR"), root) || cis_equal(_T("HKEY_CLASSES_ROOT"), root))
+    const tstring::size_type whack = key.find(_T("\\"));
+    const tstring root_name = (whack != tstring::npos) ?
+        key.substr(0, whack) : key;
+    if (cis_equal(_T("HKCR"), root_name) ||
+        cis_equal(_T("HKEY_CLASSES_ROOT"), root_name))
     {
+        root = HKEY_CLASSES_ROOT;
     }
-    else if (cis_equal(_T("HKCU"), root)
-             || cis_equal(_T("HKEY_CURRENT_USER"), root))
+    else if (cis_equal(_T("HKCU"), root_name)
+             || cis_equal(_T("HKEY_CURRENT_USER"), root_name))
     {
+        root = HKEY_CURRENT_USER;
     }
-    else if (cis_equal(_T("HKLM"), root)
-             || cis_equal(_T("HKEY_LOCAL_MACHINE"), root))
+    else if (cis_equal(_T("HKLM"), root_name)
+             || cis_equal(_T("HKEY_LOCAL_MACHINE"), root_name))
     {
+        root = HKEY_LOCAL_MACHINE;
     }
-    else if (cis_equal(_T("HKU"), root)
-             || cis_equal(_T("HKEY_USERS"), root))
+    else if (cis_equal(_T("HKU"), root_name)
+             || cis_equal(_T("HKEY_USERS"), root_name))
     {
+        root = HKEY_USERS;
     }
     else
     {
@@ -155,9 +171,57 @@ CMonitor::WatchKey(BSTR registry_key)
                      IID_IMonitor, E_INVALIDARG);
     }
 
+    THR_TRY();
+    if (whack != tstring::npos)
+    {
+        const tstring subkey = key.substr(whack+1);
+        CRegKey tmp;
+        TRS(tmp.Open(root, subkey.c_str(), KEY_READ));
+        m_keys.push_back(s_monitor_key(tmp.Detach(), root_name.c_str(),
+                                       subkey.c_str()));
+    }
+    else
+    {
+        m_keys.push_back(s_monitor_key(root, root_name.c_str()));
+    }
+    THR_CATCH_EI(IID_IMonitor);
+
     return S_OK;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor::get_file
+//
+// Get the last file set through Process, or the empty string if Process
+// has not yet been called.
+//
+STDMETHODIMP
+CMonitor::get_File(BSTR *pVal)
+{
+    CHECK_POINTER(pVal);
+    *pVal = CComBSTR(m_file.c_str()).Detach();
+	return S_OK;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor::get_Service
+//
+// Get the last service flag set through Process, or false if Process
+// has not yet been called.
+//
+STDMETHODIMP CMonitor::get_Service(long *pVal)
+{
+    CHECK_POINTER(pVal);
+    *pVal = static_cast<long>(m_service);
+	return S_OK;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor::get_XXXTable
+//
+// Table accessors; just hand back a copy of the internal interface pointer
+// after AddRef'ing it.
+//
 STDMETHODIMP
 CMonitor::get_AppIdTable(IAppIdTable **pVal)
 {
@@ -204,4 +268,15 @@ CMonitor::get_ServiceInstallTable(IServiceInstallTable **pVal)
 {
     RETURN_TABLE(m_service_install);
     return S_OK;
+}
+
+STDMETHODIMP
+CMonitor::ClearKeys()
+{
+    while (m_keys.size())
+    {
+        m_keys.pop_back();
+    }
+
+	return S_OK;
 }
