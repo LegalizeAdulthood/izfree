@@ -169,7 +169,7 @@ sub save_directory_table(db, root)
     dim view : set view = db.openview("INSERT INTO `Directory`(" &_
         "`Directory`,`Directory_Parent`,`DefaultDir`) VALUES (?,?,?)") : check
     dim i : for i = 0 to num_dirs-1
-        if (dirs(dir_name, i) = "TARGETDIR") then
+        if (dirs(dir_name, i) = "APPDIR") then
         else
             dim rec : set rec = installer().CreateRecord(3) : check
             rec.stringdata(1) = dirs(dir_name, i)
@@ -290,7 +290,7 @@ sub enum_files(base, parent, dir)
         name = mid(name, len(base)+2)
     end if
     if (name = "") then
-        name = "TARGETDIR"
+        name = "APPDIR"
         dirs(dir_dir, num_dirs) = "."
         dirs(dir_name, num_dirs) = name
         dirs(dir_parent, num_dirs) = ""
@@ -675,11 +675,11 @@ sub ComponentTree_NodeClick(node)
     end select
     dim source_dir
     if (target_dir = ".") then
-        target_dir = "TARGETDIR"
+        target_dir = "APPDIR"
         source_dir = "SourceDir"
     else
         source_dir = "SourceDir\" & target_dir
-        target_dir = "TARGETDIR\" & target_dir
+        target_dir = "APPDIR\" & target_dir
     end if
     document.forms("CreateComponents").all("target").innerhtml = target_dir
     document.forms("CreateComponents").all("source").innerhtml = source_dir
