@@ -125,9 +125,6 @@ sub create_package(template_dir, database, manufacturer, _
     fso().CopyFile g_source & "schema.msi", g_dest : check
 
     ' merge in sequence and UI tables
-    if (InStr(g_dest, " ")) then
-        g_dest = chr(34) & g_dest & chr(34)
-    end if
     merge "Sequence.msi"
     merge "UISample.msi"
     
