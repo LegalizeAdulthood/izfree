@@ -11,6 +11,7 @@ namespace IzFree
 	/// </summary>
 	public class NewPackageForm : System.Windows.Forms.Form
 	{
+        #region Form Components
         private System.Windows.Forms.Label templateDirectoryLabel;
         private System.Windows.Forms.TextBox templateDirectoryTextBox;
         private System.Windows.Forms.Button templateDirectoryBrowseButton;
@@ -42,6 +43,7 @@ namespace IzFree
 		/// Required designer variable.
 		/// </summary>
 		private System.ComponentModel.Container components = null;
+        #endregion
 
 		public NewPackageForm()
 		{
@@ -402,6 +404,7 @@ namespace IzFree
         }
 		#endregion
 
+        #region Event Handlers
         private void templateDirectoryBrowseButton_Click(
             object sender, System.EventArgs e)
         {
@@ -410,12 +413,6 @@ namespace IzFree
             {
                 templateDirectoryTextBox.Text = dlg.SelectedPath;
             }
-        }
-
-        private string StringSetting(string name, string defaultValue)
-        {
-            return IzFree.Application.ToolString(
-                "NewPackage", name, defaultValue);
         }
 
         private void NewPackageForm_Load(object sender, System.EventArgs e)
@@ -447,6 +444,15 @@ namespace IzFree
         {
             upgradeCodeTextBox.Text = IzFree.Application.NewGuid();
         }
+        #endregion
+
+        #region Private Methods
+        private string StringSetting(string name, string defaultValue)
+        {
+            return IzFree.Application.ToolString(
+                "NewPackage", name, defaultValue);
+        }
+        #endregion
 
         #region Properties
         public string TemplateDirectory

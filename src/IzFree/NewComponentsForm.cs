@@ -12,6 +12,7 @@ namespace IzFree
 {
 	public class NewComponentsForm : Crownwood.Magic.Forms.WizardDialog
 	{
+        #region Form Components
         private Crownwood.Magic.Controls.WizardPage wizardPage1;
         private Crownwood.Magic.Controls.WizardPage wizardPage2;
         private Crownwood.Magic.Controls.WizardPage wizardPage3;
@@ -27,6 +28,7 @@ namespace IzFree
         private System.Windows.Forms.Label rootDirectoryLabel;
         private System.Windows.Forms.Label summaryLabel;
 		private System.ComponentModel.IContainer components = null;
+        #endregion
 
 		public NewComponentsForm(Project project)
 		{
@@ -254,36 +256,12 @@ namespace IzFree
         }
 		#endregion
 
+        #region Event Handlers
+        #region Wizard Control
         private void wizardControl_Load(object sender, System.EventArgs e)
         {
             wizardControl.EnableNextButton =
-            wizardControl.EnableFinishButton = WizardControl.Status.No;
-        }
-
-        IzFree.Project m_project;
-
-        private void browseButton_Click(object sender, System.EventArgs e)
-        {
-            using (FolderBrowserDialog dlg = new FolderBrowserDialog())
-            {
-                if (Directory.Exists(scanDirectoryTextBox.Text))
-                {
-                    dlg.SelectedPath = scanDirectoryTextBox.Text;
-                }
-                if (DialogResult.OK == dlg.ShowDialog())
-                {
-                    scanDirectoryTextBox.Text = dlg.SelectedPath;
-                }
-            }
-        }
-
-        private void scanDirectoryTextBox_TextChanged(object sender, System.EventArgs e)
-        {
-            wizardControl.EnableNextButton =
-            wizardControl.EnableFinishButton =
-                ((scanDirectoryTextBox.Text.Length > 0) &&
-                Directory.Exists(scanDirectoryTextBox.Text)) ?
-                WizardControl.Status.Yes : WizardControl.Status.No;
+                wizardControl.EnableFinishButton = WizardControl.Status.No;
         }
 
         private void wizardControl_BackClick(object sender, System.ComponentModel.CancelEventArgs e)
@@ -319,10 +297,52 @@ namespace IzFree
                 PerformStep(i);
             }
         }
+        #endregion
+
+        private void browseButton_Click(object sender, System.EventArgs e)
+        {
+            using (FolderBrowserDialog dlg = new FolderBrowserDialog())
+            {
+                if (Directory.Exists(scanDirectoryTextBox.Text))
+                {
+                    dlg.SelectedPath = scanDirectoryTextBox.Text;
+                }
+                if (DialogResult.OK == dlg.ShowDialog())
+                {
+                    scanDirectoryTextBox.Text = dlg.SelectedPath;
+                }
+            }
+        }
+
+        private void scanDirectoryTextBox_TextChanged(object sender, System.EventArgs e)
+        {
+            wizardControl.EnableNextButton =
+                wizardControl.EnableFinishButton =
+                ((scanDirectoryTextBox.Text.Length > 0) &&
+                Directory.Exists(scanDirectoryTextBox.Text)) ?
+                WizardControl.Status.Yes : WizardControl.Status.No;
+        }
+
+        private void componentListBox_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            componentPropertyGrid.SelectedObject = m_scanner.FindComponent(
+                componentListBox.SelectedItem.ToString());
+        }
+        #endregion
+
+        #region Private Instance Data
+        private IzFree.Project m_project;
+        private Scan.Scanner m_scanner = new Scan.Scanner();
+        #endregion
+
+        #region Public Methods
         public void Commit()
         {
             m_scanner.Commit(m_project, RootDirectory, RootFeature);
         }
+        #endregion
+
+        #region Private Methods
         private void BuildComponents()
         {
             componentListBox.Items.Clear();
@@ -428,7 +448,9 @@ namespace IzFree
                 m_scanner.Scan(scanDirectoryTextBox.Text);
             }
         }
+        #endregion
 
+        #region Properties
         public string ScanDirectory
         {
             get { return scanDirectoryTextBox.Text; }
@@ -443,14 +465,7 @@ namespace IzFree
         {
             get { return rootFeatureTreeView.SelectedNode.Text; }
         }
-
-        private Scan.Scanner m_scanner = new Scan.Scanner();
-
-        private void componentListBox_SelectedIndexChanged(object sender, System.EventArgs e)
-        {
-            componentPropertyGrid.SelectedObject = m_scanner.FindComponent(
-                componentListBox.SelectedItem.ToString());
-        }
+        #endregion
     }
 }
 

@@ -13,6 +13,7 @@ namespace IzFree
 	/// </summary>
     public class MainForm : System.Windows.Forms.Form
     {
+        #region Forms Components
         private System.Windows.Forms.TabPage componentsTab;
         private System.Windows.Forms.TabPage fileSystemTab;
         private System.Windows.Forms.TabPage registryTab;
@@ -58,6 +59,7 @@ namespace IzFree
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.Container components = null;
+        #endregion
 
         public MainForm()
         {
@@ -71,20 +73,22 @@ namespace IzFree
             //
         }
 
+        #region Dispose
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
-        protected override void Dispose( bool disposing )
+        protected override void Dispose(bool disposing)
         {
-            if( disposing )
+            if (disposing)
             {
                 if (components != null) 
                 {
                     components.Dispose();
                 }
             }
-            base.Dispose( disposing );
+            base.Dispose(disposing);
         }
+        #endregion
 
         #region Windows Form Designer generated code
         /// <summary>
@@ -495,11 +499,72 @@ namespace IzFree
             System.Windows.Forms.Application.Run(new MainForm());
         }
 
+        #region Private Methods
+        private void AddFeatures(Hashtable tree, TreeNode parentNode,
+            string parentLabel, string parent)
+        {
+            if (tree.ContainsKey(parent))
+            {
+                ArrayList kids = tree[parent] as ArrayList;
+                for (int i = 0; i < kids.Count; i++)
+                {
+                    string label = parentLabel + ".F" + i.ToString();
+                    TreeNode node = new TreeNode(label);
+                    node.Text = kids[i] as string;
+                    parentNode.Nodes.Add(node);
+                    AddFeatures(tree, node, label, kids[i] as string);
+                }
+            }
+        }
+        private void DatabaseOpen(bool openNotClosed)
+        {
+            fileCloseItem.Enabled = openNotClosed;
+            fileSummaryInformationItem.Enabled = openNotClosed;
+            taskScanDirectoryItem.Enabled = openNotClosed;
+            taskExtractCOMItem.Enabled = openNotClosed;
+            windowTablesItem.Enabled = openNotClosed;
+            windowFeaturesItem.Enabled = openNotClosed;
+            windowComponentsItem.Enabled = openNotClosed;
+            windowDialogsItem.Enabled = openNotClosed;
+            windowSequencesItem.Enabled = openNotClosed;
+            windowRegistryItem.Enabled = openNotClosed;
+            windowIniFilesItem.Enabled = openNotClosed;
+            windowCOMRegistrationItem.Enabled = openNotClosed;
+            windowAssembliesItem.Enabled = openNotClosed;
+            Modified = false;
+            ShowProjectTabs(openNotClosed);
+        }
+
+        private void NewDatabase()
+        {
+            PopulateTabs(m_application.Project.Database);
+            DatabaseOpen(true);
+        }
+
+        private void PopulateComponentsTab(MSI.Database db)
+        {
+            Debug.WriteLine("\nComponents:");
+            MSI.View view = IzFree.Application.ExecView(db,
+                "SELECT `Component`,`ComponentId`,`Directory_`," +
+                    "`Attributes`,`Condition`,`KeyPath` FROM `Component`" +
+                " ORDER BY `Component`");
+            for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+            {
+                Debug.WriteLine(String.Format("Component={0}, " +
+                    "ComponentId={1}, Directory_={2}, Attributes={3}, " +
+                    "Condition={4}, KeyPath={5}", rec.GetString(1),
+                    rec.GetString(2), rec.GetString(3), rec.GetInteger(4),
+                    rec.GetString(5), rec.GetString(6)));
+                rec.Dispose();
+            }
+            view.Close();
+        }
+
         private void PopulateFeaturesTab(MSI.Database db)
         {
             MSI.View view = IzFree.Application.ExecView(db,
                 "SELECT `Feature`,`Feature_Parent` FROM `Feature`" +
-                    " ORDER BY `Feature_Parent`");
+                " ORDER BY `Feature_Parent`");
             ArrayList roots = new ArrayList();
             Hashtable tree = new Hashtable();
             for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
@@ -541,41 +606,6 @@ namespace IzFree
                 featureTreeView.Nodes.Add(node);
                 AddFeatures(tree, node, label, node.Text);
             }
-        }
-
-        private void AddFeatures(Hashtable tree, TreeNode parentNode,
-            string parentLabel, string parent)
-        {
-            if (tree.ContainsKey(parent))
-            {
-                ArrayList kids = tree[parent] as ArrayList;
-                for (int i = 0; i < kids.Count; i++)
-                {
-                    string label = parentLabel + ".F" + i.ToString();
-                    TreeNode node = new TreeNode(label);
-                    node.Text = kids[i] as string;
-                    parentNode.Nodes.Add(node);
-                    AddFeatures(tree, node, label, kids[i] as string);
-                }
-            }
-        }
-        private void PopulateComponentsTab(MSI.Database db)
-        {
-            Debug.WriteLine("\nComponents:");
-            MSI.View view = IzFree.Application.ExecView(db,
-                "SELECT `Component`,`ComponentId`,`Directory_`," +
-                    "`Attributes`,`Condition`,`KeyPath` FROM `Component`" +
-                " ORDER BY `Component`");
-            for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
-            {
-                Debug.WriteLine(String.Format("Component={0}, " +
-                    "ComponentId={1}, Directory_={2}, Attributes={3}, " +
-                    "Condition={4}, KeyPath={5}", rec.GetString(1),
-                    rec.GetString(2), rec.GetString(3), rec.GetInteger(4),
-                    rec.GetString(5), rec.GetString(6)));
-                rec.Dispose();
-            }
-            view.Close();
         }
 
         private void PopulateFileSystemTab(MSI.Database db)
@@ -641,53 +671,58 @@ namespace IzFree
             PopulateRegistryTab(db);
         }
 
-        private void fileOpenItem_Click(object sender, System.EventArgs e)
+        private string PrimaryKeys(string table)
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Setup Databases (*.msi)|*.msi|" +
-                "Merge Modules (*.msm)|*.msm|" +
-                "Patch Creation Parameters (*.pcp)|*.pcp|" +
-                "ICE Databases (*.cub)|*.cub";
-            dlg.FilterIndex = 0;
-            dlg.CheckFileExists = true;
-            dlg.CheckPathExists = true;
-            if (DialogResult.OK == dlg.ShowDialog())
+            return "*";
+        }
+
+        private void SetTitle()
+        {
+            Text = "izfree 2.0";
+            if (m_application.Project != null)
             {
-                using (new Helpers.WaitCursor())
-                {
-                    m_application.OpenProject(dlg.FileName);
-                    NewDatabase();
-                }
+                Text += " - " + (Modified ? "* " : "") +
+                    m_application.Project.Filename;
             }
         }
 
-        IzFree.Application m_application = new IzFree.Application();
-
-        private void NewDatabase()
+        private void ShowModified(bool modified)
         {
-            PopulateTabs(m_application.Project.Database);
-            DatabaseOpen(true);
+            fileSaveItem.Enabled = modified;
+            fileSaveAsItem.Enabled = modified;
         }
 
-        private void DatabaseOpen(bool openNotClosed)
+        private void ShowProjectTabs(bool openNotClosed)
         {
-            fileCloseItem.Enabled = openNotClosed;
-            fileSummaryInformationItem.Enabled = openNotClosed;
-            taskScanDirectoryItem.Enabled = openNotClosed;
-            taskExtractCOMItem.Enabled = openNotClosed;
-            windowTablesItem.Enabled = openNotClosed;
-            windowFeaturesItem.Enabled = openNotClosed;
-            windowComponentsItem.Enabled = openNotClosed;
-            windowDialogsItem.Enabled = openNotClosed;
-            windowSequencesItem.Enabled = openNotClosed;
-            windowRegistryItem.Enabled = openNotClosed;
-            windowIniFilesItem.Enabled = openNotClosed;
-            windowCOMRegistrationItem.Enabled = openNotClosed;
-            windowAssembliesItem.Enabled = openNotClosed;
-            Modified = false;
-            ShowProjectTabs(openNotClosed);
+            if (openNotClosed)
+            {
+                projectTabControl.TabPages.Add(tablesTab);
+                projectTabControl.TabPages.Add(featuresTab);
+                projectTabControl.TabPages.Add(componentsTab);
+                projectTabControl.TabPages.Add(fileSystemTab);
+                projectTabControl.TabPages.Add(registryTab);
+            }
+            else
+            {
+                projectTabControl.TabPages.Remove(tablesTab);
+                projectTabControl.TabPages.Remove(featuresTab);
+                projectTabControl.TabPages.Remove(componentsTab);
+                projectTabControl.TabPages.Remove(fileSystemTab);
+                projectTabControl.TabPages.Remove(registryTab);
+            }
         }
 
+        #endregion
+
+        #region Event Handlers
+        #region Main Form
+        private void MainForm_Load(object sender, System.EventArgs e)
+        {
+            ShowProjectTabs(false);
+        }
+        #endregion
+
+        #region File Menu
         private void fileNewItem_Click(object sender, System.EventArgs e)
         {
             using (NewPackageForm package = new NewPackageForm())
@@ -720,119 +755,24 @@ namespace IzFree
             }
         }
 
-        private void MainForm_Load(object sender, System.EventArgs e)
+        private void fileOpenItem_Click(object sender, System.EventArgs e)
         {
-            ShowProjectTabs(false);
-        }
-
-        private void ShowProjectTabs(bool openNotClosed)
-        {
-            if (openNotClosed)
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Setup Databases (*.msi)|*.msi|" +
+                "Merge Modules (*.msm)|*.msm|" +
+                "Patch Creation Parameters (*.pcp)|*.pcp|" +
+                "ICE Databases (*.cub)|*.cub";
+            dlg.FilterIndex = 0;
+            dlg.CheckFileExists = true;
+            dlg.CheckPathExists = true;
+            if (DialogResult.OK == dlg.ShowDialog())
             {
-                projectTabControl.TabPages.Add(tablesTab);
-                projectTabControl.TabPages.Add(featuresTab);
-                projectTabControl.TabPages.Add(componentsTab);
-                projectTabControl.TabPages.Add(fileSystemTab);
-                projectTabControl.TabPages.Add(registryTab);
-            }
-            else
-            {
-                projectTabControl.TabPages.Remove(tablesTab);
-                projectTabControl.TabPages.Remove(featuresTab);
-                projectTabControl.TabPages.Remove(componentsTab);
-                projectTabControl.TabPages.Remove(fileSystemTab);
-                projectTabControl.TabPages.Remove(registryTab);
-            }
-        }
-
-        private void editCopyNewGuidItem_Click(object sender, System.EventArgs e)
-        {
-            Clipboard.SetDataObject(IzFree.Application.NewGuid());
-        }
-
-        private void editPasteNewGuidItem_Click(object sender, System.EventArgs e)
-        {
-            if (this.ActiveControl is TextBox)
-            {
-                this.ActiveControl.Text = IzFree.Application.NewGuid();
-            }
-        }
-
-        private void primaryKeyListView_SelectedIndexChanged(object sender, System.EventArgs e)
-        {
-            if (primaryKeyListView.SelectedItems.Count > 0)
-            {
-
-            }
-        }
-
-        private string PrimaryKeys(string table)
-        {
-            return "*";
-        }
-
-        private void taskScanDirectoryItem_Click(object sender, System.EventArgs e)
-        {
-            using (NewComponentsForm dlg =
-                       new NewComponentsForm(m_application.Project))
-            {
-                if (dlg.ShowDialog() == DialogResult.OK)
+                using (new Helpers.WaitCursor())
                 {
-                    // add components
-                    dlg.Commit();
-                    Modified = true;
+                    m_application.OpenProject(dlg.FileName);
+                    NewDatabase();
                 }
             }
-        }
-
-        private bool Modified
-        {
-            get { return m_modified; }
-            set
-            {
-                if (m_modified && !value)
-                {
-                    // was modified, now isn't modified -- discard changes?
-                }
-                m_modified = value;
-                ShowModified(m_modified);
-                SetTitle();
-            }
-        }
-        bool m_modified = false;
-
-        private void SetTitle()
-        {
-            Text = "izfree 2.0";
-            if (m_application.Project != null)
-            {
-                Text += " - " + (Modified ? "* " : "") +
-                    m_application.Project.Filename;
-            }
-        }
-
-        private void ShowModified(bool modified)
-        {
-            fileSaveItem.Enabled = modified;
-            fileSaveAsItem.Enabled = modified;
-        }
-
-        private void tablesListBox_SelectedIndexChanged(object sender, System.EventArgs e)
-        {
-            using (new UpdateHelper(primaryKeyListView))
-            {
-                primaryKeyListView.Items.Clear();
-                string table = tablesListBox.SelectedItem.ToString();
-                MSI.View view =
-                    IzFree.Application.ExecView(m_application.Project.Database,
-                    "SELECT " + PrimaryKeys(table) + " FROM `" + table + "`");
-                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
-                {
-                    primaryKeyListView.Items.Add(rec.GetString(1));
-                }
-                view.Close();
-            }
-        
         }
 
         private void fileSaveItem_Click(object sender, System.EventArgs e)
@@ -873,5 +813,90 @@ namespace IzFree
             m_application.CloseProject();
             DatabaseOpen(false);
         }
-	}
+        #endregion
+
+        #region Edit Menu
+        private void editCopyNewGuidItem_Click(object sender, System.EventArgs e)
+        {
+            Clipboard.SetDataObject(IzFree.Application.NewGuid());
+        }
+
+        private void editPasteNewGuidItem_Click(object sender, System.EventArgs e)
+        {
+            if (this.ActiveControl is TextBox)
+            {
+                this.ActiveControl.Text = IzFree.Application.NewGuid();
+            }
+        }
+        #endregion
+
+        #region Tasks Menu
+        private void taskScanDirectoryItem_Click(object sender, System.EventArgs e)
+        {
+            using (NewComponentsForm dlg =
+                       new NewComponentsForm(m_application.Project))
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                {
+                    // add components
+                    dlg.Commit();
+                    Modified = true;
+                }
+            }
+        }
+        #endregion
+
+        #region Tables View
+        private void primaryKeyListView_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            if (primaryKeyListView.SelectedItems.Count > 0)
+            {
+
+            }
+        }
+
+        private void tablesListBox_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            using (new UpdateHelper(primaryKeyListView))
+            {
+                primaryKeyListView.Items.Clear();
+                string table = tablesListBox.SelectedItem.ToString();
+                MSI.View view =
+                    IzFree.Application.ExecView(m_application.Project.Database,
+                    "SELECT " + PrimaryKeys(table) + " FROM `" + table + "`");
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    primaryKeyListView.Items.Add(rec.GetString(1));
+                }
+                view.Close();
+            }
+        
+        }
+        #endregion
+        #endregion
+
+        #region Properties
+        #region Modified
+        private bool Modified
+        {
+            get { return m_modified; }
+            set
+            {
+                if (m_modified && !value)
+                {
+                    // was modified, now isn't modified -- discard changes?
+                }
+                m_modified = value;
+                ShowModified(m_modified);
+                SetTitle();
+            }
+        }
+        bool m_modified = false;
+        #endregion
+        #endregion
+
+        #region Private Instance Data
+        IzFree.Application m_application = new IzFree.Application();
+        #endregion
+    }
 }
