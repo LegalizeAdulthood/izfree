@@ -15,7 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
-// Monitor.cpp : Implementation of CMonitor
+// Monitor2.cpp : Implementation of CMonitor::Process
 #include "stdafx.h"
 #include "izMonitor.h"
 #include "AppIdRecord.h"
@@ -213,8 +213,22 @@ run_executable(LPCTSTR file, const tstring &cmd_line)
 {
     STARTUPINFO si = { 0 };
     PROCESS_INFORMATION pi = { 0 };
-    TWS(::CreateProcess(file, const_cast<LPTSTR>(cmd_line.c_str()), NULL,
-        NULL, false, 0, NULL, NULL, &si, &pi));
+    if (!::CreateProcess(file, const_cast<LPTSTR>(cmd_line.c_str()),
+            NULL, NULL, false, 0, NULL, NULL, &si, &pi))
+    {
+        DWORD error = ::GetLastError();
+        if (ERROR_BAD_EXE_FORMAT == error)
+        {
+            throw win32_error(error, _T(__FILE__), __LINE__,
+                (tstring(file) +
+                 _T(" is not a valid executable file.")).c_str());
+        }
+        else
+        {
+            throw win32_error(error, _T(__FILE__), __LINE__,
+                _T("::CreateProcess"));
+        }
+    }
     bool wait = true;
     DWORD status = WAIT_TIMEOUT;
     while (WAIT_TIMEOUT == status)
@@ -351,46 +365,53 @@ reg_hex(const std::vector<BYTE> &data)
 //
 // Helper routine to massage arbitrary strings into database table primary
 // keys.  Returns the index of the first character that is not a letter, 
-// not a digit and not an underscore.
+// not a digit, not a period and not an underscore.
 //
 inline tstring::size_type
 find_bad(const tstring &str, tstring::size_type idx)
 {
     return str.find_first_not_of(
-        _T("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"),
+        _T("abcdefghijklmnopqrstuvwxyz")
+        _T("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        _T("0123456789_."),
         idx);
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// primary_key
+// wit_identifier
 //
-// Given a wild and hairy string, massage it into a string that is useful
-// as the primary key to a database table.  First, all 'bad' characters are
-// replaced with underscores.  Next, multiple adjacent underscores are
-// replaced by a single underscore.  Finally, leading and trailing
-// underscores are stripped.  This routine is used to generate database
-// table keys from registry key paths.
+// Given a wild and hairy string, massage it into a string that is a valid
+// Windows Installer database type of Identifier.  Most often the value will
+// be used as the primary key to a database table.  First, all 'bad'
+// characters are replaced with underscores.  Next, multiple adjacent
+// underscores are replaced by a single underscore.  Next, leading and
+// trailing underscores are stripped.  Next, if the string ends with "_.",
+// then this is replaced with "__", which cannot occur any other way.
+// This routine is used to generate database table keys from registry
+// key paths.
 //
 tstring
-primary_key(const tstring &wild_key)
+wit_identifier(const tstring &wild_key)
 {
     tstring result = wild_key;
-    tstring::size_type idx;
-    for (idx = find_bad(result, 0);
-         idx != tstring::npos;
-         idx = find_bad(result, idx+1))
+    tstring::size_type idx = find_bad(result, 0);
+    for (; idx != tstring::npos; idx = find_bad(result, idx+1))
     {
         result[idx] = _T('_');
     }
-    for (idx = result.find(_T("__"), 0);
-         idx != tstring::npos;
-         idx = result.find(_T("__"), idx))
+    idx = result.find(_T("__"));
+    for (; idx != tstring::npos; idx = result.find(_T("__")))
     {
         result.erase(idx, 1);
     }
     while (_T('_') == result[result.size()-1])
     {
         result.erase(result.size()-1, 1);
+    }
+    if ((_T('_') == result[result.size()-2]) &&
+        (_T('.') == result[result.size()-1]))
+    {
+        result[result.size()-1] = _T('_');
     }
     return result;
 }
@@ -433,8 +454,8 @@ registry_value::add_registry(registry_table_t &registry,
         ATLASSERT(false);
     }
     registry.push_back(s_registry(
-        primary_key(g_roots[root] + base + _T("\\") +
-                           (name().size() ? name() : tstring(_T("nul")))),
+        wit_identifier(g_roots[root] + base + _T("\\") +
+                           (name().size() ? name() : tstring(_T(".")))),
         root, base, name(), Value.str(), component));
 }
 
@@ -487,7 +508,7 @@ registry_key::add_registry(registry_table_t &registry,
         if (flags & add_key)
         {
             registry.push_back(s_registry(
-                primary_key(g_roots[root] + base + _T("\\") + name()),
+                wit_identifier(g_roots[root] + base + _T("\\") + name()),
                 root, base + _T("\\") + name(), _T(""), _T(""), component));
         }
     }
@@ -1317,16 +1338,26 @@ void __cdecl
 CMonitor::register_threadproc(void *pv)
 {
     ATLASSERT(pv);
+    thread_args *args = static_cast<thread_args *>(pv);
+
     try
     {
-        thread_args *args = static_cast<thread_args *>(pv);
-        THR(register_server(args->m_file, args->m_service));
-        TWS(::SetEvent(args->m_event));
+        args->m_result =
+            register_server(args->m_file.c_str(), args->m_service);
+    }
+    catch (const source_error &bang)
+    {
+        args->m_result = E_FAIL;
+        args->m_bang = bang;
     }
     catch (...)
     {
-        ATLASSERT(false);
+        args->m_result = E_FAIL;
+        args->m_bang = source_error(_T(__FILE__), __LINE__,
+            _T("Unexpected exception"));
     }
+    const BOOL res = ::SetEvent(args->m_event);
+    ATLASSERT(res);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1383,7 +1414,7 @@ CMonitor::Process(BSTR file, BOOL service)
     }
 
     // launch the registration thread
-    thread_args args = { m_file.c_str(), events[0], m_service };
+    thread_args args(m_file.c_str(), events[0], m_service);
     DWORD thread_id = 0;
     unsigned long thread_handle =
         TCR(_beginthread(register_threadproc, 0, &args));
@@ -1392,39 +1423,46 @@ CMonitor::Process(BSTR file, BOOL service)
     bool more = true;
     while (more)
     {
-        const DWORD res = ::WaitForMultipleObjects(events.size(),
-            &events[0], FALSE, INFINITE);
-        if ((res >= WAIT_OBJECT_0) && (res-WAIT_OBJECT_0 < events.size()))
+        for (UINT offset = 0; offset < events.size(); offset += 64)
         {
-            const DWORD which = res-WAIT_OBJECT_0;
-            if (which)
+            const UINT count = min(events.size() - offset, 64);
+            const DWORD res =
+                ::WaitForMultipleObjects(count, &events[offset], FALSE, 200);
+            if ((res >= WAIT_OBJECT_0) && (res-WAIT_OBJECT_0 < count))
             {
-                s_monitor_key &target = m_keys[which-1];
-                target.m_modified = true;
-                TWS(::ResetEvent(events[which]));
-                ::ODS(target.m_name + _T("\\") + target.m_subkey +
-                    _T(" changed.\n"));
+                const DWORD which = res-WAIT_OBJECT_0;
+                if (which)
+                {
+                    s_monitor_key &target = m_keys[offset + which - 1];
+                    target.m_modified = true;
+                    TWS(::ResetEvent(events[offset + which]));
+                }
+                else
+                {
+                    // event 0 tells us the thread is done.
+                    more = false;
+                }
             }
-            else
+            else if (WAIT_TIMEOUT != res)
             {
-                // event 0 tells us the thread is done.
+                // ::WaitForMultipleObjects freaked
+                tostringstream buff;
+                for (UINT i = 0; i < events.size(); i++)
+                {
+                    buff << i << _T(": ") << (void *)(events[i])
+                        << _T("\n");
+                }
+                ::ODS(buff);
+                TWS(::GetLastError());
+                ATLASSERT(false);
                 more = false;
             }
         }
-        else
-        {
-            // ::WaitForMultipleObjects freaked
-            tostringstream buff;
-            for (UINT i = 0; i < events.size(); i++)
-            {
-                buff << i << _T(": ") << (void *)(events[i])
-                    << _T("\n");
-            }
-            ::ODS(buff);
-            TWS(::GetLastError());
-            ATLASSERT(false);
-            more = false;
-        }
+    }
+
+    if (FAILED(args.m_result))
+    {
+        return Error(args.m_bang.m_msg.c_str(), IID_IMonitor, args.m_result);
     }
 
     // dump the gathered information
