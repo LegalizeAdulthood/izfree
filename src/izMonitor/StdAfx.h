@@ -230,8 +230,8 @@ check_hr(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR context);
 class com_runtime
 {
 public:
-    com_runtime() { THR(::CoInitialize(NULL)); }
-    ~com_runtime() { ::CoUninitialize(); }
+    com_runtime()   { THR(::CoInitialize(NULL)); }
+    ~com_runtime()  { ::CoUninitialize(); }
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -240,8 +240,16 @@ public:
 class dynamic_library
 {
 public:
-    dynamic_library(LPCTSTR file);
-    ~dynamic_library();
+    dynamic_library(LPCTSTR file)
+        : m_file(file),
+        m_library(TWS(::LoadLibrary(file)))
+    {
+    }
+    ~dynamic_library()
+    {
+        const BOOL res = ::FreeLibrary(m_library);
+        ATLASSERT(res);
+    }
     operator HMODULE() const { return m_library; }
 
 private:
@@ -312,84 +320,7 @@ private:
     SC_LOCK m_lock;
 };
 
-///////////////////////////////////////////////////////////////////////////
-// s_monitor_key -- structure to monitor a registry key's differences
-//
-struct s_monitor_key
-{
-    s_monitor_key()
-        : m_key(NULL),
-        m_name(),
-        m_subkey(),
-        m_modified(false),
-        m_values(),
-        m_subkeys()
-    {}
-    s_monitor_key(HKEY root, LPCTSTR name, LPCTSTR subkey = NULL)
-        : m_key(root),
-        m_name(name),
-        m_subkey(subkey ? subkey : ""),
-        m_modified(false),
-        m_values(),
-        m_subkeys()
-    {}
-    ~s_monitor_key() {}
-
-    void snapshot();
-    void extract_app_id(const tstring &component) const;
-    void extract_app_id_entry(const registry_key &subkey,
-                              const tstring &component) const;
-    void extract_class(const tstring &component) const;
-    void extract_clsid_entry(const registry_key &subkey,
-                             const tstring &component) const;
-    void extract_prog_id(const tstring &component) const;
-    void extract_prog_id_entry(const registry_key &subkey,
-                               const tstring &component) const;
-    void extract_registry(const tstring &component) const;
-    void extract_type_lib(const tstring &component) const;
-    void extract_type_lib_entry(const registry_key &subkey,
-                                const tstring &component) const;
-
-    HKEY m_key;
-    tstring m_name;
-    tstring m_subkey;
-    bool m_modified;
-
-    std::set<tstring> m_values;
-    std::set<tstring> m_subkeys;
-};
-
 typedef std::vector<tstring> string_list_t;
-
-///////////////////////////////////////////////////////////////////////////
-// reg_monitor
-//
-// Self-Register a COM server and monitor the registry for changes, dumping
-// them back out as Windows Installer database information.
-//
-class reg_monitor
-{
-public:
-    reg_monitor(const tstring &file, bool servicep);
-    ~reg_monitor() {}
-
-    reg_monitor &add(HKEY key, LPCTSTR name, LPCTSTR subkey = NULL);
-
-    void process();
-
-private:
-    tstring m_file;
-    bool m_servicep;
-    tstring m_component;
-    std::vector<s_monitor_key> m_keys;
-    std::vector<HANDLE> m_events;
-    string_list_t m_services;
-
-    static void __cdecl register_threadproc(void *pv);
-
-    void dump_tables();
-    void diff_services();
-};
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
