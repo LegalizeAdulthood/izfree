@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Using izfree">
+		<param name="Local" value="help.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="New GUID">
+			<param name="Local" value="help.html#NewGUID">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="New Package">
+			<param name="Local" value="help.html#NewPackage">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="New Components">
+			<param name="Local" value="help.html#NewComponents">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="COM Registration">
+			<param name="Local" value="help.html#COMRegistration">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Preview and Clone Dialogs">
+			<param name="Local" value="help.html#PreviewDialogs">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Database Table Validation">
+			<param name="Local" value="help.html#TableValidation">
+			</OBJECT>
+	</UL>
+</UL>
+</BODY></HTML>
