@@ -1,0 +1,24 @@
+HKCR
+{
+	izfree.Monitor.1 = s 'izfree Registry Monitor Class'
+	{
+		CLSID = s '{CA4F90E8-864B-447A-8B21-B2D5ED2E2A92}'
+	}
+	izfree.Monitor = s 'izfree Registry Monitor Class'
+	{
+		CLSID = s '{CA4F90E8-864B-447A-8B21-B2D5ED2E2A92}'
+		CurVer = s 'izfree.Monitor.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {CA4F90E8-864B-447A-8B21-B2D5ED2E2A92} = s 'izfree Registry Monitor Class'
+		{
+			ProgID = s 'izfree.Monitor.1'
+			VersionIndependentProgID = s 'izfree.Monitor'
+			ForceRemove 'Programmable'
+			LocalServer32 = s '%MODULE%'
+			val AppID = s '{B48E8FA3-08D2-49C6-AFBC-6AEB8CD27932}'
+			'TypeLib' = s '{37DF473F-CBAF-4E60-8A58-CE498B4464C1}'
+		}
+	}
+}

@@ -1,0 +1,178 @@
+// izfree Tools for Windows Installer
+// Copyright (C) 2001-2002 Pahvant Technologies, Inc.
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+// izMonitor.idl : IDL source for izMonitor.exe
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (izMonitor.tlb) and marshalling code.
+
+/////////////////////////////////////////////////////////////////////////////
+import "oaidl.idl";
+import "ocidl.idl";
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(E5539125-487E-4A57-91FB-C1D7806ABFE3),
+    dual,
+    helpstring("IAppIdRecord Interface"),
+    pointer_default(unique),
+    oleautomation
+]
+interface IAppIdRecord : IDispatch
+{
+    [
+        propget,
+        id(1),
+        helpstring("AppId column")
+    ]
+    HRESULT AppId([out, retval] BSTR *pVal);
+    [
+        propget,
+        id(2),
+        helpstring("RemoteServerName column")
+    ]
+    HRESULT RemoteServerName([out, retval] BSTR *pVal);
+    [
+        propget,
+        id(3),
+        helpstring("LocalService column")
+    ]
+    HRESULT LocalService([out, retval] BSTR *pVal);
+    [
+        propget,
+        id(4),
+        helpstring("ServiceParameters column")
+    ]
+    HRESULT ServiceParameters([out, retval] BSTR *pVal);
+    [
+        propget,
+        id(5),
+        helpstring("DllSurrogate column")
+    ]
+    HRESULT DllSurrogate([out, retval] BSTR *pVal);
+    [
+        propget,
+        id(6),
+        helpstring("ActivateAtStorage column")
+    ]
+    HRESULT ActivateAtStorage([out, retval] LONG *pVal);
+    [
+        propget,
+        id(7),
+        helpstring("RunAsInteractiveUser column")
+    ]
+    HRESULT RunAsInteractiveUser([out, retval] LONG *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    object,
+    uuid(3B0D5C0F-1B59-4E67-87B2-60AE466FF723),
+    dual,
+    helpstring("IAppIdTable Interface"),
+    pointer_default(unique)
+]
+interface IAppIdTable : IDispatch
+{
+    [
+        id(0xFFFFFFFC),
+        hidden,
+        helpstring("Returns an object that enumerates the rows in the table.")
+    ]
+    HRESULT _NewEnum([out, retval] IUnknown **enumerator);
+    [
+        propget,
+        id(1),
+        helpstring("The number of rows in the table.")
+    ]
+    HRESULT Count([out, retval] long *pVal);
+    [
+        propget,
+        id(2),
+        helpstring("Returns a row from the table given its zero-based index.")
+    ]
+    HRESULT Item([in] long row, [out, retval] IAppIdRecord * *pVal);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+	object,
+	uuid(5876A466-D3AA-4EFD-9E5C-7611FECBB361),
+	dual,
+	helpstring("IMonitor Interface"),
+	pointer_default(unique)
+]
+interface IMonitor : IDispatch
+{
+	[
+        propget,
+        id(1),
+        helpstring("AppId Table")
+    ]
+    HRESULT AppIdTable([out, retval] IAppIdTable * *pVal);
+	[
+        id(2),
+        helpstring("Process the registration of a COM server in the given file and extract Windows Installer database table information from the registry.  If the file is a service, look for service-related table information as well.")
+    ]
+    HRESULT Process([in] BSTR file, [in] BOOL service);
+	[
+        id(3),
+        helpstring("Adds a registry key to the list of keys to be monitored.")
+    ]
+    HRESULT WatchKey(BSTR registry_key);
+};
+
+/////////////////////////////////////////////////////////////////////////////
+[
+    uuid(37DF473F-CBAF-4E60-8A58-CE498B4464C1),
+    version(1.0),
+    helpstring("izMonitor 1.0 Type Library")
+]
+library IZMONITORLib
+{
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
+
+    [
+        uuid(DA5E4E4A-EC96-4147-A89C-BA52D733E574),
+        helpstring("izfree AppId Record Class")
+    ]
+    coclass AppIdRecord
+    {
+        [default] interface IAppIdRecord;
+    };
+
+    [
+        uuid(C7FBA2CB-E5C1-4D15-B9A3-E49073F9562D),
+        helpstring("izfree AppId Table Class")
+    ]
+    coclass AppIdTable
+    {
+        [default] interface IAppIdTable;
+    };
+
+	[
+		uuid(CA4F90E8-864B-447A-8B21-B2D5ED2E2A92),
+		helpstring("izfree Registry Monitor Class")
+	]
+	coclass Monitor
+	{
+		[default] interface IMonitor;
+	};
+};
