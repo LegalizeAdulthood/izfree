@@ -219,11 +219,13 @@ struct s_monitor_key
                               const tstring &component) const;
     void extract_class(class_table_t &klass,
                        registry_table_t &registry,
-                       const tstring &component) const;
+                       const tstring &component,
+                       const tstring &feature) const;
     void extract_clsid_entry(class_table_t &klass,
                              registry_table_t &registry,
                              const registry_key &subkey,
-                             const tstring &component) const;
+                             const tstring &component,
+                             const tstring &feature) const;
     void extract_prog_id(prog_id_table_t &prog_id,
                          registry_table_t &registry,
                          const tstring &component) const;
@@ -235,11 +237,13 @@ struct s_monitor_key
                           const tstring &component) const;
     void extract_type_lib(type_lib_table_t &type_lib,
                           registry_table_t &registry,
-                          const tstring &component) const;
+                          const tstring &component,
+                          const tstring &feature) const;
     void extract_type_lib_entry(type_lib_table_t &type_lib,
                                 registry_table_t &registry,
                                 const registry_key &subkey,
-                                const tstring &component) const;
+                                const tstring &component,
+                                const tstring &feature) const;
 
     HKEY m_key;
     tstring m_name;
@@ -274,18 +278,21 @@ END_COM_MAP()
 
     // IMonitor
 public:
+	STDMETHOD(get_Feature)(BSTR *pVal);
+	STDMETHOD(get_Component)(BSTR *pVal);
 	STDMETHOD(ClearKeys)();
-	STDMETHOD(get_Service)(/*[out, retval]*/ long *pVal);
-	STDMETHOD(get_File)(/*[out, retval]*/ BSTR *pVal);
-    STDMETHOD(get_ServiceInstallTable)(/*[out, retval]*/ IServiceInstallTable * *pVal);
-    STDMETHOD(get_ServiceControlTable)(/*[out, retval]*/ IServiceControlTable * *pVal);
-    STDMETHOD(get_TypeLibTable)(/*[out, retval]*/ ITypeLibTable * *pVal);
-    STDMETHOD(get_ProgIdTable)(/*[out, retval]*/ IProgIdTable * *pVal);
-    STDMETHOD(get_RegistryTable)(/*[out, retval]*/ IRegistryTable * *pVal);
-    STDMETHOD(get_ClassTable)(/*[out, retval]*/ IClassTable * *pVal);
+	STDMETHOD(get_Service)(long *pVal);
+	STDMETHOD(get_File)(BSTR *pVal);
+    STDMETHOD(get_ServiceInstallTable)(IServiceInstallTable **pVal);
+    STDMETHOD(get_ServiceControlTable)(IServiceControlTable **pVal);
+    STDMETHOD(get_TypeLibTable)(ITypeLibTable **pVal);
+    STDMETHOD(get_ProgIdTable)(IProgIdTable **pVal);
+    STDMETHOD(get_RegistryTable)(IRegistryTable **pVal);
+    STDMETHOD(get_ClassTable)(IClassTable **pVal);
     STDMETHOD(WatchKey)(BSTR registry_key);
-    STDMETHOD(Process)(/*[in]*/ BSTR file, /*[in]*/ BOOL service);
-    STDMETHOD(get_AppIdTable)(/*[out, retval]*/ IAppIdTable * *pVal);
+    STDMETHOD(Process)(BSTR file, BOOL service,
+                       BSTR component, BSTR feature);
+    STDMETHOD(get_AppIdTable)(IAppIdTable * *pVal);
 
 private:
     void dump_tables();
@@ -302,6 +309,7 @@ private:
 
     tstring m_file;                     // file being processed
     tstring m_component;                // component name used in tables
+    tstring m_feature;                  // feature name used in tables
     bool m_service;                     // true to extract service tables
 
     std::vector<s_monitor_key> m_keys;  // registry keys being monitored

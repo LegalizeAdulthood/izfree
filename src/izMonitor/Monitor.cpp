@@ -20,24 +20,17 @@
 #include "izMonitor.h"
 #include "AppIdRecord.h"
 #include "Monitor.h"
-
+#include "props.h"
 #include <process.h>
 
-/////////////////////////////////////////////////////////////////////////////
-// CHECK_POINTER
-//
-#define CHECK_POINTER(var_)                                                 \
-if (!var_)                                                                  \
-{                                                                           \
-    return Error(_T("A NULL pointer was passed for an output argument."),   \
-              IID_IMonitor, E_POINTER);                                     \
-} else 0
+#define PROPERTY_IID IID_IMonitor
 
-// RETURN_TABLE
-#define RETURN_TABLE(member_)   \
-    CHECK_POINTER(pVal);        \
+// TABLE_PROPERTY
+#define TABLE_PROPERTY(member_) \
+    CHECK_PROPERTY_POINTER();   \
     *pVal = member_;            \
-    (*pVal)->AddRef()
+    (*pVal)->AddRef();          \
+    return S_OK
 
 /////////////////////////////////////////////////////////////////////////////
 // construct_table
@@ -80,6 +73,7 @@ CMonitor::CMonitor()
     m_service_install(NULL),
     m_file(),
     m_component(),
+    m_feature(),
     m_service(false),
     m_keys(),
     m_services()
@@ -195,28 +189,47 @@ CMonitor::WatchKey(BSTR registry_key)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CMonitor::get_file
-//
-// Get the last file set through Process, or the empty string if Process
-// has not yet been called.
+// CMonitor::ClearKeys -- clear the list of watched keys
 //
 STDMETHODIMP
-CMonitor::get_File(BSTR *pVal)
+CMonitor::ClearKeys()
 {
-    CHECK_POINTER(pVal);
-    *pVal = CComBSTR(m_file.c_str()).Detach();
+    while (m_keys.size())
+    {
+        m_keys.pop_back();
+    }
+
 	return S_OK;
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CMonitor::get_Service
+// CMonitor::get_File, get_Component, get_Feature, get_Service
 //
-// Get the last service flag set through Process, or false if Process
-// has not yet been called.
+// Accessors for the last set of arguments to Process.  These arguments
+// correspond to the contents of the table collections.
 //
-STDMETHODIMP CMonitor::get_Service(long *pVal)
+STDMETHODIMP
+CMonitor::get_File(BSTR *pVal)
 {
-    CHECK_POINTER(pVal);
+    STRING_PROPERTY(m_file);
+}
+
+STDMETHODIMP
+CMonitor::get_Component(BSTR *pVal)
+{
+    STRING_PROPERTY(m_component);
+}
+
+STDMETHODIMP
+CMonitor::get_Feature(BSTR *pVal)
+{
+    STRING_PROPERTY(m_feature);
+}
+
+STDMETHODIMP
+CMonitor::get_Service(long *pVal)
+{
+    CHECK_PROPERTY_POINTER();
     *pVal = static_cast<long>(m_service);
 	return S_OK;
 }
@@ -230,58 +243,40 @@ STDMETHODIMP CMonitor::get_Service(long *pVal)
 STDMETHODIMP
 CMonitor::get_AppIdTable(IAppIdTable **pVal)
 {
-    RETURN_TABLE(m_app_id);
-    return S_OK;
+    TABLE_PROPERTY(m_app_id);
 }
 
 STDMETHODIMP
 CMonitor::get_ClassTable(IClassTable **pVal)
 {
-    RETURN_TABLE(m_class);
-    return S_OK;
+    TABLE_PROPERTY(m_class);
 }
 
 STDMETHODIMP
 CMonitor::get_RegistryTable(IRegistryTable **pVal)
 {
-    RETURN_TABLE(m_registry);
-    return S_OK;
+    TABLE_PROPERTY(m_registry);
 }
 
 STDMETHODIMP
 CMonitor::get_ProgIdTable(IProgIdTable **pVal)
 {
-    RETURN_TABLE(m_prog_id);
-    return S_OK;
+    TABLE_PROPERTY(m_prog_id);
 }
 
 STDMETHODIMP
 CMonitor::get_TypeLibTable(ITypeLibTable **pVal)
 {
-    RETURN_TABLE(m_type_lib);
-    return S_OK;
+    TABLE_PROPERTY(m_type_lib);
 }
 STDMETHODIMP
 CMonitor::get_ServiceControlTable(IServiceControlTable **pVal)
 {
-    RETURN_TABLE(m_service_control);
-    return S_OK;
+    TABLE_PROPERTY(m_service_control);
 }
 
 STDMETHODIMP
 CMonitor::get_ServiceInstallTable(IServiceInstallTable **pVal)
 {
-    RETURN_TABLE(m_service_install);
-    return S_OK;
-}
-
-STDMETHODIMP
-CMonitor::ClearKeys()
-{
-    while (m_keys.size())
-    {
-        m_keys.pop_back();
-    }
-
-	return S_OK;
+    TABLE_PROPERTY(m_service_install);
 }

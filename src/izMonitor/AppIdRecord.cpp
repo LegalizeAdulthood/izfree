@@ -42,49 +42,35 @@ STDMETHODIMP CAppIdRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CAppIdRecord::get_AppId(BSTR *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    STORE_STRING_PROPERTY(m_app_id);
-    return S_OK;
+    REC_STRING_PROPERTY(m_app_id);
 }
 
 STDMETHODIMP CAppIdRecord::get_RemoteServerName(BSTR *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    STORE_STRING_PROPERTY(m_remote_server_name);
-    return S_OK;
+    REC_STRING_PROPERTY(m_remote_server_name);
 }
 
 STDMETHODIMP CAppIdRecord::get_LocalService(BSTR *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    STORE_STRING_PROPERTY(m_local_service);
-    return S_OK;
+    REC_STRING_PROPERTY(m_local_service);
 }
 
 STDMETHODIMP CAppIdRecord::get_ServiceParameters(BSTR *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    STORE_STRING_PROPERTY(m_service_parameters);
-    return S_OK;
+    REC_STRING_PROPERTY(m_service_parameters);
 }
 
 STDMETHODIMP CAppIdRecord::get_DllSurrogate(BSTR *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    STORE_STRING_PROPERTY(m_dll_surrogate);
-    return S_OK;
+    REC_STRING_PROPERTY(m_dll_surrogate);
 }
 
 STDMETHODIMP CAppIdRecord::get_ActivateAtStorage(LONG *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    *pVal = m_record->m_activate_at_storage;
-    return S_OK;
+    REC_LONG_PROPERTY(m_activate_at_storage);
 }
 
 STDMETHODIMP CAppIdRecord::get_RunAsInteractiveUser(LONG *pVal)
 {
-    CHECK_PROPERTY_POINTER();
-    *pVal = m_record->m_run_as_interactive_user;
-    return S_OK;
+    REC_LONG_PROPERTY(m_run_as_interactive_user);
 }

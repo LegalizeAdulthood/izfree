@@ -42,36 +42,30 @@ STDMETHODIMP CRegistryRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CRegistryRecord::get_Registry(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_registry);
-    return S_OK;
+    REC_STRING_PROPERTY(m_registry);
 }
 
 STDMETHODIMP CRegistryRecord::get_Root(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_root);
-    return S_OK;
+    REC_LONG_PROPERTY(m_root);
 }
 
 STDMETHODIMP CRegistryRecord::get_Key(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_key);
-    return S_OK;
+    REC_STRING_PROPERTY(m_key);
 }
 
 STDMETHODIMP CRegistryRecord::get_Name(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_name);
-    return S_OK;
+    REC_STRING_PROPERTY(m_name);
 }
 
 STDMETHODIMP CRegistryRecord::get_Value(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_value);
-    return S_OK;
+    REC_STRING_PROPERTY(m_value);
 }
 
 STDMETHODIMP CRegistryRecord::get_Component(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_component);
-    return S_OK;
+    REC_STRING_PROPERTY(m_component);
 }

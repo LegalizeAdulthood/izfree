@@ -30,12 +30,19 @@ if (!pVal)                                                                  \
         PROPERTY_IID, E_POINTER);                                           \
 } else 0
 
-#define STORE_STRING_PROPERTY(member_)                      \
+#define REC_STRING_PROPERTY(member_)                        \
     CHECK_PROPERTY_POINTER();                               \
-    *pVal = CComBSTR(m_record->member_.c_str()).Detach()
+    *pVal = CComBSTR(m_record->member_.c_str()).Detach();   \
+    return S_OK
 
-#define STORE_LONG_PROPERTY(member_)    \
+#define REC_LONG_PROPERTY(member_)      \
     CHECK_PROPERTY_POINTER();           \
-    *pVal = m_record->member_
+    *pVal = m_record->member_;          \
+    return S_OK
+
+#define STRING_PROPERTY(member_)                \
+    CHECK_PROPERTY_POINTER();                   \
+    *pVal = CComBSTR(member_.c_str()).Detach(); \
+    return S_OK
 
 #endif

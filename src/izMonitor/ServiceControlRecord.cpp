@@ -42,36 +42,30 @@ STDMETHODIMP CServiceControlRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CServiceControlRecord::get_ServiceControl(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_service_control);
-    return S_OK;
+    REC_STRING_PROPERTY(m_service_control);
 }
 
 STDMETHODIMP CServiceControlRecord::get_Name(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_name);
-    return S_OK;
+    REC_STRING_PROPERTY(m_name);
 }
 
 STDMETHODIMP CServiceControlRecord::get_Event(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_event);
-    return S_OK;
+    REC_LONG_PROPERTY(m_event);
 }
 
 STDMETHODIMP CServiceControlRecord::get_Arguments(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_arguments);
-    return S_OK;
+    REC_STRING_PROPERTY(m_arguments);
 }
 
 STDMETHODIMP CServiceControlRecord::get_Wait(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_wait);
-    return S_OK;
+    REC_LONG_PROPERTY(m_wait);
 }
 
 STDMETHODIMP CServiceControlRecord::get_Component(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_component);
-    return S_OK;
+    REC_STRING_PROPERTY(m_component);
 }

@@ -712,7 +712,8 @@ s_monitor_key::extract_app_id_entry(app_id_table_t &app_id,
 void
 s_monitor_key::extract_class(class_table_t &klass,
                              registry_table_t &registry,
-                             const tstring &component) const
+                             const tstring &component,
+                             const tstring &feature) const
 {
     DWORD num_values, num_subkeys;
     value_subkey_count(m_key, num_values, num_subkeys);
@@ -733,7 +734,7 @@ s_monitor_key::extract_class(class_table_t &klass,
         registry_key subkey(m_key, i);
         if (m_subkeys.find(subkey.name()) == m_subkeys.end())
         {
-            extract_clsid_entry(klass, registry, subkey, component);
+            extract_clsid_entry(klass, registry, subkey, component, feature);
         }
     }
 }
@@ -749,7 +750,8 @@ void
 s_monitor_key::extract_clsid_entry(class_table_t &klass,
                                    registry_table_t &registry,
                                    const registry_key &subkey,
-                                   const tstring &component) const
+                                   const tstring &component,
+                                   const tstring &feature) const
 {
     CRegKey entry;
     TRS(entry.Open(m_key, subkey.name().c_str()));
@@ -840,7 +842,7 @@ s_monitor_key::extract_clsid_entry(class_table_t &klass,
     // add a row to the class table for this CLSID
     klass.push_back(s_class(subkey.name(), context, component, prog_id,
         description, app_id, _T(""), icon, icon_index, _T(""), _T(""),
-        component, 0));
+        feature, 0));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -992,7 +994,8 @@ s_monitor_key::extract_registry(registry_table_t &registry,
 void
 s_monitor_key::extract_type_lib(type_lib_table_t &type_lib,
                                 registry_table_t &registry,
-                                const tstring &component) const
+                                const tstring &component,
+                                const tstring &feature) const
 {
     DWORD num_values, num_subkeys;
     value_subkey_count(m_key, num_values, num_subkeys);
@@ -1013,7 +1016,8 @@ s_monitor_key::extract_type_lib(type_lib_table_t &type_lib,
         registry_key subkey(m_key, i);
         if (m_subkeys.find(subkey.name()) == m_subkeys.end())
         {
-            extract_type_lib_entry(type_lib, registry, subkey, component);
+            extract_type_lib_entry(type_lib, registry, subkey,
+                component, feature);
         }
     }
 }
@@ -1063,7 +1067,8 @@ void
 s_monitor_key::extract_type_lib_entry(type_lib_table_t &type_lib,
                                       registry_table_t &registry,
                                       const registry_key &subkey,
-                                      const tstring &component) const
+                                      const tstring &component,
+                                      const tstring &feature) const
 {
     CRegKey entry;
     TRS(entry.Open(m_key, subkey.name().c_str()));
@@ -1199,7 +1204,7 @@ s_monitor_key::extract_type_lib_entry(type_lib_table_t &type_lib,
     {
         // add a row to the class table for this LibID
         type_lib.push_back(s_type_lib(subkey.name(), language, component,
-            version, description, directory, component, 0));
+            version, description, directory, feature, 0));
     }
 }
 
@@ -1305,13 +1310,13 @@ CMonitor::dump_tables()
         else if (match_key(m_keys[i], _T("HKCR"), _T("CLSID")))
         {
             m_keys[i].extract_class(m_class->m_coll, m_registry->m_coll,
-                m_component);
+                m_component, m_feature);
         }
         // TypeLib table
         else if (match_key(m_keys[i], _T("HKCR"), _T("TypeLib")))
         {
             m_keys[i].extract_type_lib(m_type_lib->m_coll, m_registry->m_coll,
-                m_component);
+                m_component, m_feature);
         }
         // ProgId, Extension table, MIME table, Verb table
         else if (match_key(m_keys[i], _T("HKCR"), _T("")))
@@ -1376,14 +1381,13 @@ CMonitor::register_threadproc(void *pv)
 // database tables.
 //
 STDMETHODIMP
-CMonitor::Process(BSTR file, BOOL service)
+CMonitor::Process(BSTR file, BOOL service, BSTR component, BSTR feature)
 {
     USES_CONVERSION;
     m_file = W2T(file);
     m_service = (service != 0);
-    const tstring::size_type whack = m_file.rfind(_T("\\"));
-    m_component = (tstring::npos != whack) ? m_file.substr(whack+1) : m_file;
-
+    m_component = W2T(component);
+    m_feature = W2T(feature);
 
     THR_TRY();
 

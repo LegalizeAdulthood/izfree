@@ -42,48 +42,40 @@ STDMETHODIMP CTypeLibRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CTypeLibRecord::get_LibID(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_lib_id);
-    return S_OK;
+    REC_STRING_PROPERTY(m_lib_id);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Language(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_language);
-    return S_OK;
+    REC_LONG_PROPERTY(m_language);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Component(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_component);
-    return S_OK;
+    REC_STRING_PROPERTY(m_component);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Version(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_version);
-    return S_OK;
+    REC_LONG_PROPERTY(m_version);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Description(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_description);
-    return S_OK;
+    REC_STRING_PROPERTY(m_description);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Directory(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_directory);
-    return S_OK;
+    REC_STRING_PROPERTY(m_directory);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Feature(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_feature);
-    return S_OK;
+    REC_STRING_PROPERTY(m_feature);
 }
 
 STDMETHODIMP CTypeLibRecord::get_Cost(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_cost);
-    return S_OK;
+    REC_LONG_PROPERTY(m_cost);
 }

@@ -42,78 +42,65 @@ STDMETHODIMP CServiceInstallRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CServiceInstallRecord::get_ServiceInstall(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_service_install);
-    return S_OK;
+    REC_STRING_PROPERTY(m_service_install);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_Name(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_name);
-    return S_OK;
+    REC_STRING_PROPERTY(m_name);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_DisplayName(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_display_name);
-    return S_OK;
+    REC_STRING_PROPERTY(m_display_name);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_ServiceType(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_service_type);
-    return S_OK;
+    REC_LONG_PROPERTY(m_service_type);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_StartType(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_start_type);
-    return S_OK;
+    REC_LONG_PROPERTY(m_start_type);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_ErrorControl(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_error_control);
-    return S_OK;
+    REC_LONG_PROPERTY(m_error_control);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_LoadOrderGroup(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_load_order_group);
-    return S_OK;
+    REC_STRING_PROPERTY(m_load_order_group);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_Dependencies(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_dependencies);
-    return S_OK;
+    REC_STRING_PROPERTY(m_dependencies);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_StartName(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_start_name);
-    return S_OK;
+    REC_STRING_PROPERTY(m_start_name);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_Password(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_password);
-    return S_OK;
+    REC_STRING_PROPERTY(m_password);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_Arguments(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_arguments);
-    return S_OK;
+    REC_STRING_PROPERTY(m_arguments);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_Component(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_component);
-    return S_OK;
+    REC_STRING_PROPERTY(m_component);
 }
 
 STDMETHODIMP CServiceInstallRecord::get_Description(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_description);
-    return S_OK;
+    REC_STRING_PROPERTY(m_description);
 }

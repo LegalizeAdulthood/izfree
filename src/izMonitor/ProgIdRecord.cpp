@@ -42,36 +42,30 @@ STDMETHODIMP CProgIdRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CProgIdRecord::get_ProgId(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_prog_id);
-    return S_OK;
+    REC_STRING_PROPERTY(m_prog_id);
 }
 
 STDMETHODIMP CProgIdRecord::get_Parent(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_prog_id_parent);
-    return S_OK;
+    REC_STRING_PROPERTY(m_prog_id_parent);
 }
 
 STDMETHODIMP CProgIdRecord::get_Class(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_class);
-    return S_OK;
+    REC_STRING_PROPERTY(m_class);
 }
 
 STDMETHODIMP CProgIdRecord::get_Description(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_description);
-    return S_OK;
+    REC_STRING_PROPERTY(m_description);
 }
 
 STDMETHODIMP CProgIdRecord::get_Icon(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_icon);
-    return S_OK;
+    REC_STRING_PROPERTY(m_icon);
 }
 
 STDMETHODIMP CProgIdRecord::get_IconIndex(LONG *pVal)
 {
-    STORE_LONG_PROPERTY(m_icon_index);
-    return S_OK;
+    REC_LONG_PROPERTY(m_icon_index);
 }

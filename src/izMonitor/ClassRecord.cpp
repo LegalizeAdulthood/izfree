@@ -42,78 +42,65 @@ STDMETHODIMP CClassRecord::InterfaceSupportsErrorInfo(REFIID riid)
 
 STDMETHODIMP CClassRecord::get_CLSID(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_clsid);
-    return S_OK;
+    REC_STRING_PROPERTY(m_clsid);
 }
 
 STDMETHODIMP CClassRecord::get_Context(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_context);
-    return S_OK;
+    REC_STRING_PROPERTY(m_context);
 }
 
 STDMETHODIMP CClassRecord::get_Component(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_component);
-    return S_OK;
+    REC_STRING_PROPERTY(m_component);
 }
 
 STDMETHODIMP CClassRecord::get_ProgIdDefault(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_prog_id_default);
-    return S_OK;
+    REC_STRING_PROPERTY(m_prog_id_default);
 }
 
 STDMETHODIMP CClassRecord::get_Description(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_description);
-    return S_OK;
+    REC_STRING_PROPERTY(m_description);
 }
 
 STDMETHODIMP CClassRecord::get_AppId(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_app_id);
-    return S_OK;
+    REC_STRING_PROPERTY(m_app_id);
 }
 
 STDMETHODIMP CClassRecord::get_FileTypeMask(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_file_type_mask);
-    return S_OK;
+    REC_STRING_PROPERTY(m_file_type_mask);
 }
 
 STDMETHODIMP CClassRecord::get_Icon(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_icon);
-    return S_OK;
+    REC_STRING_PROPERTY(m_icon);
 }
 
 STDMETHODIMP CClassRecord::get_IconIndex(long *pVal)
 {
-    STORE_LONG_PROPERTY(m_icon_index);
-    return S_OK;
+    REC_LONG_PROPERTY(m_icon_index);
 }
 
 STDMETHODIMP CClassRecord::get_DefInprocHandler(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_def_inproc_handler);
-    return S_OK;
+    REC_STRING_PROPERTY(m_def_inproc_handler);
 }
 
 STDMETHODIMP CClassRecord::get_Argument(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_argument);
-    return S_OK;
+    REC_STRING_PROPERTY(m_argument);
 }
 
 STDMETHODIMP CClassRecord::get_Feature(BSTR *pVal)
 {
-    STORE_STRING_PROPERTY(m_feature);
-    return S_OK;
+    REC_STRING_PROPERTY(m_feature);
 }
 
 STDMETHODIMP CClassRecord::get_Attributes(long *pVal)
 {
-    STORE_LONG_PROPERTY(m_attributes);
-    return S_OK;
+    REC_LONG_PROPERTY(m_attributes);
 }
