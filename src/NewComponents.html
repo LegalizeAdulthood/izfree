@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.1
+    izfree Tools for Windows Installer
     Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,11 @@ option explicit
 dim g_main_frame : set g_main_frame = window.parent
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' PAGE_xxx
+'
+' Constants for the pages within the wizard sequence that adds new
+' components.
+'
 const PAGE_DIRECTORY = 1
 const PAGE_COMPONENTS = 2
 const PAGE_FEATURES = 3
@@ -38,9 +43,20 @@ const PAGE_COMMIT = 4
 const PAGE_LAST = 4 
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_page
+'
+' Current page number being displayed within the sequence.
+'
 dim g_page : g_page = 1
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' files()
+' dirs()
+' components()
+'
+' Arrays holding information about files, directories and components to
+' be added to the database
+'
 dim num_files : dim files()
 const fil_dir = 0
 const fil_name = 1
@@ -162,7 +178,9 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' save_feature_table
 '
-' Write Feature table into database.
+' Write Feature table into database.  Place the new features under the
+' feature given by root.
+'
 sub save_feature_table(db, root)
     ' get largest display value to start counting for new features
     dim view : set view = exec_view(db, _
@@ -218,7 +236,8 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' enum_files
 '
-' Enumerate the directories and files in a directory hierarchy
+' Enumerate the directories and files in a directory hierarchy.  Use
+' the given base to construct directory component names.
 '
 sub enum_files(base, parent, dir)
     ' enumerate files in this folder
@@ -364,6 +383,8 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' scan_directory
 '
+' Scan a directory and create components from its contents.
+'
 sub scan_directory
     num_dirs = 0
     num_files = 0
@@ -403,13 +424,10 @@ sub read_tool_input(name, fallback)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub update_scan
-    dim val : val = document.all("dir").value
-    dim enabled : enabled = (val <> "") and fso().FolderExists(val)
-    document.all("next").disabled = not enabled
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' add_features
+'
+' recursive helper routine to add features to a tree view control
+'
 sub add_features(byref tree, tv, parent_label, parent)
     dim kids : kids = split(tree(parent), ",")
     sort kids
@@ -421,6 +439,10 @@ sub add_features(byref tree, tv, parent_label, parent)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' display_features
+'
+' Load the features of the database into a tree view control.
+'
 sub display_features
     dim view : set view = exec_view(g_main_frame.g_database, _
         "select `Feature`,`Feature_Parent` from `Feature`" &_
@@ -478,20 +500,48 @@ sub commit_components(db)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' back_next_update
+'
+' Depending on the page and the inputs on each page, determine whether
+' or not the back, next, cancel and finish buttons should be enabled.
+'
 sub back_next_update
-    dim first : first = (g_page = 1)
-    dim last : last = (g_page = PAGE_LAST)
-    dim features : features = (g_page = PAGE_FEATURES)
-    dim no_comps : no_comps = (num_components = 0)
-    document.all("back").disabled = first
-    document.all("next").disabled = last or (not first and no_comps) or _
-        (features and (document.all("features").selectedItem is nothing))
-    dim disabled : disabled = no_comps or first
-    document.all("finish").disabled = disabled
-    document.all("cancel").disabled = disabled
+    select case g_page
+    case PAGE_DIRECTORY:
+        dim dir : dir = document.all("dir").value
+        document.all("back").disabled = true
+        document.all("next").disabled = (dir = "") or not fso().FolderExists(dir)
+        document.all("cancel").disabled = true
+        document.all("finish").disabled = true
+        
+    case PAGE_COMPONENTS:
+        document.all("back").disabled = false
+        document.all("next").disabled = (num_components = 0)
+        document.all("cancel").disabled = false
+        document.all("finish").disabled = (num_components = 0)
+    
+    case PAGE_FEATURES:
+        document.all("back").disabled = false
+        document.all("next").disabled = _
+            (document.all("features").SelectedItem is nothing)
+        document.all("cancel").disabled = false
+        document.all("finish").disabled = document.all("next").disabled
+        
+    case PAGE_COMMIT:
+        document.all("back").disabled = false
+        document.all("next").disabled = true
+        document.all("cancel").disabled = false
+        document.all("finish").disabled = false
+    case else
+        MsgBox("Unexpected case on back_next_update")
+    end select
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' display_totals
+'
+' Display the final totals on the last page of the sequence.
+'
 sub display_totals
     document.all("componentCount").innerText = num_components
     document.all("directoryCount").innerText = num_dirs
@@ -500,6 +550,10 @@ sub display_totals
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' do_step
+'
+' Do a step in the wizard sequence.
+'
 sub do_step
     select case g_page
     case PAGE_DIRECTORY:        scan_directory
@@ -510,6 +564,10 @@ sub do_step
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' undo_step
+'
+' Undo a step in the wizard sequence.
+'
 sub undo_step
     select case g_page
     case PAGE_FEATURES:         display_features
@@ -595,15 +653,10 @@ sub ComponentTree_NodeClick(node)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub help_onClick
-    show_help "NewComponents"
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub dir_onChange : update_scan : end sub
-sub dir_onKeyUp  : update_scan : end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' next_onClick
+'
+' Move forward one step in the wizard sequence.
+'
 sub next_onClick
     do_step
     
@@ -618,6 +671,10 @@ sub next_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' back_onClick
+'
+' Move backward one step in the wizard sequence.
+'
 sub back_onClick
     if (g_page <= PAGE_LAST) then
         document.all("page" & g_page).className = "invisible"
@@ -631,14 +688,30 @@ sub back_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' browse_onClick
+'
+' Browse for a directory to scan for components.
+'
 sub browse_onClick
     dim dir : dir = browse_for_existing_dir("Scan directory:")
     if (dir <> "") then
         document.all("dir").value = dir
+        back_next_update
     end if
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' update the back/next buttons based on the changes in these form inputs
+sub dir_onChange : back_next_update : end sub
+sub dir_onKeyUp  : back_next_update : end sub
+sub features_Click : back_next_update : end sub
+sub features_KeyUp : back_next_update : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' cancel_onClick
+'
+' Cancel the actions of the wizard sequence and reset to the first page.
+'
 sub cancel_onClick
     document.all("page" & g_page).className = "invisible"
     g_page = 1
@@ -647,10 +720,11 @@ sub cancel_onClick
 end sub
     
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub features_Click : back_next_update : end sub
-sub features_KeyUp : back_next_update : end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' finish_onClick
+'
+' Do all the remaining steps, taking the default action, and finish up
+' the wizard sequence.
+'
 sub finish_onClick
     document.all("page" & g_page).className = "invisible"
     do while (g_page < PAGE_LAST)
@@ -664,6 +738,10 @@ sub finish_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' newFeature_onClick
+'
+' Using the inputs in the form, add a new feature to the database.
+'
 sub newFeature_onClick
     dim view : set view = g_main_frame.g_database.openview( _
         "INSERT INTO `Feature`(`Feature`,`Feature_Parent`,`Title`," &_
@@ -688,13 +766,22 @@ sub newFeature_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onLoad
+'
+' Remember persisted scan directory setting.  Load up directories out
+' of the database into the GUI comboboxes.
+'
 sub window_onLoad
     read_tool_input "dir", ""
     load_directories
-    update_scan
+    back_next_update
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onUnload
+'
+' Persist scan directory name into registry.
+'
 sub window_onUnload
     write_tool_input "dir"
 end sub

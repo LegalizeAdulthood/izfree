@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.1
+    izfree Tools for Windows Installer
     Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -26,20 +26,30 @@
 <SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
 option explicit
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim g_main_frame : set g_main_frame = window.parent
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function db()
     set db = g_main_frame.g_database
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function selected_table()
     selected_table = selected_option(document.all("table"))
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function selected_column()
     selected_column = selected_option(document.all("column"))
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_info
+'
+' Load the column validation info for the named column in the currently
+' selected table.
+'
 sub load_info(column_name)
     dim view : set view = db().OpenView("select * from `_Validation`" &_
         " where `Table` = '" & selected_table() &_
@@ -64,13 +74,17 @@ sub load_info(column_name)
     all("columnType").innerText = view.ColumnInfo(1).stringdata(1)
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_columns
+'
+' Load the column names for the given table.
+'
 sub load_columns(table_name)
     on error resume next
     dim view : set view = db().OpenView("select `Name` from `_Columns`" &_
         " where `Table` = '" & table_name & "' order by `Number`") : check
     view.execute : check
     
-    dim column : set column = document.all("column")
     dim rec : set rec = view.fetch
     if (rec is nothing) then
         MsgBox("No columns?  I don't believe it!")
@@ -83,23 +97,17 @@ sub load_columns(table_name)
     loop
     view.close : check
     
-    load_opts column.options, columns
-'
-'    dim i : for i = 0 to ubound(columns)
-'        
-'    next
-'    dim opts : set opts = column.options
-'    do while (opts.length > 0)
-'        opts.remove 0
-'    loop
-'    dim i : for i = 0 to ubound(columns)
-'        opts.add new_option(mid(columns(i), instr(columns(i), " ")+1))
-'    next
+    load_opts document.all("column").options, columns
     column.selectedIndex = 0
-    
-    load_info opts(0).value
+    load_info column.value
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' column_onChange
+'
+' Change the displayed validation information to that for the currently
+' selected column
+'
 sub column_onChange
     dim sel : set sel = document.all("column")
     if (sel.selectedIndex >= 0) then
@@ -107,6 +115,12 @@ sub column_onChange
     end if
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' table_onChange
+'
+' Populate the column listbox with the names of the columns for the
+' currently selected table
+'
 sub table_onChange
     dim sel : set sel = document.all("table")
     if (sel.selectedIndex >= 0) then
@@ -114,6 +128,12 @@ sub table_onChange
     end if
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onLoad
+'
+' Load up the selection box with the table names in the database.  Skip
+' temporary tables whose names begin with '#'.
+'
 sub window_onLoad
     dim opts : set opts = document.all("table").options
     dim view
@@ -134,9 +154,6 @@ sub window_onLoad
     dim i : for i = 0 to ubound(tables)
         opts.add new_option(tables(i))
     next
-end sub
-
-sub window_onUnload
 end sub
 </SCRIPT>
 </HEAD>

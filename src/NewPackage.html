@@ -1,7 +1,7 @@
 <HTML APPLICATION="yes">
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.1
+    izfree Tools for Windows Installer
     Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -33,8 +33,9 @@ dim g_main_frame
 dim g_db : set g_db = nothing
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' merge -- merge a source database into the destination database
+' merge
 '
+' merge a source database into the destination database
 ' g_dest: destination database name
 ' g_source: source directory for template files
 ' db: source database to merge into g_dest
@@ -63,11 +64,22 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' set_property
 '
+' Set a property value in the property table.
+'
 sub set_property(view, name, value)
     dim rec : set rec = installer().CreateRecord(2) : check
     rec.StringData(1) = name : rec.StringData(2) = value
     view.Execute rec : check
     set rec = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' si_prop
+'
+' Like set_property, but for summary information properties.
+'
+sub si_prop(si, name, value)
+    si.property(name) = value : check
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -107,17 +119,18 @@ sub create_package(template_dir, database, manufacturer, _
         installer().OpenDatabase(g_dest, msiOpenDatabaseModeTransact) : check
     
     dim si : set si = g_db.SummaryInformation(9) 
-    si.property(PID_TITLE) = "Installation Database" : check
-    si.property(PID_SUBJECT) = product_name : check
-    si.property(PID_AUTHOR) = manufacturer : check
-    si.property(PID_COMMENTS) = "This installation database contains the " &_
-        "logic and data needed to install " & product_name : check
-    si.property(PID_REVNUMBER) = package_guid : check
+    si_prop si, PID_TITLE, "Installation Database"
+    si_prop si, PID_TITLE, "Installation Database"
+    si_prop si, PID_SUBJECT, product_name
+    si_prop si, PID_AUTHOR, manufacturer
+    si_prop si, PID_COMMENTS, "This installation database contains the " &_
+        "logic and data needed to install " & product_name
+    si_prop si, PID_REVNUMBER, package_guid
     dim timestamp : timestamp = Now
-    si.property(PID_LASTPRINTED) = timestamp  : check
-    si.property(PID_CREATE_DTM) = timestamp : check
-    si.property(PID_LASTSAVE_DTM) = timestamp : check
-    si.property(PID_APPNAME) = "MSI Database Tools" : check
+    si_prop si, PID_LASTPRINTED, timestamp 
+    si_prop si, PID_CREATE_DTM, timestamp
+    si_prop si, PID_LASTSAVE_DTM, timestamp
+    si_prop si, PID_APPNAME, "izfree Tools for Windows Installer 1.1"
     si.persist : check
     set si = nothing
     
@@ -211,6 +224,11 @@ sub create_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' write_tool_input
+' read_tool_input
+'
+' Persist tool inputs in the registry.
+'
 sub write_tool_input(name)
     write_input "NewPackage", document.forms("CreateForm").all, name
 end sub
@@ -220,12 +238,21 @@ sub read_tool_input(name, fallback)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' dialog_load
+'
+' Setup things properly for a dialog by naming the window and getting
+' the main frame from the window's dialog arguments.
+'
 sub dialog_load
     window.name = "Dialog"
     set g_main_frame = window.dialogArguments
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onLoad
+'
+' Initialize the form inputs from registry tool settings.
+'
 sub window_onload
     dialog_load
     read_tool_input "templateDir", _
@@ -237,11 +264,19 @@ sub window_onload
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' dialog_unload
+'
+' Undo what dialog_load did.
+'
 sub dialog_unload
     set g_main_frame = nothing
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onUnload
+'
+' Persist tool settings into the registry before unloading.
+'
 sub window_onUnload
     write_tool_input "templateDir"
     write_tool_input "database"
@@ -252,6 +287,10 @@ sub window_onUnload
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' xxx_onChange, xxx_onKeyUp
+'
+' Checking to see if the create package button should be enabled.
+'
 sub    templateDir_onChange : update_create_package : end sub
 sub       database_onChange : update_create_package : end sub
 sub   manufacturer_onChange : update_create_package : end sub
@@ -269,6 +308,11 @@ sub    productCode_onKeyUp : update_create_package : end sub
 sub    packageGuid_onKeyUp : update_create_package : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' guid_on_click
+'
+' Generate a new guid into a form input and possibly enable create
+' package button.
+'
 sub guid_on_click(button)
     set_guid_button "CreateForm", button
     update_create_package
@@ -278,11 +322,10 @@ sub guid2_onClick : guid_on_click "packageGuid" : end sub
 sub guid3_onClick : guid_on_click "upgradeCode" : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub help_onClick
-    show_help "NewPackage"
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' BrowseTemplateDir_onClick
+'
+' Browse for a directory containing database templates.
+'
 sub BrowseTemplateDir_onClick
     dim dir : dir = browse_for_existing_dir("Template directory:")
     if (dir <> "") then
@@ -292,6 +335,10 @@ sub BrowseTemplateDir_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' BrowseDatabase_onClick
+'
+' Browse for a new output directory for the database.
+'
 sub BrowseDatabase_onClick
     dim dir : dir = browse_for_existing_dir("Output database directory:")
     if (dir <> "") then
@@ -308,10 +355,19 @@ sub BrowseDatabase_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' reset_onClick
+'
+' Update the state of the create package button after resetting the form.
+'
 sub reset_onClick
     update_create_package
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' cancel_onClick
+'
+' Close the window if the dialog is cancelled.
+'
 sub cancel_onClick
     window.close
 end sub

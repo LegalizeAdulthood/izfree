@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.1
+    izfree Tools for Windows Installer
     Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -38,11 +38,22 @@ function db
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' dialog_dic
+'
+' Return a dictionary with a key defined for every dialog named in the
+' dialog table.
+'
 function dialog_dic(db)
     set dialog_dic = db_dic(db, "Dialog", "Dialog")
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_wizards
+'
+' Load all UI sequence dialogs out of the InstallUISequence table
+' into a combo box.  Then load all dialog names into the dialog listbox
+' and trigger a UI update.
+'
 sub load_wizards(list, db)
     ' get dialogs from database
     dim dlgs : set dlgs = dialog_dic(db)
@@ -62,8 +73,6 @@ sub load_wizards(list, db)
     view.close : check
     set view = nothing
 
-    sort ui_dialogs
-    
     ' build selection list
     load_opts list.options, ui_dialogs
     
@@ -80,6 +89,12 @@ sub load_wizards(list, db)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_dialog_rows
+'
+' Clone relevant rows out of a table based on the clone's parent dialog
+' name.  Column 1 of all rows read is replaced with the name of the clone
+' and all other data is left the same.
+'
 sub clone_dialog_rows(table, dest_query, parent, clone, column)
     on error resume next
     dim src_query : src_query = "SELECT * FROM `" & table & "` WHERE `" &_
@@ -108,6 +123,8 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' clone_dialog_table
 '
+' Clone the relevant row from the dialog table.
+'
 sub clone_dialog_table(parent, clone)
     clone_dialog_rows "Dialog", _
         "(`Dialog`,`HCentering`,`VCentering`,`Width`,`Height`," &_
@@ -118,6 +135,8 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' clone_control_table
+'
+' Clone all controls on the dialog.
 '
 sub clone_control_table(parent, clone)
     clone_dialog_rows "Control", _
@@ -130,6 +149,8 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' clone_control_condition_table
 '
+' Clone all conditions associated with cloned controls.
+'
 sub clone_control_condition_table(parent, clone)
     clone_dialog_rows "ControlCondition", _
         "(`Dialog_`,`Control_`,`Action`,`Condition`) VALUES (?,?,?,?)", _
@@ -138,6 +159,8 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' clone_control_event_table
+'
+' Clone all events associated with cloned controls.
 '
 sub clone_control_event_table(parent, clone)
     clone_dialog_rows "ControlEvent", _
@@ -148,6 +171,8 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' clone_event_mapping_table
+'
+' Clone all subscribed events associated with cloned controls.
 '
 sub clone_event_mapping_table(parent, clone)
     clone_dialog_rows "EventMapping", _
@@ -171,17 +196,26 @@ sub update_dialog_buttons
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' write_tool_input
+' read_tool_input
+'
+' Persist tool state into the registry.
+'
 sub write_tool_input(name)
     write_input "PreviewDialogs", document.forms("Wizards").all, name
 end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub read_tool_input(name, fallback)
     read_input "PreviewDialogs", document.forms("Wizards").all, name, _
         fallback
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' get_ui_action
+'
+' Return the name of an action from the InstallUISequence table based
+' on its sequence number.  This is used to extract the names of standard
+' dialogs with sequence numbers -3, -2, and -1.
+'
 function get_ui_action(db, seq)
     on error resume next
     dim view : set view = db.OpenView("select `Action` from " &_
@@ -205,15 +239,6 @@ function get_ui_action(db, seq)
     end if
     get_ui_action = dlg_name
 end function
-
-sub select_option(sel, item)
-    dim i : for i = 0 to sel.options.length-1
-        if (sel.options(i).value = item) then
-            sel.selectedIndex = i
-            exit sub
-        end if
-    next
-end sub
 -->
 </SCRIPT>
 <SCRIPT ID=clientEventHandlersVBS LANGUAGE=vbscript>
@@ -231,6 +256,8 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' clone_onClick
+'
+' Clone the selected dialog.
 '
 sub clone_onClick
     on error resume next
@@ -265,6 +292,11 @@ sub clone_onClick
     end if
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' preview_dialog
+'
+' If the preview window is displayed, make it display a specific dialog.
+'
 sub preview_dialog(dlg)
     if (g_current_dialog <> "") and (g_current_dialog <> dlg) then
         g_current_dialog = dlg
@@ -273,13 +305,18 @@ sub preview_dialog(dlg)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' dialogs_onChange
+'
+' Update the display to contain information for a new dialog.  Load the
+' event list with events relevant for this dialog that may lead to other
+' dialogs.
 sub dialogs_onChange
     dim sel : set sel = document.all("dialogs")
     dim dlg : dlg = sel.value
     if (sel.selectedIndex >= 0) then
         dim vu : set vu = db().OpenView("select `Control_`,`Argument` " &_
-            "from `ControlEvent` where `Event` = 'NewDialog' " &_
-            "and `Dialog_` = '" & dlg & "'")
+            "from `ControlEvent` where `Dialog_` = '" & dlg & "'" &_
+            "and (`Event` = 'NewDialog' or `Event` = 'SpawnDialog')")
         vu.execute : check
         dim rec : set rec = vu.fetch
 
@@ -294,6 +331,7 @@ sub dialogs_onChange
     end if
     document.all("ordering").innerText = ""
     document.all("condition").innerText = ""
+    document.all("event").innerText = ""
 
     update_dialog_buttons
     preview_dialog dlg
@@ -325,15 +363,17 @@ sub events_onChange
     if (seq.selectedIndex >= 0) then
         dim dlg : dlg = selected_option(document.all("dialogs"))
         dim evt : evt = split(selected_option(seq), " ")
-        dim view : set view = exec_view(db(), "select `Condition`,`Ordering`" &_
-            " from `ControlEvent` where `Dialog_` = '" & dlg &_
-            "' and `Control_` = '" & evt(0) & "' and `Argument` = '" & evt(2) & "'")
+        dim view : set view = exec_view(db(), _
+            "select `Condition`,`Ordering`,`Event` from `ControlEvent`" &_
+            " where `Dialog_` = '" & dlg & "' and `Control_` = '" & evt(0) &_
+            "' and `Argument` = '" & evt(2) & "'")
         dim rec : set rec = view.fetch
         if (rec is nothing) then
             MsgBox "Unexpected empty record for query."
         else
             document.all("condition").innerText = null_str(rec, 1)
             document.all("ordering").innerText = null_int(rec, 2)
+            document.all("event").innerText = rec.stringdata(3)
         end if
         view.close : check
         set rec = nothing
@@ -402,13 +442,12 @@ end sub
         <INPUT TYPE="button" VALUE="Clone..." disabled id=clone>
     </TD></TR>
     <TR><TD><TABLE>
-        <TR><TD COLSPAN=2><STRONG>UI Sequence Dialogs:</STRONG><BR>
-            <SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT>
-        </TD></TR>
         <TR><TD>
             <STRONG>Dialogs:</STRONG><BR>
             <SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=12></SELECT>
         </TD><TD VALIGN="top">
+            <STRONG>UI Sequence Dialogs:</STRONG><BR>
+            <SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT><BR>
             <STRONG>Standard Dialogs:</STRONG><BR>
                 <TABLE>
                     <TR><TD ALIGN="right"><STRONG>Fatal Error (-3):</STRONG></TD>
@@ -421,11 +460,13 @@ end sub
                     <TD ID="errorDlg" CLASS="anchor"></TD></TR>
                 </TABLE>
         </TD></TR>
-        <TR><TD><STRONG>Events:</STRONG><BR>
-            <SELECT ID="events" CLASS="listBox" SIZE=6></SELECT>
+        <TR><TD VALIGN="top"><STRONG>Events:</STRONG><BR>
+            <SELECT ID="events" CLASS="listBox" SIZE=10></SELECT>
         </TD><TD VALIGN="top"><STRONG>Event Detail:</STRONG><BR>
-            <STRONG>Ordering:</STRONG>&nbsp;<SPAN ID="ordering"></SPAN><BR>
-            <STRONG>Condition:</STRONG>&nbsp;<SPAN ID="condition"></SPAN><BR>
+            <TABLE><TR><TD ALIGN="right"><STRONG>Event:</STRONG></TD><TD><SPAN ID="event"></SPAN></TD></TR>
+            <TR><TD ALIGN="right"><STRONG>Ordering:</STRONG></TD><TD><SPAN ID="ordering"></SPAN></TD></TR>
+            <TR><TD VALIGN="top" ALIGN="right"><STRONG>Condition:</STRONG></TD><TD><SPAN ID="condition"></SPAN></TD></TR>
+            </TABLE>
         </TD></TR>
     </TABLE></TD></TR>
 </TABLE>
