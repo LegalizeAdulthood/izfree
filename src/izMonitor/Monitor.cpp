@@ -22,14 +22,49 @@
 #include "Monitor.h"
 
 /////////////////////////////////////////////////////////////////////////////
-// CMonitor
+// CHECK_POINTER
+//
+#define CHECK_POINTER(var_)                                                 \
+if (!var_)                                                                  \
+{                                                                           \
+    return Error(_T("A NULL pointer was passed for an output argument."),   \
+              IID_IMonitor, E_POINTER);                                     \
+} else 0
 
-#define CHECK_POINTER(var_) \
-    if (!var_) \
-    { \
-        return Error(_T("A NULL pointer was passed for an output argument."), \
-                     IID_IMonitor, E_POINTER); \
-    } else 0
+// RETURN_TABLE
+#define RETURN_TABLE(member_)   \
+    CHECK_POINTER(pVal);        \
+    *pVal = member_;            \
+    (*pVal)->AddRef()
+
+/////////////////////////////////////////////////////////////////////////////
+// construct_table
+//
+// Create an instance of a table wrapper object and AddRef() on success.
+//
+template <typename Wrapper>
+void
+construct_table(CComObject<Wrapper> *&table)
+{
+    THR(CComObject<Wrapper>::CreateInstance(&table));
+    table->AddRef();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// release_table
+//
+// Release a table acquired in construct_table.
+//
+template <typename Wrapper>
+void
+release_table(CComObject<Wrapper> *&table)
+{
+    table->Release();
+    table = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// CMonitor
 
 CMonitor::CMonitor()
     : m_app_id(NULL),
@@ -46,20 +81,18 @@ CMonitor::~CMonitor()
 {
 }
 
-template <typename Wrapper>
-void
-construct_table(CComObject<Wrapper> *&table)
-{
-    THR(CComObject<Wrapper>::CreateInstance(&table));
-    table->AddRef();
-}
-
 HRESULT
 CMonitor::FinalConstruct()
 {
     try
     {
         construct_table(m_app_id);
+        construct_table(m_class);
+        construct_table(m_prog_id);
+        construct_table(m_registry);
+        construct_table(m_type_lib);
+        construct_table(m_service_control);
+        construct_table(m_service_install);
     }
     catch (const hresult_error &bang)
     {
@@ -76,18 +109,12 @@ CMonitor::FinalConstruct()
 void
 CMonitor::FinalRelease()
 {
-    m_app_id->Release();
-    m_app_id = 0;
-}
-
-STDMETHODIMP
-CMonitor::get_AppIdTable(IAppIdTable **pVal)
-{
-    CHECK_POINTER(pVal);
-    *pVal = m_app_id;
-    (*pVal)->AddRef();
-
-    return S_OK;
+    release_table(m_class);
+    release_table(m_prog_id);
+    release_table(m_registry);
+    release_table(m_type_lib);
+    release_table(m_service_control);
+    release_table(m_service_install);
 }
 
 STDMETHODIMP
@@ -131,44 +158,50 @@ CMonitor::WatchKey(BSTR registry_key)
     return S_OK;
 }
 
-STDMETHODIMP CMonitor::get_ClassTable(IClassTable **pVal)
+STDMETHODIMP
+CMonitor::get_AppIdTable(IAppIdTable **pVal)
 {
-    // TODO: Add your implementation code here
-
+    RETURN_TABLE(m_app_id);
     return S_OK;
 }
 
-STDMETHODIMP CMonitor::get_RegistryTable(IRegistryTable **pVal)
+STDMETHODIMP
+CMonitor::get_ClassTable(IClassTable **pVal)
 {
-    // TODO: Add your implementation code here
-
+    RETURN_TABLE(m_class);
     return S_OK;
 }
 
-STDMETHODIMP CMonitor::get_ProgIdTable(IProgIdTable **pVal)
+STDMETHODIMP
+CMonitor::get_RegistryTable(IRegistryTable **pVal)
 {
-    // TODO: Add your implementation code here
-
+    RETURN_TABLE(m_registry);
     return S_OK;
 }
 
-STDMETHODIMP CMonitor::get_TypeLibTable(ITypeLibTable **pVal)
+STDMETHODIMP
+CMonitor::get_ProgIdTable(IProgIdTable **pVal)
 {
-    // TODO: Add your implementation code here
-
+    RETURN_TABLE(m_prog_id);
     return S_OK;
 }
 
-STDMETHODIMP CMonitor::get_ServiceControlTable(IServiceControlTable **pVal)
+STDMETHODIMP
+CMonitor::get_TypeLibTable(ITypeLibTable **pVal)
 {
-    // TODO: Add your implementation code here
-
+    RETURN_TABLE(m_type_lib);
+    return S_OK;
+}
+STDMETHODIMP
+CMonitor::get_ServiceControlTable(IServiceControlTable **pVal)
+{
+    RETURN_TABLE(m_service_control);
     return S_OK;
 }
 
-STDMETHODIMP CMonitor::get_ServiceInstallTable(IServiceInstallTable **pVal)
+STDMETHODIMP
+CMonitor::get_ServiceInstallTable(IServiceInstallTable **pVal)
 {
-    // TODO: Add your implementation code here
-
+    RETURN_TABLE(m_service_install);
     return S_OK;
 }
