@@ -333,7 +333,10 @@ function browse_for_existing_dir(title)
     dim shell : set shell = check_object("Shell.Application")
     dim folder : set folder = shell.BrowseForFolder(0, title, _
         BIF_RETURNONLYFSDIRS or BIF_USENEWUI).Self
-    if (folder.IsFileSystem) then
+    if (Err) then
+        Err.Clear
+        browse_for_existing_dir = ""
+    elseif (folder.IsFileSystem) then
         browse_for_existing_dir = folder.Path
     else
         browse_for_existing_dir = ""
@@ -410,13 +413,18 @@ end sub
 sub set_database(file, db, modified)
     g_main_frame.document.forms("dbForm").all("database").innerText = file
     set g_main_frame.g_database = db
-    g_main_frame.g_db_modified = modified
-    if (modified) then modified = "*" else modified = ""
-    g_main_frame.document.forms("dbForm").all("modified").innerText = modified
+    set_db_modified(modified)
 end sub
 
+sub set_db_modified(modified)
+    g_main_frame.g_db_modified = modified
+    g_main_frame.update_db_buttons
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub db_modified
     g_main_frame.g_db_modified = true
+    g_main_frame.update_db_buttons
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -465,16 +473,24 @@ function exec_view(db, query)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' new_option_val
+'
+' Create a new OPTION element with text and associated value
+'
+function new_option_val(item, value)
+    dim o : set o = document.createElement("OPTION")
+    o.text = item : o.value = value
+    set new_option_val = o
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' new_option
 '
 ' Create a new OPTION element with the corresponding text and value
 '
 function new_option(item)
-    dim o : set o = document.createElement("OPTION")
-    o.text = item : o.value = item
-    set new_option = o
+    set new_option = new_option_val(item, item)
 end function
-
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' get_property
@@ -501,9 +517,9 @@ end function
 '
 function selected_option(sel)
     if (sel.selectedIndex >= 0) then
-        set selected_option = sel.options(sel.selectedIndex)
+        selected_option = sel.options(sel.selectedIndex).value
     else
-        set selected_option = nothing
+        selected_option = ""
     end if
 end function
 
