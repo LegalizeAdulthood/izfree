@@ -556,26 +556,22 @@ namespace Pahvant.MSI
 
         #region SetExternalUI
         // need a delegate to handle function pointer here
-        public static void SetExternalUI(IntPtr handler,
+        public delegate int InstallUIHandler(IntPtr context, 
+            int messageType, string message);
+        public static void SetExternalUI(InstallUIHandler handler,
             int messageFilter, IntPtr context)
         {
-            throw new System.NotImplementedException();
-#if false
             TR(MsiSetExternalUI(handler, messageFilter, context));
-#endif
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern UInt32 MsiSetExternalUI(IntPtr handler,
+        private static extern UInt32 MsiSetExternalUI(InstallUIHandler handler,
             int messageFilter, IntPtr context);
         #endregion
 
         #region SetInternalUI
         public static void SetInternalUI(int uiLevel, IntPtr window)
         {
-            throw new System.NotImplementedException();
-#if false
             TR(MsiSetInternalUI(uiLevel, window));
-#endif
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiSetInternalUI(int uiLevel,
