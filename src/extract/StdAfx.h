@@ -284,6 +284,8 @@ struct s_monitor_key
     std::set<tstring> m_subkeys;
 };
 
+typedef std::vector<tstring> string_list_t;
+
 //-------------------------------------------------------------------------
 class reg_monitor
 {
@@ -306,6 +308,7 @@ private:
     static void __cdecl register_threadproc(void *pv);
 
     void snapshot(const s_monitor_key &key);
+    void dump_tables(const string_list_t &services);
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -3,8 +3,6 @@
 
 #include "stdafx.h"
 
-typedef std::vector<tstring> string_list_t;
-
 //-------------------------------------------------------------------------
 LONG
 check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context)
@@ -555,12 +553,91 @@ reg_monitor::process()
         }
     }
 
-    for (i = 0; i < m_keys.size(); i++)
+    dump_tables(services);
+}
+
+void
+reg_monitor::dump_tables(const string_list_t &services)
+{
+    for (UINT i = 0; i < m_keys.size(); i++)
     {
-        m_keys[i].diff();
+        if (m_keys[i].m_name == _T("HKCR"))
+        {
+            if (m_keys[i].m_subkey == _T("AppID"))
+            {
+                // AppId table
+                ::OutputDebugString(_T("\nAppId Table\n"));
+                m_keys[i].diff();
+            }
+            else if (m_keys[i].m_subkey == _T("CLSID"))
+            {
+                // Class table
+                ::OutputDebugString(_T("\nClass Table\n"));
+                m_keys[i].diff();
+            }
+            else if (m_keys[i].m_subkey == _T("Interface"))
+            {
+                // TypeLib table
+                ::OutputDebugString(_T("\nTypeLib Table, IIDs\n"));
+                m_keys[i].diff();
+            }
+            else if (m_keys[i].m_subkey == _T("TypeLib"))
+            {
+                // TypeLib table
+                ::OutputDebugString(_T("\nTypeLib Table\n"));
+                m_keys[i].diff();
+            }
+            else if (m_keys[i].m_subkey == _T(""))
+            {
+                // ProgId, Extension table, MIME table, Verb table
+                ::OutputDebugString(_T("\nProgId, Extension, MIME, Verb Tables\n"));
+                m_keys[i].diff();
+            }
+            else
+            {
+                // Registry table?
+                ::OutputDebugString(_T("\nRegistry Table, HKCR\\?\n"));
+                m_keys[i].diff();
+                ATLASSERT(0);
+            }
+        }
+        else if (m_keys[i].m_name == _T("HKLM"))
+        {
+            // Registry table
+                ::OutputDebugString(_T("\nRegistry Table, HKLM\n"));
+            m_keys[i].diff();
+        }
+        else if (m_keys[i].m_name == _T("HKCU"))
+        {
+            // Registry table
+                ::OutputDebugString(_T("\nRegistry Table, HKCU\n"));
+            m_keys[i].diff();
+        }
+        else if (m_keys[i].m_name == _T("HKEY_USERS"))
+        {
+            // Registry table
+                ::OutputDebugString(_T("\nRegistry Table, HKEY_USERS\n"));
+            m_keys[i].diff();
+        }
+        else if (m_keys[i].m_name == _T("HKEY_CURRENT_CONFIG"))
+        {
+            // Registry table
+            ::OutputDebugString(_T("\nRegistry Table, HKEY_CURRENT_CONFIG\n"));
+            m_keys[i].diff();
+        }
+        else
+        {
+            // Registry table
+            ::OutputDebugString((_T("\nRegistry Table, ") + m_keys[i].m_name +
+                _T("?\n")).c_str());
+            m_keys[i].diff();
+            ATLASSERT(0);
+        }
     }
     if (m_servicep)
     {
+        // ServiceInstall table, ServiceControl table
+        ::OutputDebugString(_T("\nServiceInstall, ServiceControl Table\n"));
         diff_services(services);
     }
 }
@@ -571,7 +648,7 @@ WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
     bool servicep = true;
     LPCTSTR extract_file = 
-        _T("C:\\tmp\\extract\\service\\Debug\\service.exe");
+        _T("C:\\tmp\\service\\Debug\\service.exe");
 
     try
     {
