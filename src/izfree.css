@@ -13,3 +13,11 @@
     DISPLAY: none;
     VISIBILITY: hidden
 }
+.listBox
+{
+    WIDTH: 200px
+}
+.narrowListBox
+{
+    WIDTH: 100px
+}
