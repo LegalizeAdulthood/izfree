@@ -33,11 +33,11 @@ function db()
 end function
 
 function selected_table()
-    selected_table = selected_option("table")
+    selected_table = selected_option(document.all("table"))
 end function
 
 function selected_column()
-    selected_column = selected_option("column")
+    selected_column = selected_option(document.all("column"))
 end function
 
 sub load_info(column_name)
@@ -66,8 +66,8 @@ end sub
 
 sub load_columns(table_name)
     on error resume next
-    dim view : set view = db().OpenView("select * from `_Columns`" &_
-        " where `Table` = '" & table_name & "'") : check
+    dim view : set view = db().OpenView("select `Name` from `_Columns`" &_
+        " where `Table` = '" & table_name & "' order by `Number`") : check
     view.execute : check
     
     dim column : set column = document.all("column")
@@ -78,21 +78,23 @@ sub load_columns(table_name)
     end if
     dim columns()
     do while (not rec is nothing)
-        push columns, rec.integerdata(2) & ". " & rec.stringdata(3)
+        push columns, rec.stringdata(1)
         set rec = view.fetch
     loop
     view.close : check
     
-    sort columns
-    
-    'column.innerHTML = ""
-    dim opts : set opts = column.options
-    do while (opts.length > 0)
-        opts.remove 0
-    loop
-    dim i : for i = 0 to ubound(columns)
-        opts.add new_option(mid(columns(i), instr(columns(i), " ")+1))
-    next
+    load_opts column.options, columns
+'
+'    dim i : for i = 0 to ubound(columns)
+'        
+'    next
+'    dim opts : set opts = column.options
+'    do while (opts.length > 0)
+'        opts.remove 0
+'    loop
+'    dim i : for i = 0 to ubound(columns)
+'        opts.add new_option(mid(columns(i), instr(columns(i), " ")+1))
+'    next
     column.selectedIndex = 0
     
     load_info opts(0).value
@@ -140,10 +142,10 @@ end sub
 </HEAD>
 <BODY>
 
-<H3>Validation Information</H3>
-
 <P><TABLE>
 <TBODY>
+<TR><TD><STRONG>Table:</STRONG></TD>
+<TD><STRONG>Column:</STRONG></TD></TR>
 <TR><TD VALIGN="top">
 <SELECT ID="table" CLASS="listBox" SIZE=15>
 </SELECT>
