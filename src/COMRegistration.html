@@ -42,6 +42,38 @@ function db()
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' count_key -- use a dictionary to count unique keys
+'
+function count_key(dict, key)
+    if (not dict.exists(key)) then
+        dict.add key, dict.Count+1
+    end if
+    count_key = dict(key)
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' guid_number -- replace a guid with a unique number
+'
+function guid_number(guids, key, start)
+    guid_number = count_key(guids, _
+        "{" & ucase(replace(mid(key, start, 36), "_", "-")) & "}")
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' unique_key -- squish a key down into 72 columns or less but keep it unique
+'
+function unique_key(key)
+    dim count : count = "..." & cstr(count_key(g_registry, key)) & "..."
+    dim i : i = (72-len(count))/2
+    unique_key = left(key, i) & count & right(key, i)
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' xxx_row
+'
+' Take a row from izMonitor and package it as a Windows Installer database
+' record object
+'
 function app_id_row(rec)
     dim row : set row = installer().CreateRecord(7)
     row.stringdata(1) = rec.AppId
@@ -86,27 +118,44 @@ function prog_id_row(rec)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-function count_key(dict, key)
-    if (not dict.exists(key)) then
-        dict.add key, dict.Count+1
-    end if
-    count_key = dict(key)
+function service_control_row(rec)
+    dim row : set row = installer().CreateRecord(13)
+    row.stringdata(1) = rec.ServiceControl
+    row.stringdata(2) = rec.name
+    row.integerdata(3) = rec.event
+    row.stringdata(4) = rec.arguments
+    row.integerdata(5) = rec.wait
+    row.stringdata(6) = rec.component
+    set service_control_row = row
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-function guid_number(guids, key, start)
-    guid_number = count_key(guids, _
-        "{" & ucase(replace(mid(key, start, 36), "_", "-")) & "}")
+function service_install_row(rec)
+    dim row : set row = installer().CreateRecord(13)
+    row.stringdata(1) = rec.ServiceInstall
+    row.stringdata(2) = rec.name
+    row.stringdata(3) = rec.DisplayName
+    row.integerdata(4) = rec.ServiceType
+    row.integerdata(5) = rec.StartType
+    row.integerdata(6) = rec.ErrorControl
+    row.stringdata(7) = rec.LoadOrderGroup
+    row.stringdata(8) = rec.dependencies
+    row.stringdata(9) = rec.StartName
+    row.stringdata(10) = rec.password
+    row.stringdata(11) = rec.arguments
+    row.stringdata(12) = rec.component
+    row.stringdata(13) = rec.description
+    set service_install_row = row
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-function unique_key(key)
-    dim count : count = "..." & cstr(count_key(g_registry, key)) & "..."
-    dim i : i = (72-len(count))/2
-    unique_key = left(key, i) & count & right(key, i)
-end function
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' registry_row
+'
+' Scrape out a GUID if possible and reduce to a simple unique counter
+' to avoid registry keys that are too long but are still readable.
+' If they key is still too long anyway, then uniqueify the key but
+' squish to 72 characters or less.
+'
 function registry_row(rec)
     dim row : set row = installer().CreateRecord(6)
     dim key : key = rec.registry
@@ -179,37 +228,11 @@ function type_lib_row(rec)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-function service_control_row(rec)
-    dim row : set row = installer().CreateRecord(13)
-    row.stringdata(1) = rec.ServiceControl
-    row.stringdata(2) = rec.name
-    row.integerdata(3) = rec.event
-    row.stringdata(4) = rec.arguments
-    row.integerdata(5) = rec.wait
-    row.stringdata(6) = rec.component
-    set service_control_row = row
-end function
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-function service_install_row(rec)
-    dim row : set row = installer().CreateRecord(13)
-    row.stringdata(1) = rec.ServiceInstall
-    row.stringdata(2) = rec.name
-    row.stringdata(3) = rec.DisplayName
-    row.integerdata(4) = rec.ServiceType
-    row.integerdata(5) = rec.StartType
-    row.integerdata(6) = rec.ErrorControl
-    row.stringdata(7) = rec.LoadOrderGroup
-    row.stringdata(8) = rec.dependencies
-    row.stringdata(9) = rec.StartName
-    row.stringdata(10) = rec.password
-    row.stringdata(11) = rec.arguments
-    row.stringdata(12) = rec.component
-    row.stringdata(13) = rec.description
-    set service_install_row = row
-end function
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_xxx
+'
+' Create a view to insert rows into the table and iterate over the
+' containers to stuff each scraped row into the database
+'
 sub save_app_id(table)
     on error resume next
     dim view : set view = db().openview("INSERT INTO `AppId`" &_
@@ -223,48 +246,6 @@ sub save_app_id(table)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub save_class(table)
-    on error resume next
-    dim view : set view = db().OpenView("INSERT INTO `Class`" &_
-        "(`CLSID`,`Context`,`Component_`,`ProgId_Default`,`Description`," &_
-        "`AppId_`,`FileTypeMask`,`Icon_`,`IconIndex`,`DefInprocHandler`," &_
-        "`Argument`,`Feature_`,`Attributes`)" &_
-        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)") : check
-    dim component : component = table(0).Component
-    dim rec : for each rec in table
-        view.execute class_row(rec) : check
-    next
-    view.close : check
-    
-    set view = exec_view(db(), "SELECT `Component_` FROM `File`")
-    set rec = view.fetch
-    do while not (rec is nothing)
-        set rec = view.fetch
-    loop
-    view.close : check
-    
-    set view = exec_view(db(), "SELECT `File`,`FileName` FROM `File`")
-    set rec = view.fetch
-    if (rec is nothing) then
-        msgbox("Expected to find a file under component " & component)
-    end if
-    dim key_path
-    do while (not rec is nothing)
-        if (right(rec.stringdata(2), len(component)) = component) then
-            key_path = rec.stringdata(1)
-            set rec = nothing
-        else
-            set rec = view.fetch
-        end if
-    loop
-    view.close : check
-        
-    set view = exec_view(db(), "UPDATE `Component` SET `KeyPath` = '" &_
-        key_path & "' WHERE `Component` = '" & component & "'")
-    view.close : check
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_prog_id(table)
     on error resume next
     dim view : set view = db().OpenView("INSERT INTO `ProgId`" &_
@@ -274,40 +255,6 @@ sub save_prog_id(table)
         view.execute prog_id_row(rec) : check
     next
     view.close : check
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub save_type_lib(table)
-    on error resume next
-    dim view : set view = db().OpenView("INSERT INTO `TypeLib`" &_
-        "(`LibID`,`Language`,`Component_`,`Version`,`Description`," &_
-        "`Directory_`,`Feature_`,`Cost`) VALUES (?,?,?,?,?,?,?,?)") : check
-    dim rec : for each rec in table
-        view.execute type_lib_row(rec) : check
-    next
-    view.close : check
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub scrape_registry_ids(db)
-    on error resume next
-    dim view : set view = exec_view(db, "SELECT `Root`,`Key`,`Registry`" &_
-        " FROM `Registry`")
-    dim rec : set rec = view.fetch
-    do while not rec is nothing
-        if (rec.integerdata(1) = 0) then 'HKCR
-            dim words : words = split(rec.stringdata(2), "\")
-            select case lcase(words(0))
-            case "clsid" : count_key g_classes, words(1)
-            case "appid" : count_key g_app_ids, words(1)
-            case "interface" : count_key g_interfaces, words(1)
-            case "typelib" : count_key g_type_libs, words(1)
-            case "component categories" : count_key g_categories, words(1)
-            end select
-        end if
-        count_key g_registry, rec.stringdata(3)
-        set rec = view.fetch
-    loop
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -350,6 +297,87 @@ sub save_service_install(table)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub save_type_lib(table)
+    on error resume next
+    dim view : set view = db().OpenView("INSERT INTO `TypeLib`" &_
+        "(`LibID`,`Language`,`Component_`,`Version`,`Description`," &_
+        "`Directory_`,`Feature_`,`Cost`) VALUES (?,?,?,?,?,?,?,?)") : check
+    dim rec : for each rec in table
+        view.execute type_lib_row(rec) : check
+    next
+    view.close : check
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_class
+'
+' The class table is a slightly different.  First go looking through the
+' file table for a file 
+sub save_class(table)
+    on error resume next
+    dim view : set view = db().OpenView("INSERT INTO `Class`" &_
+        "(`CLSID`,`Context`,`Component_`,`ProgId_Default`,`Description`," &_
+        "`AppId_`,`FileTypeMask`,`Icon_`,`IconIndex`,`DefInprocHandler`," &_
+        "`Argument`,`Feature_`,`Attributes`)" &_
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)") : check
+    dim component : component = table(0).Component
+    dim rec : for each rec in table
+        view.execute class_row(rec) : check
+    next
+    view.close : check
+    
+    set view = exec_view(db(), "SELECT `File`,`FileName` FROM `File`")
+    set rec = view.fetch
+    if (rec is nothing) then
+        msgbox("Expected to find a file under component " & component)
+    end if
+    dim key_path
+    do while (not rec is nothing)
+        if (right(rec.stringdata(2), len(component)) = component) then
+            key_path = rec.stringdata(1)
+            set rec = nothing
+        else
+            set rec = view.fetch
+        end if
+    loop
+    view.close : check
+        
+    set view = exec_view(db(), "UPDATE `Component` SET `KeyPath` = '" &_
+        key_path & "' WHERE `Component` = '" & component & "'")
+    view.close : check
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' scrape_registry_ids
+'
+' Go through the existing rows in the registry table to scrape out
+' GUIDs needed to build unique primary keys for new rows written into
+' the registry table.
+'
+sub scrape_registry_ids(db)
+    on error resume next
+    dim view : set view = exec_view(db, "SELECT `Root`,`Key`,`Registry`" &_
+        " FROM `Registry`")
+    dim rec : set rec = view.fetch
+    do while not rec is nothing
+        if (rec.integerdata(1) = 0) then 'HKCR
+            dim words : words = split(rec.stringdata(2), "\")
+            select case lcase(words(0))
+            case "clsid" : count_key g_classes, words(1)
+            case "appid" : count_key g_app_ids, words(1)
+            case "interface" : count_key g_interfaces, words(1)
+            case "typelib" : count_key g_type_libs, words(1)
+            case "component categories" : count_key g_categories, words(1)
+            end select
+        end if
+        count_key g_registry, rec.stringdata(3)
+        set rec = view.fetch
+    loop
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_tables -- save out the scraped database table rows
+'
 sub save_tables(mon)
     if (mon.AppIdTable.Count > 0) then save_app_id mon.AppIdTable
     if (mon.ClassTable.Count > 0) then save_class mon.ClassTable
@@ -366,6 +394,9 @@ sub save_tables(mon)
     end if
 end sub
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' accum_msg -- helper for reporting table results
+'
 sub accum_msg(table, name, byref msg)
     if (table.Count > 0) then
         if (msg <> "") then
@@ -376,6 +407,12 @@ sub accum_msg(table, name, byref msg)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' extract_onClick
+'
+' Extract the COM registration information from the named file by using
+' izMonitor to do the hard work, then save out the results to the open
+' database.
+'
 sub extract_onClick
     dim file : file = document.all("server").value
     dim svc : svc = document.all("service").checked
@@ -428,6 +465,8 @@ sub read_tool_input(name, fallback)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_column -- load a <SELECT> object from a column of a database table
+'
 sub load_column(opts, table, column)
     on error resume next
     dim view : set view = exec_view(db(), "select `" & column &_
