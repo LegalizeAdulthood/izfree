@@ -56,7 +56,7 @@ You might have been expecting to see the information stored under
 <CODE>HKCR\.jpg</CODE>, but Windows uses an extra level of indirection
 between the file extension and its file association type.  In our
 case, this allows a single verb to work on JPEG files stored with
-extensions <CODE>.JPG</CODE>, <CODE>.JPE</CODE>, or <CODE>.JPEG</CODE,
+extensions <CODE>.JPG</CODE>, <CODE>.JPE</CODE>, or <CODE>.JPEG</CODE>,
 which are all mapped to the file asocation type
 <CODE>jpegfile</CODE>.</P>
 
@@ -93,14 +93,15 @@ do with the <STRONG>Registry</STRONG> table.
 You might think that we want to use the <STRONG>Verb</STRONG> and
 <STRONG>Extension</STRONG> tables for this, but in this case we
 don't.  Zoom isn't acting as the COM server for the JPEG file
-extension, it is only adding some command-line shorthands for JPEG
-files.</P>
+type, it is only adding some command-line shorthands to the shell's
+context menu for JPEG files.</P>
 
 <OL>
 <LI><P>Open the installation database and display the
 <STRONG>Registry</STRONG> table.
 <LI><P>Add the following new rows for the shell commands and verbs
-listed above.</P>
+listed above. The data for the <STRONG>Value</STRONG> column of each
+row is the appropriate shell command listed above.</P>
 
 <P><TABLE BORDER=1>
 <THEAD>
@@ -156,19 +157,22 @@ files are created from the input filenames with a suffix added.</P>
 
 <P>You can add verbs to use zoom as an image conversion program,
 although this is not its primary purpose, by giving the source and
-destination filenames different extensions, such as <CODE>zoom -src
-"%1" -dst "%1.ppm"</CODE> will convert %1 to PPM format.  You can also
+destination filenames different extensions, such as <CODE>zoom -src "%1"
+-dst "%1.jpg"</CODE> will convert a file to JPEG format.  You can also
 add verbs for the other file types supported by zoom.  <CODE>zoom -dev
 ?</CODE> provides a list of understood formats.</P>
 
 <HR><UL>
 <LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
 <LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
-<LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A>
+<!-- <LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A> -->
+<LI>Tutorial 3: Adding a Shortcut
 <LI><A HREF="tut04.html">Tutorial 4: Initializing TARGETDIR</A>
 <LI>Tutorial 5: Adding Shell Verbs
+<!--
 <LI><A HREF="tut06.html">Tutorial 6: Registering COM Objects</A>
 <LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
+-->
 </UL>
 
 </BODY>
