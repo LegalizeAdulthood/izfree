@@ -88,6 +88,12 @@ SOURCE=.\ATLRegistration.html
 # End Source File
 # Begin Source File
 
+SOURCE=.\COMRegistration.html
+# PROP BASE Deployment_Mode 1
+# PROP Deployment_Mode 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\EditDialog.html
 # PROP BASE Deployment_Mode 1
 # PROP Deployment_Mode 1
