@@ -33,10 +33,11 @@ sub test_monitor
     mon.WatchKey "HKCR\CLSID"
     mon.Process "NUL:", false
     dim table : set table = mon.AppIdTable
-    wscript.echo "Count: " & table.Count & vbCRLF &_
-        "Record 0: " & vbCRLF &_
-        app_id_str(table.item(0))
-
+    dim msg : msg = "Count: " & table.Count & vbCRLF & vbCRLF
+    dim appid : for each appid in table
+        msg = msg & app_id_str(appid) & vbCRLF
+    next
+    wscript.echo msg
     ' this should fail
     'mon.WatchKey "HKEY_CURRENT_CONFIG\Software\Pahvant"
 end sub
