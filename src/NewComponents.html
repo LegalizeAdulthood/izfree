@@ -375,6 +375,7 @@ end sub
 '
 ' Scan file list and create a collection of components according to
 ' Windows Installer component rules:
+'   Create a component for anything with a version resource
 '   Create components for any .hlp, .dll, .ocx, .exe
 '   Remaining files grouped into components by directory.
 '   First file selected as key file.
@@ -384,7 +385,8 @@ sub determine_components(base)
     ' scan for special files requiring their own component
     dim i : for i = 0 to num_files-1
         dim ext : ext = lcase(right(files(fil_name, i), 4))
-        if (ext = ".exe") or (ext = ".dll") or (ext = ".ocx") or (ext = ".hlp") then
+        if (files(fil_version, i) <> "") or (ext = ".exe") or _
+                (ext = ".dll") or (ext = ".ocx") or (ext = ".hlp") then
             create_component i, files(fil_name, i)
             assigned_files(i) = num_components
         else
