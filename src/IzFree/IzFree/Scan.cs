@@ -244,21 +244,43 @@ namespace IzFree.Scan
             }
         }
 
+        private int ScrapeFileCounter(MSI.Database db)
+        {
+            int count = 0;
+            using (MSI.View view =
+                       Application.ExecView(db, "SELECT `File` FROM `File`"))
+            {
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    count++;
+                    rec.Dispose();
+                }
+            }
+            return count;
+        }
+
+        private int FileCounter(IzFree.Project project)
+        {
+            try
+            {
+                return project.GetIntegerProperty("FileCounter");
+            }
+            catch (PropertyNotFoundException)
+            {
+                return ScrapeFileCounter(project.Database);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         private void CommitFiles(IzFree.Project project)
         {
             MSI.Database db = project.Database;
-            string val = project.GetProperty("FileCounter");
-            int fileCounter = 0;
-            if (val == null)
-            {
-                fileCounter = ScrapeFileCounter(db);
-            }
-            else
-            {
-                fileCounter = System.Convert.ToInt32(val);
-            }
+            int fileCounter = FileCounter(project);
 
-            using (MSI.View view = db.OpenView("INSERT INFO `File`(" +
+            using (MSI.View view = db.OpenView("INSERT INTO `File`(" +
                        "`File`,`Component_`,`FileName`,`FileSize`,`Version`," +
                        "`Language`,`Attributes`,`Sequence`) " +
                        "VALUES (?,?,?,?,?,?,0,1)"))
@@ -359,8 +381,8 @@ namespace IzFree.Scan
 
             using (MSI.View view = db.OpenView("INSERT INTO `Feature`(" +
                        "`Feature`,`Feature_Parent`,`Title`,`Description`," +
-                       "`Level`,`Directory`,`Attributes`) VALUES " +
-                       "(?,?,?,?,?,?,?,0)"))
+                       "`Display`,`Level`,`Directory_`,`Attributes`) " +
+                       "VALUES (?,?,?,?,?,?,?,0)"))
             {
                 for (int i = 0; i < m_components.Count; i++)
                 {
@@ -383,9 +405,9 @@ namespace IzFree.Scan
 
         private void CommitFeatureComponents(MSI.Database db)
         {
-            using (MSI.View view = db.OpenView(
-                "INSERT INTO `FeatureComponents`(`Feature_`,`Component`) " +
-                "VALUES (?,?)"))
+            using (MSI.View view = db.OpenView("INSERT INTO " +
+                       "`FeatureComponents`(`Feature_`,`Component_`) " +
+                       "VALUES (?,?)"))
             {
                 for (int i = 0; i < m_components.Count; i++)
                 {
@@ -399,11 +421,6 @@ namespace IzFree.Scan
                 }
                 view.Close();
             }
-        }
-
-        private int ScrapeFileCounter(MSI.Database db)
-        {
-            return 0;
         }
 
         private string DatabaseKey(string text)

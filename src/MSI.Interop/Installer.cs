@@ -34,6 +34,18 @@ namespace MSI
 
         public const string MSI_DLL = @"msi.dll";
 
+        #region LastErrorRecord
+        public static Record LastErrorRecord
+        {
+            get
+            {
+                return new Record(MsiGetLastErrorRecord());
+            }
+        }
+        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
+        private static extern IntPtr MsiGetLastErrorRecord();
+        #endregion
+
         #region AdvertiseProduct
         static public void AdvertiseProduct(string packagePath, string scriptFilePath,
             string transforms, int language)
@@ -731,8 +743,9 @@ namespace MSI
             int messageFilter, IntPtr context)
         {
             throw new System.NotImplementedException();
-
+#if false
             TR(MsiSetExternalUI(handler, messageFilter, context));
+#endif
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiSetExternalUI(IntPtr handler,
@@ -743,8 +756,9 @@ namespace MSI
         public static void SetInternalUI(int uiLevel, IntPtr window)
         {
             throw new System.NotImplementedException();
-
+#if false
             TR(MsiSetInternalUI(uiLevel, window));
+#endif
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiSetInternalUI(int uiLevel,
@@ -811,12 +825,67 @@ namespace MSI
         private static extern UInt32 MsiVerifyPackage(string product);
         #endregion
 
-        public static void TR(UInt32 result)
+        public static string FormatRecord(Record record)
+        {
+            int size = Installer.MaxPathLength;
+            StringBuilder text = new StringBuilder(size);
+            TR(MsiFormatRecord(IntPtr.Zero, record.Handle, text, ref size));
+            return text.ToString();
+        }
+        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
+        private static extern UInt32 MsiFormatRecord(IntPtr session,
+            IntPtr record, StringBuilder text, ref int size);
+
+        private static string ErrorText(Database db, Record error)
+        {
+            string format = "";
+            if (null != db)
+            {
+                using (View view = db.OpenView("SELECT `Message` FROM `Error` " +
+                           "WHERE `Error`=" + error.GetString(1)))
+                {
+                    view.Execute();
+                    using (Record rec = view.Fetch())
+                    {
+                        if (null != rec)
+                        {
+                            format = rec.GetString(1);
+                        }
+                    }
+                }
+            }
+            if ("" == format)
+            {
+                format = "1: [1]";
+                for (int i = 2; i <= error.FieldCount; i++)
+                {
+                    format += String.Format("{{, {0}: [{0}]}}", i);
+                }
+            }
+            error.SetString(0, format);
+            return FormatRecord(error);
+        }
+
+        public static void TR(Database db, UInt32 result)
         {
             if (result != 0)
             {
+                Record error = LastErrorRecord;
+                if ((error != null) && (error.FieldCount > 0))
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        String.Format("Windows Installer Error {0}:\n{1}",
+                        error.GetInteger(1), ErrorText(db, error)));
+                    System.Diagnostics.Debug.WriteLine(
+                        (new System.Diagnostics.StackTrace()).ToString());
+                }
                 throw new Win32Exception((int) result);
             }
+        }
+
+        public static void TR(UInt32 result)
+        {
+            TR(null, result);
         }
     }
 }

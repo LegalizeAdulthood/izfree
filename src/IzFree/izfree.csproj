@@ -90,11 +90,6 @@
                     HintPath = "..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
                 />
                 <Reference
-                    Name = "MSI"
-                    Project = "{1C1D0396-A400-42A0-A2A5-5FFCC334E92F}"
-                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
-                />
-                <Reference
                     Name = "MagicLibrary"
                     AssemblyName = "MagicLibrary"
                     HintPath = "..\..\Program Files\Crownwood Consulting Ltd\Magic Library 1.7\Bin\MagicLibrary.dll"
@@ -112,6 +107,11 @@
                     VersionMinor = "0"
                     Lcid = "0"
                     WrapperTool = "tlbimp"
+                />
+                <Reference
+                    Name = "Pahvant.MSI.Interop"
+                    Project = "{1C1D0396-A400-42A0-A2A5-5FFCC334E92F}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
         </Build>

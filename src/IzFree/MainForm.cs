@@ -37,9 +37,23 @@ namespace IzFree
         private System.Windows.Forms.MenuItem editCopyNewGuidItem;
         private System.Windows.Forms.PropertyGrid tableRowPropertyGrid;
         private System.Windows.Forms.ListView primaryKeyListView;
-        private System.Windows.Forms.MenuItem fileNewComponentsItem;
-        private System.Windows.Forms.MenuItem menuItem2;
         private System.Windows.Forms.ListBox tablesListBox;
+        private System.Windows.Forms.MenuItem tasksMenu;
+        private System.Windows.Forms.MenuItem taskScanDirectoryItem;
+        private System.Windows.Forms.MenuItem windowsMenu;
+        private System.Windows.Forms.MenuItem windowTablesItem;
+        private System.Windows.Forms.MenuItem windowFeaturesItem;
+        private System.Windows.Forms.MenuItem windowComponentsItem;
+        private System.Windows.Forms.MenuItem windowDialogsItem;
+        private System.Windows.Forms.MenuItem windowSequencesItem;
+        private System.Windows.Forms.MenuItem windowRegistryItem;
+        private System.Windows.Forms.MenuItem windowIniFilesItem;
+        private System.Windows.Forms.MenuItem windowCOMRegistrationItem;
+        private System.Windows.Forms.MenuItem windowAssembliesItem;
+        private System.Windows.Forms.MenuItem taskExtractCOMItem;
+        private System.Windows.Forms.MenuItem fileCloseItem;
+        private System.Windows.Forms.MenuItem fileSeparatorItem;
+        private System.Windows.Forms.MenuItem fileSummaryInformationItem;
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -86,14 +100,28 @@ namespace IzFree
             this.fileOpenItem = new System.Windows.Forms.MenuItem();
             this.fileSaveItem = new System.Windows.Forms.MenuItem();
             this.fileSaveAsItem = new System.Windows.Forms.MenuItem();
-            this.menuItem2 = new System.Windows.Forms.MenuItem();
-            this.fileNewComponentsItem = new System.Windows.Forms.MenuItem();
+            this.fileCloseItem = new System.Windows.Forms.MenuItem();
+            this.fileSeparatorItem = new System.Windows.Forms.MenuItem();
+            this.fileSummaryInformationItem = new System.Windows.Forms.MenuItem();
             this.editMenu = new System.Windows.Forms.MenuItem();
             this.editCopyItem = new System.Windows.Forms.MenuItem();
             this.editCopyNewGuidItem = new System.Windows.Forms.MenuItem();
             this.editPasteItem = new System.Windows.Forms.MenuItem();
             this.editPasteNewGuidItem = new System.Windows.Forms.MenuItem();
             this.editSelectAllItem = new System.Windows.Forms.MenuItem();
+            this.tasksMenu = new System.Windows.Forms.MenuItem();
+            this.taskScanDirectoryItem = new System.Windows.Forms.MenuItem();
+            this.taskExtractCOMItem = new System.Windows.Forms.MenuItem();
+            this.windowsMenu = new System.Windows.Forms.MenuItem();
+            this.windowTablesItem = new System.Windows.Forms.MenuItem();
+            this.windowFeaturesItem = new System.Windows.Forms.MenuItem();
+            this.windowComponentsItem = new System.Windows.Forms.MenuItem();
+            this.windowDialogsItem = new System.Windows.Forms.MenuItem();
+            this.windowSequencesItem = new System.Windows.Forms.MenuItem();
+            this.windowRegistryItem = new System.Windows.Forms.MenuItem();
+            this.windowIniFilesItem = new System.Windows.Forms.MenuItem();
+            this.windowCOMRegistrationItem = new System.Windows.Forms.MenuItem();
+            this.windowAssembliesItem = new System.Windows.Forms.MenuItem();
             this.projectTabControl = new System.Windows.Forms.TabControl();
             this.tablesTab = new System.Windows.Forms.TabPage();
             this.tablesListBox = new System.Windows.Forms.ListBox();
@@ -116,7 +144,9 @@ namespace IzFree
             // 
             this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
                                                                                      this.fileMenu,
-                                                                                     this.editMenu});
+                                                                                     this.editMenu,
+                                                                                     this.tasksMenu,
+                                                                                     this.windowsMenu});
             // 
             // fileMenu
             // 
@@ -126,8 +156,9 @@ namespace IzFree
                                                                                      this.fileOpenItem,
                                                                                      this.fileSaveItem,
                                                                                      this.fileSaveAsItem,
-                                                                                     this.menuItem2,
-                                                                                     this.fileNewComponentsItem});
+                                                                                     this.fileCloseItem,
+                                                                                     this.fileSeparatorItem,
+                                                                                     this.fileSummaryInformationItem});
             this.fileMenu.Text = "File";
             // 
             // fileNewItem
@@ -147,24 +178,32 @@ namespace IzFree
             this.fileSaveItem.Enabled = false;
             this.fileSaveItem.Index = 2;
             this.fileSaveItem.Text = "&Save Package";
+            this.fileSaveItem.Click += new System.EventHandler(this.fileSaveItem_Click);
             // 
             // fileSaveAsItem
             // 
             this.fileSaveAsItem.Enabled = false;
             this.fileSaveAsItem.Index = 3;
             this.fileSaveAsItem.Text = "Save Package &As...";
+            this.fileSaveAsItem.Click += new System.EventHandler(this.fileSaveAsItem_Click);
             // 
-            // menuItem2
+            // fileCloseItem
             // 
-            this.menuItem2.Index = 4;
-            this.menuItem2.Text = "-";
+            this.fileCloseItem.Enabled = false;
+            this.fileCloseItem.Index = 4;
+            this.fileCloseItem.Text = "Close";
+            this.fileCloseItem.Click += new System.EventHandler(this.fileCloseItem_Click);
             // 
-            // fileNewComponentsItem
+            // fileSeparatorItem
             // 
-            this.fileNewComponentsItem.Enabled = false;
-            this.fileNewComponentsItem.Index = 5;
-            this.fileNewComponentsItem.Text = "New &Components...";
-            this.fileNewComponentsItem.Click += new System.EventHandler(this.fileNewComponentsItem_Click);
+            this.fileSeparatorItem.Index = 5;
+            this.fileSeparatorItem.Text = "-";
+            // 
+            // fileSummaryInformationItem
+            // 
+            this.fileSummaryInformationItem.Enabled = false;
+            this.fileSummaryInformationItem.Index = 6;
+            this.fileSummaryInformationItem.Text = "Summary Information...";
             // 
             // editMenu
             // 
@@ -206,6 +245,96 @@ namespace IzFree
             this.editSelectAllItem.Enabled = false;
             this.editSelectAllItem.Index = 4;
             this.editSelectAllItem.Text = "Select &All";
+            // 
+            // tasksMenu
+            // 
+            this.tasksMenu.Index = 2;
+            this.tasksMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+                                                                                      this.taskScanDirectoryItem,
+                                                                                      this.taskExtractCOMItem});
+            this.tasksMenu.Text = "Tasks";
+            // 
+            // taskScanDirectoryItem
+            // 
+            this.taskScanDirectoryItem.Enabled = false;
+            this.taskScanDirectoryItem.Index = 0;
+            this.taskScanDirectoryItem.Text = "Scan &Directory for Components...";
+            this.taskScanDirectoryItem.Click += new System.EventHandler(this.taskScanDirectoryItem_Click);
+            // 
+            // taskExtractCOMItem
+            // 
+            this.taskExtractCOMItem.Enabled = false;
+            this.taskExtractCOMItem.Index = 1;
+            this.taskExtractCOMItem.Text = "Extract COM Registration...";
+            // 
+            // windowsMenu
+            // 
+            this.windowsMenu.Index = 3;
+            this.windowsMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+                                                                                        this.windowTablesItem,
+                                                                                        this.windowFeaturesItem,
+                                                                                        this.windowComponentsItem,
+                                                                                        this.windowDialogsItem,
+                                                                                        this.windowSequencesItem,
+                                                                                        this.windowRegistryItem,
+                                                                                        this.windowIniFilesItem,
+                                                                                        this.windowCOMRegistrationItem,
+                                                                                        this.windowAssembliesItem});
+            this.windowsMenu.Text = "Windows";
+            // 
+            // windowTablesItem
+            // 
+            this.windowTablesItem.Enabled = false;
+            this.windowTablesItem.Index = 0;
+            this.windowTablesItem.Text = "Tables";
+            // 
+            // windowFeaturesItem
+            // 
+            this.windowFeaturesItem.Enabled = false;
+            this.windowFeaturesItem.Index = 1;
+            this.windowFeaturesItem.Text = "Features";
+            // 
+            // windowComponentsItem
+            // 
+            this.windowComponentsItem.Enabled = false;
+            this.windowComponentsItem.Index = 2;
+            this.windowComponentsItem.Text = "Components";
+            // 
+            // windowDialogsItem
+            // 
+            this.windowDialogsItem.Enabled = false;
+            this.windowDialogsItem.Index = 3;
+            this.windowDialogsItem.Text = "Dialogs";
+            // 
+            // windowSequencesItem
+            // 
+            this.windowSequencesItem.Enabled = false;
+            this.windowSequencesItem.Index = 4;
+            this.windowSequencesItem.Text = "Sequences";
+            // 
+            // windowRegistryItem
+            // 
+            this.windowRegistryItem.Enabled = false;
+            this.windowRegistryItem.Index = 5;
+            this.windowRegistryItem.Text = "Registry";
+            // 
+            // windowIniFilesItem
+            // 
+            this.windowIniFilesItem.Enabled = false;
+            this.windowIniFilesItem.Index = 6;
+            this.windowIniFilesItem.Text = "INI Files";
+            // 
+            // windowCOMRegistrationItem
+            // 
+            this.windowCOMRegistrationItem.Enabled = false;
+            this.windowCOMRegistrationItem.Index = 7;
+            this.windowCOMRegistrationItem.Text = "COM Registration";
+            // 
+            // windowAssembliesItem
+            // 
+            this.windowAssembliesItem.Enabled = false;
+            this.windowAssembliesItem.Index = 8;
+            this.windowAssembliesItem.Text = ".NET Assemblies";
             // 
             // projectTabControl
             // 
@@ -300,7 +429,7 @@ namespace IzFree
             this.featuresTab.Controls.Add(this.featureTreeView);
             this.featuresTab.Location = new System.Drawing.Point(4, 22);
             this.featuresTab.Name = "featuresTab";
-            this.featuresTab.Size = new System.Drawing.Size(596, 478);
+            this.featuresTab.Size = new System.Drawing.Size(596, 468);
             this.featuresTab.TabIndex = 4;
             this.featuresTab.Text = "Features";
             // 
@@ -313,14 +442,14 @@ namespace IzFree
             this.featureTreeView.Location = new System.Drawing.Point(8, 8);
             this.featureTreeView.Name = "featureTreeView";
             this.featureTreeView.SelectedImageIndex = -1;
-            this.featureTreeView.Size = new System.Drawing.Size(576, 456);
+            this.featureTreeView.Size = new System.Drawing.Size(576, 446);
             this.featureTreeView.TabIndex = 0;
             // 
             // componentsTab
             // 
             this.componentsTab.Location = new System.Drawing.Point(4, 22);
             this.componentsTab.Name = "componentsTab";
-            this.componentsTab.Size = new System.Drawing.Size(596, 478);
+            this.componentsTab.Size = new System.Drawing.Size(596, 468);
             this.componentsTab.TabIndex = 1;
             this.componentsTab.Text = "Components";
             // 
@@ -328,7 +457,7 @@ namespace IzFree
             // 
             this.fileSystemTab.Location = new System.Drawing.Point(4, 22);
             this.fileSystemTab.Name = "fileSystemTab";
-            this.fileSystemTab.Size = new System.Drawing.Size(596, 478);
+            this.fileSystemTab.Size = new System.Drawing.Size(596, 468);
             this.fileSystemTab.TabIndex = 2;
             this.fileSystemTab.Text = "File System";
             // 
@@ -336,7 +465,7 @@ namespace IzFree
             // 
             this.registryTab.Location = new System.Drawing.Point(4, 22);
             this.registryTab.Name = "registryTab";
-            this.registryTab.Size = new System.Drawing.Size(596, 478);
+            this.registryTab.Size = new System.Drawing.Size(596, 468);
             this.registryTab.TabIndex = 3;
             this.registryTab.Text = "Registry";
             // 
@@ -439,12 +568,12 @@ namespace IzFree
                 " ORDER BY `Component`");
             for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
             {
-                string line = rec.GetString(1);
-                for (int i = 2; i <= rec.FieldCount; i++)
-                {
-                    line += ", " + rec.GetString(i);
-                }
-                Debug.WriteLine(line);
+                Debug.WriteLine(String.Format("Component={0}, " +
+                    "ComponentId={1}, Directory_={2}, Attributes={3}, " +
+                    "Condition={4}, KeyPath={5}", rec.GetString(1),
+                    rec.GetString(2), rec.GetString(3), rec.GetInteger(4),
+                    rec.GetString(5), rec.GetString(6)));
+                rec.Dispose();
             }
             view.Close();
         }
@@ -458,12 +587,13 @@ namespace IzFree
                 "FROM `File` ORDER BY `File`");
             for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
             {
-                string line = rec.GetString(1);
-                for (int i = 2; i <= rec.FieldCount; i++)
-                {
-                    line += ", " + rec.GetString(i);
-                }
-                Debug.WriteLine(line);
+                Debug.WriteLine(String.Format("File={0}, Component_={1}, " +
+                    "FileName={2}, FileSize={3}, Version={4}, " +
+                    "Language={5}, Attributes={6}, Sequence={7}",
+                    rec.GetString(1), rec.GetString(2),
+                    rec.GetString(3), rec.GetInteger(4), rec.GetString(5),
+                    rec.GetString(6), rec.GetInteger(7), rec.GetInteger(8)));
+                rec.Dispose();
             }
             view.Close();
         }
@@ -476,12 +606,11 @@ namespace IzFree
                 " FROM `Registry` ORDER BY `Registry`");
             for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
             {
-                string line = rec.GetString(1);
-                for (int i = 2; i <= rec.FieldCount; i++)
-                {
-                    line += ", " + rec.GetString(i);
-                }
-                Debug.WriteLine(line);
+                Debug.WriteLine(String.Format("Registry={0}, Root={1}, " +
+                    "Key={2}, Name={3}, Value={4}, Component_={5}",
+                    rec.GetString(1), rec.GetInteger(2),
+                    rec.GetString(3), rec.GetString(4), rec.GetString(5),
+                    rec.GetString(6)));
                 rec.Dispose();
             }
             view.Close();
@@ -492,13 +621,11 @@ namespace IzFree
             using (new UpdateHelper(tablesListBox))
             {
                 tablesListBox.Items.Clear();
-                Debug.WriteLine("Tables:");
                 MSI.View view = IzFree.Application.ExecView(db,
                     "SELECT * FROM `_Tables` ORDER BY `Name`");
                 for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
                 {
                     tablesListBox.Items.Add(rec.GetString(1));
-                    Debug.WriteLine(rec.GetString(1));
                     rec.Dispose();
                 }
                 view.Close();
@@ -526,14 +653,40 @@ namespace IzFree
             dlg.CheckPathExists = true;
             if (DialogResult.OK == dlg.ShowDialog())
             {
-                m_application.OpenProject(dlg.FileName);
-                PopulateTabs(m_application.Project.Database);
-                ShowProjectTabs();
-                fileNewComponentsItem.Enabled = true;
+                using (new Helpers.WaitCursor())
+                {
+                    m_application.OpenProject(dlg.FileName);
+                    NewDatabase();
+                }
             }
         }
 
         IzFree.Application m_application = new IzFree.Application();
+
+        private void NewDatabase()
+        {
+            PopulateTabs(m_application.Project.Database);
+            DatabaseOpen(true);
+        }
+
+        private void DatabaseOpen(bool openNotClosed)
+        {
+            fileCloseItem.Enabled = openNotClosed;
+            fileSummaryInformationItem.Enabled = openNotClosed;
+            taskScanDirectoryItem.Enabled = openNotClosed;
+            taskExtractCOMItem.Enabled = openNotClosed;
+            windowTablesItem.Enabled = openNotClosed;
+            windowFeaturesItem.Enabled = openNotClosed;
+            windowComponentsItem.Enabled = openNotClosed;
+            windowDialogsItem.Enabled = openNotClosed;
+            windowSequencesItem.Enabled = openNotClosed;
+            windowRegistryItem.Enabled = openNotClosed;
+            windowIniFilesItem.Enabled = openNotClosed;
+            windowCOMRegistrationItem.Enabled = openNotClosed;
+            windowAssembliesItem.Enabled = openNotClosed;
+            Modified = false;
+            ShowProjectTabs(openNotClosed);
+        }
 
         private void fileNewItem_Click(object sender, System.EventArgs e)
         {
@@ -553,35 +706,43 @@ namespace IzFree
                         }
                         File.Delete(package.DatabaseFileName);
                     }
-                    m_application.NewPackage(package.TemplateDirectory,
-                        package.DatabaseFileName, package.Manufacturer,
-                        package.ProductName, package.ProductVersion,
-                        package.TargetDirectoryRoot, package.TargetDirectory,
-                        package.ProductCode, package.PackageCode,
-                        package.UpgradeCode);
-                    ShowProjectTabs();
-                    fileNewComponentsItem.Enabled = true;
+                    using (new Helpers.WaitCursor())
+                    {
+                        m_application.NewPackage(package.TemplateDirectory,
+                            package.DatabaseFileName, package.Manufacturer,
+                            package.ProductName, package.ProductVersion,
+                            package.TargetDirectoryRoot, package.TargetDirectory,
+                            package.ProductCode, package.PackageCode,
+                            package.UpgradeCode);
+                        NewDatabase();
+                    }
                 }
             }
         }
 
         private void MainForm_Load(object sender, System.EventArgs e)
         {
-            HideProjectTabs();
+            ShowProjectTabs(false);
         }
-        private void HideProjectTabs()
+
+        private void ShowProjectTabs(bool openNotClosed)
         {
-            projectTabControl.TabPages.Remove(featuresTab);
-            projectTabControl.TabPages.Remove(componentsTab);
-            projectTabControl.TabPages.Remove(fileSystemTab);
-            projectTabControl.TabPages.Remove(registryTab);
-        }
-        private void ShowProjectTabs()
-        {
-            projectTabControl.TabPages.Add(featuresTab);
-            projectTabControl.TabPages.Add(componentsTab);
-            projectTabControl.TabPages.Add(fileSystemTab);
-            projectTabControl.TabPages.Add(registryTab);
+            if (openNotClosed)
+            {
+                projectTabControl.TabPages.Add(tablesTab);
+                projectTabControl.TabPages.Add(featuresTab);
+                projectTabControl.TabPages.Add(componentsTab);
+                projectTabControl.TabPages.Add(fileSystemTab);
+                projectTabControl.TabPages.Add(registryTab);
+            }
+            else
+            {
+                projectTabControl.TabPages.Remove(tablesTab);
+                projectTabControl.TabPages.Remove(featuresTab);
+                projectTabControl.TabPages.Remove(componentsTab);
+                projectTabControl.TabPages.Remove(fileSystemTab);
+                projectTabControl.TabPages.Remove(registryTab);
+            }
         }
 
         private void editCopyNewGuidItem_Click(object sender, System.EventArgs e)
@@ -610,7 +771,7 @@ namespace IzFree
             return "*";
         }
 
-        private void fileNewComponentsItem_Click(object sender, System.EventArgs e)
+        private void taskScanDirectoryItem_Click(object sender, System.EventArgs e)
         {
             using (NewComponentsForm dlg =
                        new NewComponentsForm(m_application.Project))
@@ -618,8 +779,42 @@ namespace IzFree
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
                     // add components
+                    dlg.Commit();
+                    Modified = true;
                 }
             }
+        }
+
+        private bool Modified
+        {
+            get { return m_modified; }
+            set
+            {
+                if (m_modified && !value)
+                {
+                    // was modified, now isn't modified -- discard changes?
+                }
+                m_modified = value;
+                ShowModified(m_modified);
+                SetTitle();
+            }
+        }
+        bool m_modified = false;
+
+        private void SetTitle()
+        {
+            Text = "izfree 2.0";
+            if (m_application.Project != null)
+            {
+                Text += " - " + (Modified ? "* " : "") +
+                    m_application.Project.Filename;
+            }
+        }
+
+        private void ShowModified(bool modified)
+        {
+            fileSaveItem.Enabled = modified;
+            fileSaveAsItem.Enabled = modified;
         }
 
         private void tablesListBox_SelectedIndexChanged(object sender, System.EventArgs e)
@@ -627,7 +822,6 @@ namespace IzFree
             using (new UpdateHelper(primaryKeyListView))
             {
                 primaryKeyListView.Items.Clear();
-                Debug.WriteLine("Tables:");
                 string table = tablesListBox.SelectedItem.ToString();
                 MSI.View view =
                     IzFree.Application.ExecView(m_application.Project.Database,
@@ -639,6 +833,45 @@ namespace IzFree
                 view.Close();
             }
         
+        }
+
+        private void fileSaveItem_Click(object sender, System.EventArgs e)
+        {
+            m_application.SaveProject();
+            Modified = false;
+        }
+
+        private void fileSaveAsItem_Click(object sender, System.EventArgs e)
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+            dlg.Filter = "Setup Databases (*.msi)|*.msi|" +
+                "Merge Modules (*.msm)|*.msm|" +
+                "Patch Creation Parameters (*.pcp)|*.pcp|" +
+                "ICE Databases (*.cub)|*.cub";
+            dlg.FilterIndex = 0;
+            dlg.OverwritePrompt = true;
+            if (DialogResult.OK == dlg.ShowDialog())
+            {
+                m_application.SaveProjectAs(dlg.FileName);
+                Modified = false;
+            }
+        }
+
+        private void fileCloseItem_Click(object sender, System.EventArgs e)
+        {
+            if (Modified)
+            {
+                // prompt to save first
+                if (DialogResult.OK == MessageBox.Show(
+                    "The package has been modified.  Do you want to save " +
+                    "your changes before closing?", "Save Changes",
+                    MessageBoxButtons.YesNo))
+                {
+                    m_application.SaveProject();
+                }
+            }
+            m_application.CloseProject();
+            DatabaseOpen(false);
         }
 	}
 }

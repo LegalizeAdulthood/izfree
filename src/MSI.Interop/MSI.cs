@@ -469,6 +469,13 @@ namespace MSI
             }
         }
 
+        #region Handle
+        public IntPtr Handle
+        {
+            get { return m_handle.Handle; }
+        }
+        #endregion
+
         #region DoAction
         public void DoAction(string action)
         {
@@ -603,18 +610,6 @@ namespace MSI
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
         private static extern UInt32 MsiGetLanguage(IntPtr session);
-        #endregion
-
-        #region LastErrorRecord
-        public Record LastErrorRecord
-        {
-            get
-            {
-                return new Record(MsiGetLastErrorRecord());
-            }
-        }
-        [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
-        private static extern IntPtr MsiGetLastErrorRecord();
         #endregion
 
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]

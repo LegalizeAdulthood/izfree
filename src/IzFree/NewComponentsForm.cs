@@ -318,6 +318,9 @@ namespace IzFree
             {
                 PerformStep(i);
             }
+        }
+        public void Commit()
+        {
             m_scanner.Commit(m_project, RootDirectory, RootFeature);
         }
         private void BuildComponents()

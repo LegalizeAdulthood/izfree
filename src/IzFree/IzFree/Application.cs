@@ -79,9 +79,25 @@ namespace IzFree
             m_project = new Project(filename);
         }
 
+        public void CloseProject()
+        {
+            m_project.Close();
+            m_project = null;
+        }
+
         public void NewProject(string filename)
         {
             m_project = new Project(filename);
+        }
+
+        public void SaveProject()
+        {
+            m_project.Save();
+        }
+
+        public void SaveProjectAs(string filename)
+        {
+            m_project.SaveAs(filename);
         }
 
         public void NewPackage(string templateDirectory,

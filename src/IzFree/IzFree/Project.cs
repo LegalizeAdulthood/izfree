@@ -122,47 +122,68 @@ namespace IzFree
             get { return m_db; }
         }
 
-        public string GetProperty(string name)
+        public void Close()
         {
-            if (null == m_properties)
-            {
-                ReadProperties();
-            }
+            m_db.Dispose();
+            m_db = null;
+            m_filename = null;
+            m_modified = false;
+            m_properties = null;
+        }
 
+        public void Save()
+        {
+            if (m_modified)
+            {
+                WriteProperties();
+            }
+            m_db.Commit();
+            m_modified = false;
+        }
+
+        public void SaveAs(string filename)
+        {
+            throw new NotImplementedException();
+#if false
+            Save();
+            m_filename = filename;
+#endif
+        }
+
+        public bool Modified
+        {
+            get { return m_modified; }
+            set { m_modified = value; }
+        }
+        private bool m_modified = false;
+
+        private object FindProperty(string name)
+        {
+            ReadProperties();
             if (!m_properties.ContainsKey(name))
             {
                 throw new PropertyNotFoundException(name);
             }
-
-            return m_properties[name] as string;
+            return m_properties[name];
+        }
+        public string GetProperty(string name)
+        {
+            return FindProperty(name) as string;
+        }
+        public int GetIntegerProperty(string name)
+        {
+            return System.Convert.ToInt32(FindProperty(name));
         }
 
         public void SetProperty(string name, string data)
         {
-            if (null == m_properties)
-            {
-                ReadProperties();
-            }
+            ReadProperties();
             m_properties[name] = data;
+            m_modified = true;
         }
-
-        public int GetIntegerProperty(string name)
-        {
-            if (null == m_properties)
-            {
-                ReadProperties();
-            }
-            if (!m_properties.ContainsKey(name))
-            {
-                throw new PropertyNotFoundException(name);
-            }
-
-            return System.Convert.ToInt32(m_properties[name]);
-        }
-
         public void SetIntegerProperty(string name, int data)
         {
-            m_properties[name] = String.Format("{0}", data);
+            SetProperty(name, data.ToString());
         }
 
         private Hashtable m_properties = null;
@@ -235,6 +256,11 @@ namespace IzFree
         private bool m_izPropertyTableExists = false;
         private void ReadProperties()
         {
+            if (m_properties != null)
+            {
+                return;
+            }
+
             m_properties = new Hashtable();
             using (View view = Application.ExecView(m_db,
                        "SELECT `Name` FROM `_Tables` WHERE `Name`='IzProperty'"))

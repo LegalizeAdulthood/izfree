@@ -417,9 +417,16 @@ namespace MSI
         #endregion
         #endregion
 
-        private static void TR(UInt32 result)
+        private void TR(UInt32 result)
         {
-            MSI.Installer.TR(result);
+            if (m_handle != null)
+            {
+                MSI.Installer.TR(this, result);
+            }
+            else
+            {
+                MSI.Installer.TR(result);
+            }
         }
 
         private MSIHandle m_handle;
@@ -627,7 +634,7 @@ namespace MSI
         public View(Database db, string sql)
         {
             IntPtr handle;
-            TR(MsiDatabaseOpenView(db.Handle, sql, out handle));
+            TR(db, MsiDatabaseOpenView(db.Handle, sql, out handle));
             m_handle = new MSIHandle(handle);
         }
         [DllImport(Installer.MSI_DLL, CharSet = CharSet.Auto)]
@@ -678,6 +685,11 @@ namespace MSI
         private static void TR(UInt32 result)
         {
             MSI.Installer.TR(result);
+        }
+
+        private static void TR(Database db, UInt32 result)
+        {
+            MSI.Installer.TR(db, result);
         }
 
         private MSIHandle m_handle;

@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "izMonitor", "izMonitor\izMo
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSI.Interop", "MSI.Interop\MSI.Interop.csproj", "{1C1D0396-A400-42A0-A2A5-5FFCC334E92F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pahvant.MSI.Interop", "MSI.Interop\Pahvant.MSI.Interop.csproj", "{1C1D0396-A400-42A0-A2A5-5FFCC334E92F}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
