@@ -28,6 +28,23 @@ option explicit
 on error resume next
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' PAGE_xxx
+'
+' Constants for the pages within the wizard sequence that adds new
+' components.
+'
+const PAGE_SERVER = 1
+const PAGE_COMMIT = 2
+const PAGE_LAST = 2
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_page
+'
+' Current page number being displayed within the sequence.
+'
+dim g_page : g_page = 1
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' g_monitor -- izfree.Monitor object
 '
 dim g_monitor
@@ -522,14 +539,67 @@ sub keys_onChange
     end if
 end sub
 
+function dump_keys(mon)
+    dim msg(), i
+    if (mon.AppIdTable.Count > 0) then
+        push msg, "AppId Entries:"
+        for i = 1 to mon.AppIdTable.Count
+            push msg, "    " & mon.AppIdTable(i).AppId
+        next
+        push msg, ""
+    end if
+    if (mon.ClassTable.Count > 0) then
+        push msg, "Class Entries:"
+        for i = 1 to mon.ClassTable.Count
+            push msg, "    " & mon.ClassTable(i).CLSID
+        next
+        push msg, ""
+    end if
+    if (mon.ProgIdTable.Count > 0) then
+        push msg, "ProgId Entries:"
+        for i = 1 to mon.ProgIdTable.Count
+            push msg, "    " & mon.ProgIdTable(i).ProgId
+        next
+        push msg, ""
+    end if
+    if (mon.TypeLibTable.Count > 0) then
+        push msg, "TypeLib Entries:"
+        for i = 1 to mon.TypeLibTable.Count
+            push msg, "    " & mon.TypeLibTable(i).LibID
+        next
+        push msg, ""
+    end if
+    if (mon.RegistryTable.Count > 0) then
+        push msg, "Registry Entries:"
+        for i = 1 to mon.RegistryTable.Count
+            push msg, "    " & replace(mon.RegistryTable(i).Registry, "_", " ")
+        next
+        push msg, ""
+    end if
+    if (mon.ServiceControlTable.Count > 0) then
+        push msg, "ServiceControl Entries:"
+        for i = 1 to mon.ServiceControl.Count
+            push msg, "    " & mon.ServiceControlTable(i).ServiceControl
+        next
+        push msg, ""
+    end if
+    if (mon.ServiceInstallTable.Count > 0) then
+        push msg, "ServiceInstall Entries:"
+        for i = 1 to mon.ServiceInstall.Count
+            push msg, "    " & mon.ServiceInstallTable(i).ServiceInstall
+        next
+    end if
+    dump_keys = join(msg, vbCRLF) & vbCRLF
+end function
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' extract_onClick
+' register_server
 '
-' Extract the COM registration information from the named file by using
-' izMonitor to do the hard work, then save out the results to the open
-' database.
+' Ask a self-registering COM server to register itself and scrape all
+' its registry information out into tables.
 '
-sub extract_onClick
+function register_server
+    register_server = true
     dim file : file = document.all("server").value
     dim svc : svc = document.all("service").checked
     dim component : component = document.all("components").value
@@ -549,9 +619,33 @@ sub extract_onClick
             "No action has been taken on the open database.", vbOKOnly, _
             "Error While Registering Server:"
         Err.Clear
-        exit sub
+        register_server = false
+    else
+        dim msg : msg = ""
+        accum_msg g_monitor.AppIdTable, "AppId", msg
+        accum_msg g_monitor.ClassTable, "Class", msg
+        accum_msg g_monitor.ProgIdTable, "ProgId", msg
+        accum_msg g_monitor.TypeLibTable, "TypeLib", msg
+        accum_msg g_monitor.RegistryTable, "Registry", msg
+        accum_msg g_monitor.ServiceControlTable, "ServiceControl", msg
+        accum_msg g_monitor.ServiceInstallTable, "ServiceInstall", msg
+        if (msg <> "") then
+            dim whack : whack = instrrev(file, "\")
+            if (whack > 0) then file = mid(file, whack+1)
+            if (svc) then
+                msg = "Service '" & file & "' yielded " & msg & "."
+            else
+                msg = "File '" & file & "' yielded " & msg & "."
+            end if
+            document.all("rows").value = msg & vbCRLF & dump_keys(g_monitor)
+        else
+            document.all("rows").value = "No COM registration information " &_
+                "was found in file " & file & "."
+        end if
     end if
-    
+end function
+
+function record_server    
     set g_app_ids = check_object("Scripting.Dictionary")
     set g_classes = check_object("Scripting.Dictionary")
     set g_interfaces = check_object("Scripting.Dictionary")
@@ -562,24 +656,8 @@ sub extract_onClick
     save_tables g_monitor
     db_modified
     
-    dim msg : msg = ""
-    accum_msg g_monitor.AppIdTable, "AppId", msg
-    accum_msg g_monitor.ClassTable, "Class", msg
-    accum_msg g_monitor.ProgIdTable, "ProgId", msg
-    accum_msg g_monitor.TypeLibTable, "TypeLib", msg
-    accum_msg g_monitor.RegistryTable, "Registry", msg
-    accum_msg g_monitor.ServiceControlTable, "ServiceControl", msg
-    accum_msg g_monitor.ServiceInstallTable, "ServiceInstall", msg
-    if (msg <> "") then
-        dim whack : whack = instrrev(file, "\")
-        if (whack > 0) then file = mid(file, whack+1)
-        if (svc) then
-            dbgout "Service '" & file & "' yielded " & msg & "."
-        else
-            dbgout "File '" & file & "' yielded " & msg & "."
-        end if
-    end if
-end sub
+    record_server = true
+end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
@@ -597,6 +675,7 @@ sub window_onLoad
     load_column document.all("features"), "Feature", "Feature"
 
     keys_update
+    back_next_update
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -608,11 +687,125 @@ end sub
 
 sub browseServer_onClick
 end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' cancel_onClick
+'
+' Cancel the actions of the wizard sequence and reset to the first page.
+'
+sub cancel_onClick
+    document.all("page" & g_page).className = "invisible"
+    g_page = 1
+    document.all("page" & g_page).className = ""
+    back_next_update
+end sub
+    
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' finish_onClick
+'
+' Do all the remaining steps, taking the default action, and finish up
+' the wizard sequence.
+'
+sub finish_onClick
+    document.all("page" & g_page).className = "invisible"
+    dim ok : ok = true
+    do while (g_page < PAGE_LAST) and ok
+        ok = do_step()
+        g_page = g_page+1
+    loop
+    if (do_step()) then
+        g_page = 1
+        document.all("page" & g_page).className = ""
+    end if
+    back_next_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' next_onClick
+'
+' Move forward one step in the wizard sequence.
+'
+sub next_onClick
+    if (do_step()) then
+        if (g_page >= 1) then
+            document.all("page" & g_page).className = "invisible"
+        end if
+        g_page = g_page + 1
+        if (g_page <= PAGE_LAST) then
+            document.all("page" & g_page).className = ""
+        end if
+    end if
+    back_next_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' back_onClick
+'
+' Move backward one step in the wizard sequence.
+'
+sub back_onClick
+    if (g_page <= PAGE_LAST) then
+        document.all("page" & g_page).className = "invisible"
+    end if
+    g_page = g_page - 1
+    if (g_page >= 1) then
+        document.all("page" & g_page).className = ""
+   end if
+   undo_step
+   back_next_update 
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' do_step
+'
+' Do a step in the wizard sequence.
+'
+function do_step
+    select case g_page
+    case PAGE_SERVER:   do_step = register_server
+    case PAGE_LAST:     do_step = record_server
+    end select
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' undo_step
+'
+' Undo a step in the wizard sequence.
+'
+sub undo_step
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' back_next_update
+'
+' Depending on the page and the inputs on each page, determine whether
+' or not the back, next, cancel and finish buttons should be enabled.
+'
+sub back_next_update
+    select case g_page
+    case PAGE_SERVER:
+        document.all("back").disabled = true
+        document.all("next").disabled = false
+        document.all("cancel").disabled = true
+        document.all("finish").disabled = false
+        
+    case PAGE_COMMIT:
+        document.all("back").disabled = false
+        document.all("next").disabled = true
+        document.all("cancel").disabled = false
+        document.all("finish").disabled = false
+    case else
+        MsgBox("Unexpected case on back_next_update")
+    end select
+end sub
+
 --></SCRIPT>
 </HEAD>
 <BODY>
-<P><FORM NAME="Register">
-<TABLE WIDTH=100%>
+<FORM NAME="Register"><TABLE WIDTH=100%>
+<TR ID="page1"><TD COLSPAN=3>
+<P><STRONG>1. Select COM Server:</STRONG></P>
+<P><TABLE WIDTH=100%>
     <TR>
         <TD ALIGN="right"><STRONG>Path to COM server:</STRONG></TD>
         <TD><INPUT ID="server" TYPE="text" SIZE=50 VALUE="">
@@ -641,8 +834,26 @@ end sub
             <SELECT ID="keys" STYLE="width: 100%" SIZE=12></SELECT>
         </TD>
     </TR>
-<TR><TD COLSPAN=2><INPUT ID="extract" TYPE="button" VALUE="Go"></TD></TR>
 </TABLE>
+</TD></TR>
+
+<TR ID="page2" CLASS="invisible"><TD COLSPAN=3>
+<P><STRONG>2. Confirm Database Rows Added.</STRONG></P>
+
+<P><TEXTAREA ID="rows" STYLE="width: 100%" ROWS=20></TEXTAREA></P>
+</TD></TR>
+
+<P><TR>
+<TD STYLE="width: 150px" ALIGN="center">
+<INPUT ID="back" TYPE="button" VALUE="< Back" DISABLED></TD>
+<TD STYLE="width: 150px" ALIGN="center">
+<INPUT ID="next" TYPE="button" VALUE="Next >" DISABLED></TD>
+<TD STYLE="width: 150px" ALIGN="center">
+<INPUT ID="cancel" TYPE="button" VALUE="Cancel" DISABLED>
+<INPUT ID="finish" TYPE="button" VALUE="Finish" DISABLED></TD>
+</TR></P>
+</TABLE></FORM>
+
 </FORM></P>
 
 <P ID="debug"></P>
