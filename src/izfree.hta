@@ -92,6 +92,9 @@ sub update_db_buttons
     all("new").disabled = not no_db
     all("close").disabled = no_db
     all("save").disabled = no_db or not g_db_modified
+    dim modified : modified = ""
+    if (g_db_modified) then modified = "*"
+    all("modified").innerText = modified
     dim tool_class
     if (not no_db) then
         tool_class = "anchor"
