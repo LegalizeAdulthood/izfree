@@ -130,7 +130,25 @@ SOURCE=.\NewPackage.html
 # End Source File
 # Begin Source File
 
+SOURCE=.\Policies.html
+# PROP BASE Deployment_Mode 1
+# PROP Deployment_Mode 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\PreviewDialogs.html
+# PROP BASE Deployment_Mode 1
+# PROP Deployment_Mode 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\ValidateTable.html
+# PROP BASE Deployment_Mode 1
+# PROP Deployment_Mode 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\WizardSeqs.html
 # PROP BASE Deployment_Mode 1
 # PROP Deployment_Mode 1
 # End Source File
