@@ -551,3 +551,23 @@ function null_str(rec, field)
     end if
 end function
 
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_opts
+'
+' Load a <SELECT> container full of <OPTION> elements based on the
+' values in an array.
+'
+sub load_opts(opts, ary)
+    do while (opts.length > 0)
+        opts.remove 0
+    loop
+    dim len : len = -1
+    on error resume next : err.clear : len = ubound(ary)
+    if (len >= 0) then
+        dim i : for i = 0 to ubound(ary)
+            opts.add new_option(ary(i))
+        next
+    elseif (err) then
+        err.clear
+    end if
+end sub
