@@ -212,43 +212,37 @@ end sub
 ' valid short name, otherwise return short|long form.
 '
 function wit_filename(wildname)
-    ' look for characters that can be in long names, but not in short
-    dim tmp : tmp = wildname
-    const bad_short_chars = " +,;=[]"
-    dim bad_short_name : bad_short_name = len(wildname) > 12
-    if (not bad_short_name) then
-        dim i : for i = 1 to len(bad_short_chars)
-            if (instr(wildname, mid(bad_short_chars, i, 1))) then
-                dim bad : bad = instr(tmp, mid(bad_short_chars, i, 1))
-                do while (bad)
-                    tmp = left(tmp, bad-1) & "_" & mid(tmp, bad+1)
-                    bad = instr(tmp, mid(bad_short_chars, i, 1))
-                loop
-                bad_short_name = true
-            end if
-        next
+    ' split into basename and extension
+    dim short : short = wildname
+    dim ext : ext = ""
+    dim dot : dot = instrrev(short, ".")
+    if (dot) then
+        ext = mid(short, dot+1)
+        if (dot > 1) then
+            short = left(short, dot-1)
+        else
+            short = ""
+        end if
     end if
 
-    ' check some length constraints    
-    dim dot : dot = instrrev(wildname, ".")
-    if (dot > 9) or (dot and len(wildname)-dot > 3) or _
-            (dot = 0 and len(wildname) > 8) then
-        bad_short_name = true
-    end if
+    ' check some length constraints on the pieces
+    dim bad_short : bad_short = (len(short) > 8) or (len(ext) > 3)
     
-    ' need to produce short|long form
-    if (bad_short_name) then
-        dot = instrrev(tmp, ".")
-        if (dot) then
-            if (dot > 9) then
-                wit_filename = left(tmp, 8) & mid(tmp, dot, 4)
-            else
-                wit_filename = left(tmp, dot+3)
-            end if
-        else
-            wit_filename = left(tmp, 8)
+    ' replace characters that can be in long names, but not in short
+    const bad_short_chars = " +,;=[]."
+    dim i : for i = 1 to len(bad_short_chars)
+        dim suspect : suspect = mid(bad_short_chars, i, 1)
+        if (instr(short, suspect)) then
+            bad_short = true
+            short = replace(short, suspect, "_")
         end if
-        wit_filename = wit_filename & "|" & wildname
+    next
+
+    ' need to produce short|long form
+    if (bad_short) then
+        if (len(short) > 8) then short = left(short, 8)
+        if (len(ext) > 3) then ext = left(ext, 3)
+        wit_filename = short & "." & ext & "|" & wildname
     else
         wit_filename = wildname
     end if
