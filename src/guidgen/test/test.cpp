@@ -29,6 +29,7 @@
 
 #import "../guidgen.tlb" no_namespace named_guids raw_interfaces_only
 
+typedef std::basic_string<TCHAR> tstring;
 typedef std::basic_ostringstream<TCHAR> tostringstream;
 
 class HResult
@@ -89,7 +90,16 @@ int APIENTRY WinMain(HINSTANCE hInstance,
         CComBSTR guid;
         THR(generator->Generate(&guid));
         USES_CONVERSION;
-        ::OutputDebugString(W2T(guid));
+        ::OutputDebugString((_T("izfree.Guidgen: ") + tstring(W2T(guid)) +
+            _T("\n")).c_str());
+
+        CComPtr<IFileVersion> fv;
+        THR(fv.CoCreateInstance(L"izfree.FileVersion"));
+        CComBSTR version;
+        CComBSTR file(L"C:\\data\\Projects\\izfree\\ATLRegistration.html");
+        THR(fv->get_Version(file, &version));
+        ::OutputDebugString((_T("izfree.FileVersion: ") +
+            tstring(W2T(version)) + _T("\n")).c_str());
     }
     catch (const HResult &bang)
     {
