@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MSI
+namespace Pahvant.MSI
 {
     internal class MSIHandle : IDisposable
     {

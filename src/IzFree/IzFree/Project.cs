@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.IO;
-using MSI;
+using Pahvant.MSI;
 
 namespace IzFree
 {

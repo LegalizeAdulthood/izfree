@@ -3,6 +3,7 @@ using IzFree;
 using System;
 using IO = System.IO;
 using System.Collections;
+using MSI = Pahvant.MSI;
 
 namespace IzFree.Scan
 {
