@@ -32,11 +32,6 @@ function db()
     set db = g_main_frame.g_database
 end function
 
-function selected_option(id)
-    dim sel : set sel = document.all(id)
-    selected_option = sel.options(sel.selectedIndex).value
-end function
-
 function selected_table()
     selected_table = selected_option("table")
 end function
@@ -55,10 +50,10 @@ sub load_info(column_name)
     all("nullable").innerText = rec.stringdata(3)
     all("minValue").innerText = null_int(rec, 4)
     all("maxValue").innerText = null_int(rec, 5)
-    all("keyTable").innerText = null_str(rec, 6)
+    all("keyTable").innerText = replace(null_str(rec, 6), ";", "; ")
     all("keyColumn").innerText = null_str(rec, 7)
     all("category").innerText = null_str(rec, 8)
-    all("set").innerText = null_str(rec, 9)
+    all("set").innerText = replace(null_str(rec, 9), ";", "; ")
     all("description").innerText = null_str(rec, 10)
     view.close : check
     
@@ -90,13 +85,16 @@ sub load_columns(table_name)
     
     sort columns
     
-    column.innerHTML = ""
+    'column.innerHTML = ""
     dim opts : set opts = column.options
+    do while (opts.length > 0)
+        opts.remove 0
+    loop
     dim i : for i = 0 to ubound(columns)
         opts.add new_option(mid(columns(i), instr(columns(i), " ")+1))
     next
-    
     column.selectedIndex = 0
+    
     load_info opts(0).value
 end sub
 
@@ -164,14 +162,14 @@ end sub
 <TR><TD ALIGN="right"><STRONG>Key Table:</STRONG></TD><TD ID="keyTable"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Key Column:</STRONG></TD><TD ID="keyColumn"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Category:</STRONG></TD><TD ID="category"></TD></TR>
-<TR><TD ALIGN="right"><STRONG>Set:</STRONG></TD><TD ID="set"></TD></TR>
 </TABLE>
 </TD>
 </TR>
 </TBODY>
 </TABLE><BR>
-<STRONG>Description:</STRONG>&nbsp;<SPAN ID="description"></SPAN>
-</P>
+<STRONG>Set:</STRONG>&nbsp;<SPAN ID="set"></SPAN></P>
+
+<P><STRONG>Description:</STRONG>&nbsp;<SPAN ID="description"></SPAN></P>
 
 <P ID="debug"></P>
 </BODY>
