@@ -70,7 +70,8 @@ const fil_name = 1
 const fil_component = 2
 const fil_size = 3
 const fil_version = 4
-const fil_dims = 4
+const fil_shortname = 5
+const fil_dims = 5
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim num_dirs : dim dirs()
@@ -155,7 +156,12 @@ sub save_file_table(db)
         dim rec : set rec = installer().CreateRecord(6) : check
         rec.stringdata(1) = database_key(files(fil_name, i)) & "_f" & cstr(base + i)
         rec.stringdata(2) = components(cmp_name, files(fil_component, i))
-        rec.stringdata(3) = wit_filename(files(fil_name, i))
+        if (files(fil_shortname, i) <> "") then
+            rec.stringdata(3) = _
+                files(fil_shortname, i) & "|" & files(fil_name, i)
+        else
+            rec.stringdata(3) = files(fil_name, i)
+        end if
         rec.integerdata(4) = files(fil_size, i)
         rec.stringdata(5) = files(fil_version, i)
         if (rec.stringdata(5) <> "") then
@@ -288,9 +294,14 @@ sub enum_files(base, parent, dir)
     dim file : for each file in dir.files
         redim preserve files(fil_dims, num_files)
         files(fil_dir, num_files) = num_dirs
-        files(fil_name, num_files) = file.name
-        files(fil_size, num_files) = fso().GetFile(file.path).Size
+        files(fil_name, num_files) = file.Name
+        files(fil_size, num_files) = file.Size
         files(fil_version, num_files) = g_file_version.Version(file.Path)
+        if (file.ShortName <> file.Name) then
+            files(fil_shortname, num_files) = file.ShortName
+        else
+            files(fil_shortname, num_files) = ""
+        end if
         num_files = num_files + 1
     next
     set file = nothing
@@ -316,7 +327,11 @@ sub enum_files(base, parent, dir)
         loop
         dirs(dir_name, num_dirs) = name
         dirs(dir_parent, num_dirs) = parent
-        dirs(dir_default, num_dirs) = wit_filename(dir.name)
+        if (dir.ShortName <> dir.Name) then
+            dirs(dir_default, num_dirs) = dir.ShortName & "|" & dir.Name
+        else
+            dirs(dir_default, num_dirs) = dir.Name
+        end if
     end if
     num_dirs = num_dirs+1
 
