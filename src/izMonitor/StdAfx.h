@@ -116,7 +116,7 @@ struct source_error
 {
     source_error(LPCTSTR file, UINT line, LPCTSTR msg)
         : m_file(file), m_line(line), m_msg(msg) {}
-    LPCTSTR m_file;
+    tstring m_file;
     UINT m_line;
     tstring m_msg;
 };
