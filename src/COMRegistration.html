@@ -28,15 +28,23 @@ option explicit
 on error resume next
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_monitor -- izfree.Monitor object
+'
 dim g_monitor
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' GUID dictionaries used to construct legible primary keys for the
+' Registry table
+'
 dim g_app_ids, g_classes, g_interfaces, g_type_libs, g_categories, g_registry
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_main_frame -- globals frame
 dim g_main_frame : set g_main_frame = window.parent
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' db -- database accessor
+'
 function db()
     set db = g_main_frame.g_database
 end function
@@ -47,8 +55,10 @@ end function
 function count_key(dict, key)
     if (not dict.exists(key)) then
         dict.add key, dict.Count+1
+        count_key = dict.Count
+    else
+        count_key = dict(key)
     end if
-    count_key = dict(key)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -285,7 +295,7 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub save_service_install(table)
     on error resume next
-    dim view : set view = db().OpenView("insert into `ServiceInstall`" &_
+    dim view : set view = db().OpenView("INSERT INTO `ServiceInstall`" &_
         "(`ServiceInstall`,`Name`,`DisplayName`,`ServiceType`,`StartType`," &_
         "`ErrorControl`,`LoadOrderGroup`,`Dependencies`,`StartName`," &_
         "`Password`,`Arguments`,`Component_`,`Description`)" &_
@@ -313,7 +323,7 @@ end sub
 '
 ' The class table is a slightly different.  First go looking through the
 ' file table for a file 
-sub save_class(table)
+sub save_class(table, byval server)
     on error resume next
     dim view : set view = db().OpenView("INSERT INTO `Class`" &_
         "(`CLSID`,`Context`,`Component_`,`ProgId_Default`,`Description`," &_
@@ -326,24 +336,32 @@ sub save_class(table)
     next
     view.close : check
     
-    set view = exec_view(db(), "SELECT `File`,`FileName` FROM `File`")
+    set view = exec_view(db(), "SELECT `File`,`FileName` FROM `File`" &_
+        " WHERE `Component_` = '" & component & "'")
     set rec = view.fetch
     if (rec is nothing) then
-        msgbox("Expected to find a file under component " & component)
-    end if
-    dim key_path
-    do while (not rec is nothing)
-        if (right(rec.stringdata(2), len(component)) = component) then
-            key_path = rec.stringdata(1)
-            set rec = nothing
-        else
-            set rec = view.fetch
-        end if
-    loop
-    view.close : check
+        msgbox "I expected to find a file under component " & component &_
+            "." & vbCRLF & vbCRLF &_
+            "The component will need a key path set to pass validation.", _
+            vbOKOnly, "Warning: KeyPath for Component Not Set"
+    else            
+        ' find the file whose filename is the same as the server
+        dim key_path
+        dim whack : whack = instrrev(server, "\")
+        if (whack > 0) then server = mid(server, whack+1)
+        do while (not rec is nothing)
+            if (right(rec.stringdata(2), len(server)) = server) then
+                key_path = rec.stringdata(1)
+                set rec = nothing
+            else
+                set rec = view.fetch
+            end if
+        loop
+        view.close : check
         
-    set view = exec_view(db(), "UPDATE `Component` SET `KeyPath` = '" &_
-        key_path & "' WHERE `Component` = '" & component & "'")
+        set view = exec_view(db(), "UPDATE `Component` SET `KeyPath` = '" &_
+            key_path & "' WHERE `Component` = '" & component & "'")
+    end if
     view.close : check
 end sub
 
@@ -380,7 +398,7 @@ end sub
 '
 sub save_tables(mon)
     if (mon.AppIdTable.Count > 0) then save_app_id mon.AppIdTable
-    if (mon.ClassTable.Count > 0) then save_class mon.ClassTable
+    if (mon.ClassTable.Count > 0) then save_class mon.ClassTable, mon.File
     if (mon.ProgIdTable.Count > 0) then save_prog_id mon.ProgIdTable
     if (mon.TypeLibTable.Count > 0) then save_type_lib mon.TypeLibTable
     if (mon.RegistryTable.Count > 0) then save_registry mon.RegistryTable
@@ -407,6 +425,104 @@ sub accum_msg(table, name, byref msg)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub write_tool_input(name)
+    write_input "COMRegistration", document.forms("Register").all, name
+end sub
+sub read_tool_input(name, fallback)
+    read_input "COMRegistration", document.forms("Register").all, name, _
+        fallback
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' load_column -- load a <SELECT> object from a column of a database table
+'
+sub load_column(opts, table, column)
+    on error resume next
+    if db() is nothing then exit sub
+    dim view : set view = exec_view(db(), "SELECT `" & column &_
+         "` FROM `" & table & "`")
+    dim rec : set rec = view.fetch
+    dim vals()
+    do while (not rec is nothing)
+        push vals, rec.stringdata(1)
+        set rec = view.fetch
+    loop
+    view.close : check
+    sort vals
+    load_opts opts, vals
+    opts.value = vals(0)
+end sub
+
+sub keys_update
+    dim sel : set sel = document.all("keys")
+    if (sel.options.length = 0) or (sel.selectedIndex < 0) then
+        document.all("deleteKey").disabled = true
+        document.all("moveUp").disabled = true
+        document.all("moveDown").disabled = true
+    else
+        document.all("deleteKey").disabled = false
+        document.all("moveUp").disabled = (sel.selectedIndex = 0)
+        document.all("moveDown").disabled = _
+            (sel.selectedIndex = sel.options.length-1)
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub addKey_onClick
+    dim key : key = InputBox("Enter a registry key name:", _
+        "Add a Registry Key", "")
+    if (key <> "") then
+        document.all("keys").options.add new_option(key)
+    end if
+    keys_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub deleteKey_onClick
+    dim sel : set sel = document.all("keys")
+    dim idx : idx = sel.selectedIndex
+    sel.remove idx
+    if (idx = sel.options.length) then idx = idx-1
+    sel.selectedIndex = idx
+    keys_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub moveUp_onClick
+    dim sel : set sel = document.all("keys")
+    dim idx : idx = sel.selectedIndex
+    dim val : set val = sel(idx)
+    sel.remove idx
+    sel.add val, idx-1
+    sel.selectedIndex = idx-1
+    keys_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub moveDown_onClick
+    dim sel : set sel = document.all("keys")
+    dim idx : idx = sel.selectedIndex
+    dim val : set val = sel(idx)
+    sel.remove idx
+    sel.add val, idx+1
+    sel.selectedIndex = idx+1
+    keys_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub keys_onChange
+    dim sel : set sel = document.all("keys")
+    if (sel.selectedIndex >= 0) then
+        keys_update
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' extract_onClick
 '
 ' Extract the COM registration information from the named file by using
@@ -418,12 +534,20 @@ sub extract_onClick
     dim svc : svc = document.all("service").checked
     dim component : component = document.all("components").value
     dim feature : feature = document.all("features").value
+    
+    g_monitor.ClearKeys
+    dim key : for each key in document.all("keys").options
+        g_monitor.WatchKey key.value
+    next
+    
     on error resume next
     Err.Clear
     g_monitor.Process file, svc, component, feature
     if (Err) then
         MsgBox "Description: " & Err.description & vbCRLF &_
-            "Source: " & Err.Source, vbOKOnly, "Error While Registering Server:"
+            "Source: " & Err.Source & vbCRLF & vbCRLF &_
+            "No action has been taken on the open database.", vbOKOnly, _
+            "Error While Registering Server:"
         Err.Clear
         exit sub
     end if
@@ -447,6 +571,8 @@ sub extract_onClick
     accum_msg g_monitor.ServiceControlTable, "ServiceControl", msg
     accum_msg g_monitor.ServiceInstallTable, "ServiceInstall", msg
     if (msg <> "") then
+        dim whack : whack = instrrev(file, "\")
+        if (whack > 0) then file = mid(file, whack+1)
         if (svc) then
             dbgout "Service '" & file & "' yielded " & msg & "."
         else
@@ -456,51 +582,21 @@ sub extract_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub write_tool_input(name)
-    write_input "COMRegistration", document.forms("Register").all, name
-end sub
-sub read_tool_input(name, fallback)
-    read_input "COMRegistration", document.forms("Register").all, name, _
-        fallback
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' load_column -- load a <SELECT> object from a column of a database table
-'
-sub load_column(opts, table, column)
-    on error resume next
-    dim view : set view = exec_view(db(), "select `" & column &_
-         "` from `" & table & "`")
-    dim rec : set rec = view.fetch
-    dim vals()
-    do while (not rec is nothing)
-        push vals, rec.stringdata(1)
-        set rec = view.fetch
-    loop
-    view.close : check
-    sort vals
-    load_opts opts, vals
-    opts.value = vals(0)
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
     set g_monitor = check_object("izfree.Monitor")
     
-    dim keys : keys = array("HKEY_CLASSES_ROOT\AppID", _
+    read_tool_input "server", ""
+    read_tool_input "service", 0
+    
+    load_opts document.all("keys"), array("HKEY_CLASSES_ROOT\AppID", _
         "HKEY_CLASSES_ROOT\CLSID", "HKEY_CLASSES_ROOT\TypeLib", _
         "HKEY_CLASSES_ROOT\Component Categories", "HKEY_CLASSES_ROOT", _
         "HKEY_CURRENT_USER\Software", "HKEY_CURRENT_USER", _
         "HKEY_LOCAL_MACHINE\Software", "HKEY_LOCAL_MACHINE", "HKEY_USERS")
-    dim key : for each key in keys
-        document.all("keys").options.add new_option(key)
-        g_monitor.WatchKey key
-    next
-    read_tool_input "server", ""
-    read_tool_input "service", 0
-    
     load_column document.all("components"), "Component", "Component"
     load_column document.all("features"), "Feature", "Feature"
+
+    keys_update
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -509,6 +605,9 @@ sub window_onUnload
     write_tool_input "service"
     set g_monitor = nothing
 end sub
+
+sub browseServer_onClick
+end sub
 --></SCRIPT>
 </HEAD>
 <BODY>
@@ -516,7 +615,8 @@ end sub
 <TABLE WIDTH=100%>
     <TR>
         <TD ALIGN="right"><STRONG>Path to COM server:</STRONG></TD>
-        <TD><INPUT ID="server" TYPE="text" SIZE=50 VALUE=""></TD>
+        <TD><INPUT ID="server" TYPE="text" SIZE=50 VALUE="">
+        <INPUT ID="browseServer" TYPE="button" VALUE="..."></TD>
     </TR>
     <TR>
         <TD ALIGN="right"><STRONG>Service EXE</STRONG></TD>
@@ -530,10 +630,15 @@ end sub
         <TD><SELECT ID="features"></SELECT></TD>
     </TR>
     <TR>
-        <TD ALIGN="right" VALIGN="top"><STRONG>Monitored Registry keys:</STRONG></TD>
+        <TD ALIGN="right" VALIGN="top">
+            <P><STRONG>Monitored Registry keys:</STRONG></P>
+            <P><INPUT ID="addKey" TYPE="button" VALUE="Add..."><BR>
+            <INPUT ID="deleteKey" TYPE="button" VALUE="Delete" DISABLED><BR>
+            <INPUT ID="moveUp" TYPE="button" VALUE="Move Up" DISABLED><BR>
+            <INPUT ID="moveDown" TYPE="button" VALUE="Move Down" DISABLED></P>
+        </TD>
         <TD>
-            <SELECT ID="keys" STYLE="width: 100%" SIZE=12></SELECT><BR>
-            <INPUT ID="addKey" TYPE="button" VALUE="Add...">
+            <SELECT ID="keys" STYLE="width: 100%" SIZE=12></SELECT>
         </TD>
     </TR>
 <TR><TD COLSPAN=2><INPUT ID="extract" TYPE="button" VALUE="Go"></TD></TR>
