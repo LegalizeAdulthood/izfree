@@ -573,7 +573,8 @@ check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context)
     if (ERROR_SUCCESS != result)
     {
         tostringstream buff;
-        buff << file << _T("(") << line << _T("): ") << context << _T("\n");
+        buff << file << _T("(") << line << _T("): ") << result << _T(" = ")
+            << context << _T("\n");
         TCHAR msg[1024] = { 0 };
         const DWORD count = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
             NULL, result, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -583,7 +584,7 @@ check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context)
             buff << _T("   '") << msg << _T("\n");
         }
         ::ODS(buff);
-        throw win32_error(result, file, line, context);
+        throw win32_error(result, file, line, buff.str().c_str());
     }
     return result;
 }
@@ -599,17 +600,19 @@ check_hr(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR context)
     if (FAILED(hr))
     {
         tostringstream buff;
-        buff << file << _T("(") << line << _T("): ") << context << _T("\n");
+        buff << file << _T("(") << line << _T("): 0x") << std::hex
+            << std::setfill(_T('0')) << std::setw(8) << hr << _T(" = ")
+            << context << _T("\n");
         TCHAR msg[1024] = { 0 };
         const DWORD count = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
             NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
             &msg[0], NUM_OF(msg), NULL);
         if (count)
         {
-            buff << _T("   '") << msg << _T("\n");
+            buff << _T("   '") << msg << _T("'\n");
         }
         ::ODS(buff);
-        throw hresult_error(hr, file, line, context);
+        throw hresult_error(hr, file, line, buff.str().c_str());
     }
     return hr;
 }
@@ -1764,7 +1767,7 @@ s_monitor_key::extract_type_lib_entry(const registry_key &subkey,
 //
 // C'tor reserves space and creates an event for notification.
 //
-reg_monitor::reg_monitor(LPCTSTR file, bool servicep)
+reg_monitor::reg_monitor(const tstring &file, bool servicep)
     : m_file(file),
     m_servicep(servicep),
     m_keys(),
@@ -1957,19 +1960,119 @@ reg_monitor::dump_tables()
 }
 
 ///////////////////////////////////////////////////////////////////////////
+// usage -- report command line usage in a message box
+//
+int
+usage()
+{
+    ::MessageBox(0, _T("Usage: extract.exe [options] SERVER\n\n")
+        _T("Extracts COM registration information from the file SERVER.\n\n")
+        _T("[options] include:\n\n")
+        _T("/service  - SERVER is a Windows NT service\n"),
+        _T("Usage:"), MB_OK);
+    return 1;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// parse_args -- parse a command line into an argument list
+//
+string_list_t
+parse_args(LPCTSTR command_line)
+{
+    string_list_t args;
+    const tstring cmd_line = command_line;
+
+    tstring::size_type start = 0;
+    tstring::size_type stop = 0;
+    while (stop != tstring::npos)
+    {
+        if (cmd_line[start] == _T('"'))
+        {
+            start = 1;
+            stop = cmd_line.find(_T("\""), start);
+            if (tstring::npos == stop)
+            {
+                usage();
+                return string_list_t();
+            }
+        }
+        else
+        {
+            stop = cmd_line.find(_T(" "), start);
+        }
+        if (stop == tstring::npos)
+        {
+            args.push_back(cmd_line.substr(start));
+        }
+        else
+        {
+            args.push_back(cmd_line.substr(start, stop-start));
+        }
+        start = stop+1;
+    }
+
+    return args;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// log_error -- log an unexpected error that we handled.
+//
+void
+log_error(const source_error &bang)
+{
+    ::MessageBox(0, bang.m_msg.c_str(), _T("Unexpected internal failure:"),
+                 MB_OK);
+#if 0
+    ofstream log_file(temp_file(), ios::out | ios::append);
+    USES_CONVERSION;
+    log_file << timestamp() << " Unexpected internal failure:\n"
+        << T2A(bang.m_file) << "(" << bang.m_line << "): "
+        << T2A(bang.m_msg) << "\n";
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////
+// log_unexpected -- log an unexpected fatal error
+//
+void
+log_unexpected()
+{
+    ::MessageBox(0, _T("My brains have been removed with an ice-cream scoop.\n")
+        _T("I am dead."), _T("Unexpected fatal failure."), MB_OK);
+#if 0
+    ofstream log_file(temp_file(), ios::out | ios::append);
+    USES_CONVERSION;
+    log_file << timestamp() << " Unexpected fatal failure:\n"
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////
 // WinMain -- test the whole thing with a stub service EXE COM server
 //
 int APIENTRY
-WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
+_tWinMain(HINSTANCE, HINSTANCE, LPTSTR command_line, int)
 {
-    bool servicep = true;
-    LPCTSTR extract_file = 
-        _T("C:\\tmp\\service\\Debug\\service.exe");
+    string_list_t args = parse_args(command_line);
+    bool servicep = false;
+    string_list_t::iterator i;
+    for (i = args.begin(); i != args.end(); ++i)
+    {
+        if (cis_equal(_T("/service"), *i) ||
+            cis_equal(_T("-service"), *i))
+        {
+            args.erase(i);
+            servicep = true;
+        }
+    }
+    if (args.size() != 1)
+    {
+        return usage();
+    }
 
     try
     {
         com_runtime com;
-        reg_monitor monitor(extract_file, servicep);
+        reg_monitor monitor(args[0], servicep);
         monitor.add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("AppID"))
             .add(HKEY_CLASSES_ROOT, _T("HKCR"), _T("CLSID"))
             // This isn't needed as the interfaces are registered
@@ -1984,10 +2087,15 @@ WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
             .add(HKEY_USERS, _T("HKEY_USERS"));
         monitor.process();
     }
+    catch (const source_error &bang)
+    {
+        log_error(bang);
+        return 2;
+    }
     catch (...)
     {
-        ATLASSERT(false);
-        return -1;
+        log_unexpected();
+        return 3;
     }
 
     return 0;

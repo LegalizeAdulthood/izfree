@@ -95,7 +95,7 @@ struct source_error
         : m_file(file), m_line(line), m_msg(msg) {}
     LPCTSTR m_file;
     UINT m_line;
-    LPCTSTR m_msg;
+    tstring m_msg;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -141,15 +141,16 @@ check_win32(T result, LPCTSTR file, UINT line, LPCTSTR context)
 {
     if (!result)
     {
-        tostringstream buff;
-        buff << file << _T("(") << line << _T("): ") << context << _T("\n");
         const DWORD last = ::GetLastError();
+        tostringstream buff;
+        buff << file << _T("(") << line << _T("): ")
+            << *reinterpret_cast<DWORD *>(&result) << _T(" = ")
+            << context << _T("; GetLastError() = ") << last << _T("\n");
         if (last)
         {
             TCHAR msg[1024] = { 0 };
             const DWORD count = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
-                NULL, ::GetLastError(),
-                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                NULL, last, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 &msg[0], NUM_OF(msg), NULL);
             if (count)
             {
@@ -157,7 +158,7 @@ check_win32(T result, LPCTSTR file, UINT line, LPCTSTR context)
             }
         }
         ::ODS(buff);
-        throw win32_error((DWORD) result, file, line, context);
+        throw win32_error((DWORD) result, file, line, buff.str().c_str());
     }
     return result;
 }
@@ -175,14 +176,16 @@ check_cruntime(T result, LPCTSTR file, UINT line, LPCTSTR context)
     if (-1 == result)
     {
         tostringstream buff;
-        buff << file << _T("(") << line << _T("): ") << context << _T("\n");
+        buff << file << _T("(") << line << _T("): ")
+            << *reinterpret_cast<DWORD *>(&result) << _T(" = ") << context
+            << _T("; errno = ") << errno << _T("\n");
         if (errno && (errno <= _sys_nerr))
         {
             USES_CONVERSION;
             buff << _T("   '") << A2T(strerror(errno)) << _T("\n");
         }
         ::ODS(buff);
-        throw crt_error(result, file, line, context);
+        throw crt_error(result, file, line, buff.str().c_str());
     }
     return result;
 }
@@ -344,7 +347,7 @@ typedef std::vector<tstring> string_list_t;
 class reg_monitor
 {
 public:
-    reg_monitor(LPCTSTR file, bool servicep);
+    reg_monitor(const tstring &file, bool servicep);
     ~reg_monitor() {}
 
     reg_monitor &add(HKEY key, LPCTSTR name, LPCTSTR subkey = NULL);
