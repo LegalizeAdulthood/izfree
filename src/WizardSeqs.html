@@ -65,10 +65,16 @@ sub load_wizards(list, db)
     sort ui_dialogs
     
     ' build selection list
-    list.innerHTML = ""
-    dim i : for i = 0 to ubound(ui_dialogs)
-        list.options.add new_option(ui_dialogs(i))
+    load_opts list.options, ui_dialogs
+    
+    dim all_dlgs() : redim all_dlgs(dlgs.count-1)
+    dim i : i = 0
+    for each dlg in dlgs.keys
+        all_dlgs(i) = dlg
+        i = i + 1
     next
+    sort all_dlgs
+    load_opts document.all("dialogs").options, all_dlgs
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -256,11 +262,19 @@ sub clone_onClick
     end if
 end sub
 
+sub preview_dialog(dlg)
+    if (g_current_dialog <> "") and (g_current_dialog <> dlg) then
+        g_current_dialog = dlg
+        g_preview.viewDialog g_current_dialog
+    end if
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub dialogs_onChange
     dim sel : set sel = document.all("dialogs")
+    dim dlg : dlg = sel.options(sel.selectedIndex).value
+    preview_dialog dlg
     if (sel.selectedIndex >= 0) then
-        dim dlg : dlg = sel.options(sel.selectedIndex).value
 
         dim vu : set vu = db().OpenView("select `Control_`,`Argument` " &_
             "from `ControlEvent` where `Event` = 'NewDialog' " &_
@@ -268,14 +282,14 @@ sub dialogs_onChange
         vu.execute : check
         dim rec : set rec = vu.fetch
 
-        dim seq : set seq = document.all("sequence")
-        seq.innerHTML = ""
+        dim evts()
         do while (not rec is nothing)
-            dim t : t = rec.stringdata(1) & " -> " & rec.stringdata(2)
-            seq.options.add new_option(t)
+            push evts, rec.stringdata(1) & " -> " & rec.stringdata(2)
             set rec = vu.fetch
         loop
         vu.close : check
+
+        load_opts document.all("sequence").options, evts
     end if
 
     update_dialog_tool
@@ -296,7 +310,7 @@ sub preview_onClick
     dim selected : selected = list.selectedIndex
     if (selected <> -1) then
         g_current_dialog = list.options(selected).value
-        g_preview.viewdialog(g_current_dialog)
+        g_preview.viewDialog g_current_dialog
     end if
     update_dialog_tool
 end sub
@@ -306,10 +320,10 @@ sub sequence_onChange
     dim seq : set seq = document.all("sequence")
     if (seq.selectedIndex >= 0) then
         dim dlg : dlg = selected_option(document.all("dialogs"))
-        dim control : control = split(selected_option(seq), " ")(0)
+        dim evt : evt = split(selected_option(seq), " ")
         dim view : set view = exec_view(db(), "select `Condition`,`Ordering`" &_
             " from `ControlEvent` where `Dialog_` = '" & dlg &_
-            "' and `Control_` = '" & control & "' order by `Ordering`")
+            "' and `Control_` = '" & evt(0) & "' and `Argument` = '" & evt(2) & "'")
         dim rec : set rec = view.fetch
         if (rec is nothing) then
             MsgBox "Unexpected empty record for query."
@@ -326,7 +340,8 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub sequence_onDblClick
     dim dlg : dlg = split(selected_option(document.all("sequence")), " ")(2)
-    select_option document.all("dialogs"), dlg
+    document.all("dialogs").value = dlg
+    dialogs_onChange
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -339,7 +354,7 @@ sub window_onLoad
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub window_onUnload
+sub window_onBeforeUnload
     if (not g_preview is nothing) then
         g_preview.viewdialog("")
         set g_preview = nothing
@@ -347,16 +362,13 @@ sub window_onUnload
 end sub
 
 sub actions_onChange
+    document.all("dialogs").value = document.all("actions").value
+    dialogs_onChange
 end sub
 -->
 </SCRIPT>
 </HEAD>
 <BODY>
-
-<P><TABLE WIDTH=100%>
-<TR><TD ALIGN="left"><H3>Dialog Tools</H3></TD>
-<TD ALIGN="right" VALIGN="top"><SPAN ID="help" CLASS="anchor">Help?</SPAN></TD></TR>
-</TABLE></P>
 
 <P><FORM NAME="Wizards">
 <TABLE>
@@ -370,8 +382,9 @@ end sub
 <TR><TD>
 <TABLE>
 <TR>
-<TD><SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT><BR><SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=15></SELECT></TD>
-<TD VALIGN="top"><SELECT ID="sequence" CLASS="listBox" SIZE=16></SELECT></TD>
+<TD><SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT><BR>
+<SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=12></SELECT><BR>
+<SELECT ID="sequence" CLASS="listBox" SIZE=6></SELECT></TD>
 <TD VALIGN="top"><TABLE>
 <TR><TD ALIGN="right"><STRONG>Ordering:</STRONG></TD><TD ID="ordering"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Condition:</STRONG></TD><TD ID="condition"></TD></TR>
