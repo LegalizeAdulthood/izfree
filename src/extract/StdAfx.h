@@ -60,6 +60,8 @@ typedef std::basic_ostringstream<TCHAR> tostringstream;
 //
 struct thread_args;
 
+class registry_key;
+
 ///////////////////////////////////////////////////////////////////////////
 // ODS -- ::OutputDebugString shortcut for tstrings
 //
@@ -284,18 +286,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////
-// e_com_table -- enumerant for table in which to put registry differences
-//
-enum e_com_table
-{
-    CT_APPID    = 0x01,
-    CT_CLASS    = 0x02,
-    CT_TYPELIB  = 0x04,
-    CT_PROGID   = 0x08,
-    CT_REGISTRY = 0x10
-};
-
-///////////////////////////////////////////////////////////////////////////
 // s_monitor_key -- structure to monitor a registry key's differences
 //
 struct s_monitor_key
@@ -319,7 +309,15 @@ struct s_monitor_key
     ~s_monitor_key() {}
 
     void snapshot();
-    void diff(e_com_table table) const;
+    void extract_app_id(const tstring &component) const;
+    void extract_app_id_entry(const registry_key &subkey,
+                              const tstring &component) const;
+    void extract_class(const tstring &component) const;
+    void extract_clsid_entry(const registry_key &subkey,
+                             const tstring &component) const;
+    void extract_prog_id(const tstring &component) const;
+    void extract_registry(const tstring &component) const;
+    void extract_typelib(const tstring &component) const;
 
     HKEY m_key;
     tstring m_name;
