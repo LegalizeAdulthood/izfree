@@ -155,5 +155,15 @@ SOURCE=.\izfree.css
 # PROP Deployment_Mode 1
 # End Source File
 # End Group
+# Begin Group "Miscellaneous"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\license.txt
+# PROP BASE Deployment_Mode 1
+# PROP Deployment_Mode 1
+# End Source File
+# End Group
 # End Target
 # End Project
