@@ -1,0 +1,26 @@
+HKCR
+{
+	izfree.FileVersion.1 = s 'FileVersion Class'
+	{
+		CLSID = s '{0098849C-76BB-423F-B54E-AF34B5849098}'
+	}
+	izfree.FileVersion = s 'FileVersion Class'
+	{
+		CLSID = s '{0098849C-76BB-423F-B54E-AF34B5849098}'
+		CurVer = s 'izfree.FileVersion.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {0098849C-76BB-423F-B54E-AF34B5849098} = s 'FileVersion Class'
+		{
+			ProgID = s 'izfree.FileVersion.1'
+			VersionIndependentProgID = s 'izfree.FileVersion'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}'
+		}
+	}
+}

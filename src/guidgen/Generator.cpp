@@ -29,7 +29,8 @@ STDMETHODIMP CGenerator::Generate(BSTR *guid)
 {
     if (!guid)
     {
-        return E_POINTER;
+        return Error(_T("A NULL pointer was passed for an output argument."),
+                     IID_IGenerator, E_POINTER);
     }
 
     GUID g = { 0 };

@@ -29,12 +29,14 @@
 
 #include "guidgen_i.c"
 #include "Generator.h"
+#include "FileVersion.h"
 
 
 CComModule _Module;
 
 BEGIN_OBJECT_MAP(ObjectMap)
 OBJECT_ENTRY(CLSID_Generator, CGenerator)
+OBJECT_ENTRY(CLSID_FileVersion, CFileVersion)
 END_OBJECT_MAP()
 
 /////////////////////////////////////////////////////////////////////////////

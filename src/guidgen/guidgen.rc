@@ -96,6 +96,7 @@ END
 //
 
 IDR_GENERATOR           REGISTRY DISCARDABLE    "Generator.rgs"
+IDR_FILEVERSION         REGISTRY DISCARDABLE    "FileVersion.rgs"
 
 /////////////////////////////////////////////////////////////////////////////
 //

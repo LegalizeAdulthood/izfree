@@ -35,6 +35,17 @@ interface IGenerator : IDispatch
 	[id(1), helpstring("method Generate")]
     HRESULT Generate([out, retval] BSTR *guid);
 };
+	[
+		object,
+		uuid(D242E8F4-F93F-408D-B0CB-0AF9F9851E5F),
+		dual,
+		helpstring("IFileVersion Interface"),
+		pointer_default(unique)
+	]
+	interface IFileVersion : IDispatch
+	{
+		[propget, id(1), helpstring("property Version")] HRESULT Version([in] BSTR file, [out, retval] BSTR *pVal);
+	};
 
 [
 	uuid(699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC),
@@ -53,5 +64,13 @@ library GUIDGENLib
 	coclass Generator
 	{
 		[default] interface IGenerator;
+	};
+	[
+		uuid(0098849C-76BB-423F-B54E-AF34B5849098),
+		helpstring("FileVersion Class")
+	]
+	coclass FileVersion
+	{
+		[default] interface IFileVersion;
 	};
 };
