@@ -2,7 +2,7 @@
 <HEAD>
 <!--
     izfree Tools for Windows Installer 1.1
-    Copyright (C) 2001 Pahvant Technologies, Inc.
+    Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -104,7 +104,6 @@ sub update_db_buttons
     set_tool_class "NewComponents", tool_class
     set_tool_class "PreviewDialogs", tool_class
     set_tool_class "ValidateTable", tool_class
-    set_tool_class "WizardSeqs", tool_class
     'all("ATLRegistration").className = tool_class
     'all("COMRegistration").className = tool_class
     'all("MergeModule").className = tool_class
@@ -171,8 +170,6 @@ sub ATLCOM_onClick          : change_tool : end sub
 sub MergeModule_onClick     : change_tool : end sub
 sub EditDialog_onClick      : change_tool : end sub
 sub ValidateTable_onClick   : change_tool : end sub
-sub WizardSeqs_onClick      : change_tool : end sub
-sub Policies_onClick        : change_tool : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' window_onLoad
@@ -263,8 +260,6 @@ Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
 <!-- A dialog editor is in development. -->
 <P CLASS="invisible"><SPAN ID="EditDialog" CLASS="anchor">Edit Dialog</SPAN></P>
 <P><SPAN ID="ValidateTable" CLASS="invisible">Table Validation</SPAN></P>
-<P><SPAN ID="WizardSeqs" CLASS="invisible">Wizard Dialog Sequences</SPAN></P>
-<P><SPAN ID="Policies" CLASS="anchor">Policy Settings</SPAN></P>
 <HR>
 <P><INPUT TYPE="button" ID="quit" VALUE="Quit" NAME="quit"></P>
 <HR>

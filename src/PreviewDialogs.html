@@ -2,7 +2,7 @@
 <HEAD>
 <!--
     izfree Tools for Windows Installer 1.1
-    Copyright (C) 2001 Pahvant Technologies, Inc.
+    Copyright (C) 2001-2002 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 <TITLE>Dialog Tools</TITLE>
 <LINK REL="stylesheet" HREF="izfree.css">
 <SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
-<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript">
+<!--
 option explicit
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -32,34 +33,53 @@ dim g_current_dialog : g_current_dialog = ""
 dim g_main_frame : set g_main_frame = window.parent
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' db
-'
 function db
     set db = g_main_frame.g_database
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' load_dialogs
-'
-sub load_dialogs(list, db)
-    on error resume next
-    dim view : set view = exec_view(db, "select `Dialog` from `Dialog`")
+function dialog_dic(db)
+    set dialog_dic = db_dic(db, "Dialog", "Dialog")
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub load_wizards(list, db)
+    ' get dialogs from database
+    dim dlgs : set dlgs = dialog_dic(db)
+
+    ' load all wizard starting points from the UI sequence table
+    dim view : set view = exec_view(db, "select `Action` from " &_
+        "`InstallUISequence` where `Sequence` >= 0 order by `Sequence`")
     dim rec : set rec = view.fetch
-    dim dialogs()
-    do while not (rec is nothing)
-        push dialogs, rec.stringdata(1)
+    dim ui_dialogs()
+    do while (not rec is nothing)
+        dim dlg : dlg = rec.stringdata(1)
+        if dlgs.exists(dlg) then
+            push ui_dialogs, dlg
+        end if
         set rec = view.fetch
     loop
     view.close : check
     set view = nothing
 
-    sort dialogs    
-    load_opts list.options, dialogs
+    sort ui_dialogs
+    
+    ' build selection list
+    load_opts list.options, ui_dialogs
+    
+    dim all_dlgs() : redim all_dlgs(dlgs.count-1)
+    dim i : i = 0
+    for each dlg in dlgs.keys
+        all_dlgs(i) = dlg
+        i = i + 1
+    next
+    sort all_dlgs
+    load_opts document.all("dialogs").options, all_dlgs
+    document.all("dialogs").value = list.value
+    dialogs_onChange
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' clone_dialog_rows
-'
 sub clone_dialog_rows(table, dest_query, parent, clone, column)
     on error resume next
     dim src_query : src_query = "SELECT * FROM `" & table & "` WHERE `" &_
@@ -78,7 +98,7 @@ sub clone_dialog_rows(table, dest_query, parent, clone, column)
     
     dest_query = "INSERT INTO `" & table & "`" & dest_query
     dim dest_view : set dest_view = db().OpenView(dest_query) : check
-    dim i : for i = 0 to ubound(records)
+    dim i : for i = 0 to num_records-1
         dest_view.execute records(i) : check
     next
     dest_view.close
@@ -141,102 +161,23 @@ end sub
 ' Update form UI state based on current values
 '
 sub update_dialog_buttons
-    dim all : set all = document.forms("DialogTool").all
-    dim disabled : disabled = (db() is nothing) or _
-        (g_preview is nothing) or (all("dialogs").selectedIndex = -1)
-    all("preview").disabled = disabled
-    all("clone").disabled = disabled
-    all("clear").disabled = disabled or (g_current_dialog = "")
-end sub
-
-sub dialogs_onChange : update_dialog_buttons : end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' preview_onClick
-'
-' Preview the dialog selected in the listbox.
-'
-sub preview_onClick
-    dim list : set list = document.forms("DialogTool").all("Dialogs")
-    dim selected : selected = list.selectedIndex
-    if (selected <> -1) then
-        g_current_dialog = list.options(selected).value
-        g_preview.viewdialog(g_current_dialog)
-    end if
-    update_dialog_buttons
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' clear_onClick
-'
-' Clear any previewed dialog.
-'
-sub clear_onClick
-    g_current_dialog = ""
-    g_preview.viewdialog(g_current_dialog)
-    update_dialog_buttons
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' clone_onClick
-'
-sub clone_onClick
-    on error resume next
-    dim list : set list = document.forms("DialogTool").all("Dialogs")
-    if (list.selectedIndex <> -1) then
-        on_clear_preview
-        dim parent_dlg : parent_dlg = list.options(list.selectedindex).value
-        dim num : num = 0
-        do while (num < len(parent_dlg)) and _
-                (instr("0123456789", mid(parent_dlg, len(parent_dlg)-num, 1)))
-            num = num+1
-        loop
-        dim clone
-        if (num > 0) then
-            clone = left(parent_dlg, num)
-            num = cint(mid(tmp, num))
-        else
-            clone = parent_dlg
-        end if
-        num = num + 1
-        clone = InputBox("Clone " & parent_dlg & " to dialog named:", _
-            "Clone Dialog", clone & num)
-        if (clone <> "") then
-            clone_dialog_table parent_dlg, clone
-            clone_control_table parent_dlg, clone
-            clone_control_condition_table parent_dlg, clone
-            clone_control_event_table parent_dlg, clone
-            clone_event_mapping_table parent_dlg, clone
-            db_modified
-            load_dialogs list, db()
-        end if
-    end if
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' edit_onClick
-'
-sub edit_onClick
-    on error resume next
-    dim list : set list = document.forms("DialogTool").all("Dialogs")
-    if (list.selectedIndex <> -1) then
-		edit_dialog list.options(list.selectedIndex).value, db()
-    end if
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub help_onClick
-    show_help "PreviewDialogs"
+    with document.forms("Wizards")
+        dim disabled : disabled = (db() is nothing) or _
+            (g_preview is nothing) or (.all("dialogs").selectedIndex = -1)
+        .all("preview").disabled = disabled
+        .all("clone").disabled = disabled
+        .all("clear").disabled = disabled or (g_current_dialog = "")
+    end with
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub write_tool_input(name)
-    write_input "PreviewDialogs", document.forms("DialogTool").all, name
+    write_input "PreviewDialogs", document.forms("Wizards").all, name
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub read_tool_input(name, fallback)
-    read_input "PreviewDialogs", document.forms("DialogTool").all, name, _
+    read_input "PreviewDialogs", document.forms("Wizards").all, name, _
         fallback
 end sub
 
@@ -265,6 +206,148 @@ function get_ui_action(db, seq)
     get_ui_action = dlg_name
 end function
 
+sub select_option(sel, item)
+    dim i : for i = 0 to sel.options.length-1
+        if (sel.options(i).value = item) then
+            sel.selectedIndex = i
+            exit sub
+        end if
+    next
+end sub
+-->
+</SCRIPT>
+<SCRIPT ID=clientEventHandlersVBS LANGUAGE=vbscript>
+<!--
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clear_onClick
+'
+' Clear any previewed dialog.
+'
+sub clear_onClick
+    g_current_dialog = ""
+    g_preview.viewdialog(g_current_dialog)
+    update_dialog_buttons
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_onClick
+'
+sub clone_onClick
+    on error resume next
+    dim list : set list = document.forms("Wizards").all("dialogs")
+    if (list.selectedIndex <> -1) then
+        on_clear_preview
+        dim parent_dlg : parent_dlg = list.options(list.selectedindex).value
+        dim num : num = 0
+        do while (num < len(parent_dlg)) and _
+                (instr("0123456789", mid(parent_dlg, len(parent_dlg)-num, 1)))
+            num = num+1
+        loop
+        dim clone
+        if (num > 0) then
+            clone = left(parent_dlg, num)
+            num = cint(mid(tmp, num))
+        else
+            clone = parent_dlg
+        end if
+        num = num + 1
+        clone = InputBox("Clone " & parent_dlg & " to child named:", _
+            "Clone Dialog", clone & num)
+        if (clone <> "") then
+            clone_dialog_table parent_dlg, clone
+            clone_control_table parent_dlg, clone
+            clone_control_condition_table parent_dlg, clone
+            clone_control_event_table parent_dlg, clone
+            clone_event_mapping_table parent_dlg, clone
+            db_modified
+            load_dialogs list, db()
+        end if
+    end if
+end sub
+
+sub preview_dialog(dlg)
+    if (g_current_dialog <> "") and (g_current_dialog <> dlg) then
+        g_current_dialog = dlg
+        g_preview.viewDialog g_current_dialog
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub dialogs_onChange
+    dim sel : set sel = document.all("dialogs")
+    dim dlg : dlg = sel.value
+    if (sel.selectedIndex >= 0) then
+        dim vu : set vu = db().OpenView("select `Control_`,`Argument` " &_
+            "from `ControlEvent` where `Event` = 'NewDialog' " &_
+            "and `Dialog_` = '" & dlg & "'")
+        vu.execute : check
+        dim rec : set rec = vu.fetch
+
+        dim evts()
+        do while (not rec is nothing)
+            push evts, rec.stringdata(1) & " -> " & rec.stringdata(2)
+            set rec = vu.fetch
+        loop
+        vu.close : check
+
+        load_opts document.all("events").options, evts
+    end if
+    document.all("ordering").innerText = ""
+    document.all("condition").innerText = ""
+
+    update_dialog_buttons
+    preview_dialog dlg
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub help_onClick
+    show_help "PreviewDialogs"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' preview_onClick
+'
+' Preview the dialog selected in the listbox.
+'
+sub preview_onClick
+    dim list : set list = document.forms("Wizards").all("dialogs")
+    dim selected : selected = list.selectedIndex
+    if (selected <> -1) then
+        g_current_dialog = list.options(selected).value
+        g_preview.viewDialog g_current_dialog
+    end if
+    update_dialog_buttons
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub events_onChange
+    dim seq : set seq = document.all("events")
+    if (seq.selectedIndex >= 0) then
+        dim dlg : dlg = selected_option(document.all("dialogs"))
+        dim evt : evt = split(selected_option(seq), " ")
+        dim view : set view = exec_view(db(), "select `Condition`,`Ordering`" &_
+            " from `ControlEvent` where `Dialog_` = '" & dlg &_
+            "' and `Control_` = '" & evt(0) & "' and `Argument` = '" & evt(2) & "'")
+        dim rec : set rec = view.fetch
+        if (rec is nothing) then
+            MsgBox "Unexpected empty record for query."
+        else
+            document.all("condition").innerText = null_str(rec, 1)
+            document.all("ordering").innerText = null_int(rec, 2)
+        end if
+        view.close : check
+        set rec = nothing
+        set view = nothing
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub events_onDblClick
+    dim dlg : dlg = split(selected_option(document.all("events")), " ")(2)
+    document.all("dialogs").value = dlg
+    dialogs_onChange
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub load_standard_dialogs(all, db)
     all("fatalErrorDlg").innerText = get_ui_action(db, -3)
@@ -275,23 +358,13 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
-    dim all : set all = document.forms("DialogTool").all
+    dim all : set all = document.forms("Wizards").all
     load_standard_dialogs all, db()
-    load_dialogs all("Dialogs"), db()
+    load_wizards all("actions"), db()
     set g_preview = db().enableuipreview
     set all = nothing
     update_dialog_buttons
 end sub
-
-sub set_dialog_text(id)
-    document.all("dialogs").value = document.all(id).innerText
-    update_dialog_buttons
-end sub
-
-sub fatalErrorDlg_onClick   : set_dialog_text "fatalErrorDlg"   : end sub
-sub userExitDlg_onClick     : set_dialog_text "userExitDlg"     : end sub
-sub exitDlg_onClick         : set_dialog_text "exitDlg"         : end sub
-sub errorDlg_onClick        : set_dialog_text "errorDlg"        : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onBeforeUnload
@@ -300,38 +373,63 @@ sub window_onBeforeUnload
         set g_preview = nothing
     end if
 end sub
---></SCRIPT>
+
+sub set_dialog_text(id)
+    dim dlg : dlg = document.all(id).innerText
+    document.all("dialogs").value = dlg
+    dialogs_onChange
+end sub
+
+sub fatalErrorDlg_onClick   : set_dialog_text "fatalErrorDlg"   : end sub
+sub userExitDlg_onClick     : set_dialog_text "userExitDlg"     : end sub
+sub exitDlg_onClick         : set_dialog_text "exitDlg"         : end sub
+sub errorDlg_onClick        : set_dialog_text "errorDlg"        : end sub
+
+sub actions_onChange
+    document.all("dialogs").value = document.all("actions").value
+    dialogs_onChange
+end sub
+-->
+</SCRIPT>
 </HEAD>
 <BODY>
 
-<P><FORM NAME="DialogTool">
-<TABLE>
-<TR><TD>
-    <TABLE>
-        <TR><TD>
+<P><FORM NAME="Wizards">
+<TABLE WIDTH=100%>
+    <TR><TD>
         <INPUT TYPE="button" VALUE="Preview" disabled id=preview>
         <INPUT TYPE="button" VALUE="Clear" disabled id=clear>
         <INPUT TYPE="button" VALUE="Clone..." disabled id=clone>
+    </TD></TR>
+    <TR><TD><TABLE>
+        <TR><TD COLSPAN=2><STRONG>UI Sequence Dialogs:</STRONG><BR>
+            <SELECT ID="actions" NAME="actions" SIZE=1 CLASS="listBox"></SELECT>
         </TD></TR>
         <TR><TD>
-        <SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=15></SELECT>
-        </TD>
-        </TR>
-    </TABLE>
-</TD><TD>
-    <STRONG>Standard Dialogs:</STRONG><BR>
-    <TABLE>
-        <TR><TD ALIGN="right"><STRONG>Fatal Error (-3):</STRONG></TD>
-        <TD ID="fatalErrorDlg" CLASS="anchor"></TD></TR>
-        <TR><TD ALIGN="right"><STRONG>User Exit (-2):</STRONG></TD>
-        <TD ID="userExitDlg" CLASS="anchor"></TD></TR>
-        <TR><TD ALIGN="right"><STRONG>Exit (-1):</STRONG></TD>
-        <TD ID="exitDlg" CLASS="anchor"></TD></TR>
-        <TR><TD ALIGN="right"><STRONG>ErrorDialog Property:</STRONG></TD>
-        <TD ID="errorDlg" CLASS="anchor"></TD></TR>
-    </TABLE>
-</TD></TR>
+            <STRONG>Dialogs:</STRONG><BR>
+            <SELECT ID="dialogs" NAME="dialogs" CLASS="listBox" SIZE=12></SELECT>
+        </TD><TD VALIGN="top">
+            <STRONG>Standard Dialogs:</STRONG><BR>
+                <TABLE>
+                    <TR><TD ALIGN="right"><STRONG>Fatal Error (-3):</STRONG></TD>
+                    <TD ID="fatalErrorDlg" CLASS="anchor"></TD></TR>
+                    <TR><TD ALIGN="right"><STRONG>User Exit (-2):</STRONG></TD>
+                    <TD ID="userExitDlg" CLASS="anchor"></TD></TR>
+                    <TR><TD ALIGN="right"><STRONG>Exit (-1):</STRONG></TD>
+                    <TD ID="exitDlg" CLASS="anchor"></TD></TR>
+                    <TR><TD ALIGN="right"><STRONG>ErrorDialog Property:</STRONG></TD>
+                    <TD ID="errorDlg" CLASS="anchor"></TD></TR>
+                </TABLE>
+        </TD></TR>
+        <TR><TD><STRONG>Events:</STRONG><BR>
+            <SELECT ID="events" CLASS="listBox" SIZE=6></SELECT>
+        </TD><TD VALIGN="top"><STRONG>Event Detail:</STRONG><BR>
+            <STRONG>Ordering:</STRONG>&nbsp;<SPAN ID="ordering"></SPAN><BR>
+            <STRONG>Condition:</STRONG>&nbsp;<SPAN ID="condition"></SPAN><BR>
+        </TD></TR>
+    </TABLE></TD></TR>
 </TABLE>
 </FORM></P>
+
 </BODY>
 </HTML>
