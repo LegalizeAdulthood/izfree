@@ -3,11 +3,12 @@ Building izfree
 
 izfree is mostly HTML and VBScipt.  However, there are some things that
 aren't conveniently exposed to scripting environments, such as
-::CoGenerateGuid function and the VS_VERSION_INFO structure.  These two
-items are exposed to the scripting environment through COM wrappers
-around their functionality.  The guidgen DLL project provides these
-COM objects to the script.  Guidgen has a small C++ test program that
-generates GUIDs.
+::CoGenerateGuid function and the VS_VERSION_INFO structure of VXD files
+(VS_VERSION_INFO for PE files can be had from Scripting.FileSystemObject).
+These two items are exposed to the scripting environment through COM
+wrappers around their functionality.  The guidgen DLL project provides
+these COM objects to the script.  Guidgen has a small C++ test program
+that exercises the functionality.
 
 The izMonitor project is a local server EXE project that extracts COM
 registration information from a self-registering COM server.
