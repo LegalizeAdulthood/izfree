@@ -305,8 +305,8 @@ end sub
 sub sequence_onChange
     dim seq : set seq = document.all("sequence")
     if (seq.selectedIndex >= 0) then
-        dim dlg : dlg = selected_option(document.all("dialogs")).value
-        dim control : control = split(seq.options(seq.selectedIndex).value, " ")(0)
+        dim dlg : dlg = selected_option(document.all("dialogs"))
+        dim control : control = split(selected_option(seq), " ")(0)
         dim view : set view = exec_view(db(), "select `Condition`,`Ordering`" &_
             " from `ControlEvent` where `Dialog_` = '" & dlg &_
             "' and `Control_` = '" & control & "' order by `Ordering`")
@@ -325,7 +325,7 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub sequence_onDblClick
-    dim dlg : dlg = split(selected_option(document.all("sequence")).value, " ")(2)
+    dim dlg : dlg = split(selected_option(document.all("sequence")), " ")(2)
     select_option document.all("dialogs"), dlg
 end sub
 
