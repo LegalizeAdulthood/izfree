@@ -132,6 +132,7 @@ end sub
 ' Call CreateObject and then check the results.
 '
 function check_object(progid)
+    on error resume next
     set check_object = CreateObject(progid) : check
 end function
 
@@ -467,6 +468,7 @@ end function
 ' Create a view on a database and execute it, returning the view object.
 '
 function exec_view(db, query)
+    on error resume next
     dim view : set view = db.openview(query) : check
     view.execute : check
     set exec_view = view
@@ -498,6 +500,7 @@ end function
 ' Return the value of a database property, or empty string.
 '
 function get_property(db, name)
+    on error resume next
     dim view : set view = db.OpenView("select `Value` from `Property` " &_
         "where `Property`.`Property` = '" & name & "'") : check
     view.execute : check
@@ -571,3 +574,129 @@ sub load_opts(opts, ary)
         err.clear
     end if
 end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub init_izfree_props(db)
+    on error resume next
+    set g_main_frame.g_izfree_props = check_object("Scripting.Dictionary")
+    dim view : set view = exec_view(db, "SELECT * FROM `izProperty`")
+    dim rec : set rec = view.fetch
+    do while not rec is nothing
+        g_izfree_props(rec.stringdata(1)) = rec.stringdata(2)
+        set rec = view.fetch
+    loop
+    view.close : check
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+function izfree_property(db, name)
+    izfree_property = ""
+    on error resume next
+    err.clear
+    dim keys : set keys = db.PrimaryKeys("izProperty")
+    if (err.number = 0) then
+        dim view : set view = exec_view(db, "SELECT `Value` FROM " &_
+            "`izProperty` WHERE `Name` = '" & name & "'")
+        dim rec : set rec = view.fetch
+        if (not rec is nothing) then
+            izfree_property = rec.stringdata(1)
+        end if
+    else
+        err.clear
+    end if
+end function
+        
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub add_izfree_property_table(db)
+    on error resume next
+    ' add table
+    dim view : set view = exec_view(db, "CREATE TABLE `izProperty`(" &_
+        "`Name` CHAR(72) NOT NULL, `Value` CHAR NOT NULL " &_
+        "PRIMARY KEY `Name`)") : check
+    view.close : check
+        
+    ' now add rows to the validation table for the new table
+    set view = db.OpenView("INSERT INTO `_Validation`(" &_
+        "`Column`,`Category`,`Description`," &_
+        "`Table`,`Nullable`,`MinValue`,`MaxValue`,`KeyTable`,`KeyColumn`," &_
+        "`Set`) VALUES (?,?,?,'izProperty','N','','','','','')") : check
+    dim rec : set rec = installer().CreateRecord(3) : check
+    rec.stringdata(1) = "Name"
+    rec.stringdata(2) = "Identifier"
+    rec.stringdata(3) = "The name of the izfree property."
+    view.execute rec : check
+    rec.stringdata(1) = "Value"
+    rec.stringdata(2) = "Text"
+    rec.stringdata(3) = "The value of the izfree property."
+    view.execute rec : check
+    view.close : check
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub update_izfree_property(db, name, value)
+    err.clear
+    dim view : set view = db.OpenView("UPDATE `izProperty` SET `Value` = '" &_
+        value & "' WHERE `Name` = '" & name & "'")
+    view.execute
+    view.close
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub insert_izfree_property(db, name, value)
+    err.clear
+    dim view : set view = db.OpenView("INSERT INTO `izProperty`(`Name`,`Value`) " &_
+        " VALUES ('" & name & "','" & value & "')")
+    view.execute
+    view.close
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub set_izfree_property(db, name, value)
+    on error resume next
+    dim keys : set keys = db.PrimaryKeys("izProperty")
+    if (err.number <> 0) then
+        err.clear
+        add_izfree_property_table db
+        insert_izfree_property db, name, value
+        init_izfree_props db
+    else
+        if (g_izfree_props is nothing) then
+            init_izfree_props db
+        end if
+        if (not g_izfree_props.exists(name)) then
+            insert_izfree_property db, name, value
+        else
+            update_izfree_property db, name, value
+        end if
+        g_izfree_props(name) = value
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+function max(a, b)
+    if (a > b) then max = a else max = b
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+function scrape_file_counter(db)
+    dim view : set view = exec_view(db, "SELECT `File` FROM `File`")
+    dim rec : set rec = view.fetch
+    dim counter : counter = 0
+    dim num_recs : num_recs = 0
+    do while not rec is nothing
+        dim key : key = rec.stringdata(1)
+        if (left(key, 1) = "f") then
+            dim i : i = 2
+            do while (IsNumeric(mid(key, i, 1)))
+                i = i + 1
+            loop
+            if (mid(key, i, 1) = "_") then
+                counter = max(counter, cint(mid(key, 2, i-2)))
+            end if
+        end if
+        num_recs = num_recs + 1
+        set rec = view.fetch
+    loop
+    view.close
+    scrape_file_counter = max(counter, num_recs)
+end function
