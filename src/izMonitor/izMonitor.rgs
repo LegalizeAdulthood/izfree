@@ -1,11 +1,11 @@
 HKCR
 {
-	NoRemove AppID
-	{
-		{B48E8FA3-08D2-49C6-AFBC-6AEB8CD27932} = s 'izMonitor'
-		'izMonitor.EXE'
-		{
-			val AppID = s {B48E8FA3-08D2-49C6-AFBC-6AEB8CD27932}
-		}
-	}
+    NoRemove AppID
+    {
+        {B48E8FA3-08D2-49C6-AFBC-6AEB8CD27932} = s 'izMonitor'
+        'izMonitor.EXE'
+        {
+            val AppID = s {B48E8FA3-08D2-49C6-AFBC-6AEB8CD27932}
+        }
+    }
 }
