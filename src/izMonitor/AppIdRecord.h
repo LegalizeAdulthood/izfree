@@ -26,40 +26,41 @@
 /////////////////////////////////////////////////////////////////////////////
 // CAppIdRecord
 class ATL_NO_VTABLE CAppIdRecord : 
-	public CComObjectRootEx<CComSingleThreadModel>,
-	public CComCoClass<CAppIdRecord, &CLSID_AppIdRecord>,
-	public ISupportErrorInfo,
-	public IDispatchImpl<IAppIdRecord, &IID_IAppIdRecord, &LIBID_IZMONITORLib>
+    public CComObjectRootEx<CComSingleThreadModel>,
+    public CComCoClass<CAppIdRecord, &CLSID_AppIdRecord>,
+    public ISupportErrorInfo,
+    public IDispatchImpl<IAppIdRecord, &IID_IAppIdRecord, &LIBID_IZMONITORLib>
 {
 public:
-    CAppIdRecord();
-    void Init(const s_app_id &app_id);
+    CAppIdRecord() : m_record(0)        {}
+    void Init(const s_app_id *record)   { m_record = record; }
 
-DECLARE_REGISTRY_RESOURCEID(IDR_APPIDRECORD)
+DECLARE_NO_REGISTRY()
+DECLARE_NOT_AGGREGATABLE(CAppIdRecord)
 
 DECLARE_PROTECT_FINAL_CONSTRUCT()
 
 BEGIN_COM_MAP(CAppIdRecord)
-	COM_INTERFACE_ENTRY(IAppIdRecord)
-	COM_INTERFACE_ENTRY(IDispatch)
-	COM_INTERFACE_ENTRY(ISupportErrorInfo)
+    COM_INTERFACE_ENTRY(IAppIdRecord)
+    COM_INTERFACE_ENTRY(IDispatch)
+    COM_INTERFACE_ENTRY(ISupportErrorInfo)
 END_COM_MAP()
 
 // ISupportsErrorInfo
-	STDMETHOD(InterfaceSupportsErrorInfo)(REFIID riid);
+    STDMETHOD(InterfaceSupportsErrorInfo)(REFIID riid);
 
 // IAppIdRecord
 public:
-	STDMETHOD(get_RunAsInteractiveUser)(/*[out, retval]*/ LONG *pVal);
-	STDMETHOD(get_ActivateAtStorage)(/*[out, retval]*/ LONG *pVal);
-	STDMETHOD(get_DllSurrogate)(/*[out, retval]*/ BSTR *pVal);
-	STDMETHOD(get_ServiceParameters)(/*[out, retval]*/ BSTR *pVal);
-	STDMETHOD(get_LocalService)(/*[out, retval]*/ BSTR *pVal);
-	STDMETHOD(get_RemoteServerName)(/*[out, retval]*/ BSTR *pVal);
-	STDMETHOD(get_AppId)(/*[out, retval]*/ BSTR *pVal);
+    STDMETHOD(get_RunAsInteractiveUser)(/*[out, retval]*/ LONG *pVal);
+    STDMETHOD(get_ActivateAtStorage)(/*[out, retval]*/ LONG *pVal);
+    STDMETHOD(get_DllSurrogate)(/*[out, retval]*/ BSTR *pVal);
+    STDMETHOD(get_ServiceParameters)(/*[out, retval]*/ BSTR *pVal);
+    STDMETHOD(get_LocalService)(/*[out, retval]*/ BSTR *pVal);
+    STDMETHOD(get_RemoteServerName)(/*[out, retval]*/ BSTR *pVal);
+    STDMETHOD(get_AppId)(/*[out, retval]*/ BSTR *pVal);
 
 private:
-    s_app_id m_app_id;
+    const s_app_id *m_record;
 };
 
 #endif //__APPIDRECORD_H_
