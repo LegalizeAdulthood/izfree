@@ -20,12 +20,33 @@
 #include "Guidgen.h"
 #include "FileVersion.h"
 
-#include <sstream>
+#include <fstream>
 #include <iomanip>
+#include <ios>
+#include <sstream>
 #include <vector>
 
 #include <shellapi.h>
 #include <tchar.h>
+
+///////////////////////////////////////////////////////////////////////////
+// VXD_VERSION_RESOURCE
+//
+// Resource structure embedded within a VXD file
+//
+#pragma pack(push, 1)
+// this structure must be byte-aligned
+struct VXD_VERSION_RESOURCE
+{
+    char cType;
+    WORD wID;
+    char cName;
+    WORD wOrdinal;
+    WORD wFlags;
+    DWORD dwResSize;
+    BYTE bVerData;
+};
+#pragma pack(pop)
 
 ///////////////////////////////////////////////////////////////////////////
 // NUM_OF() -- return size of fixed-size array
@@ -83,22 +104,6 @@ check_win32(T expr, LPCTSTR file, UINT line, LPCTSTR context)
 #define TWS(expr_) check_win32(expr_, _T(__FILE__), __LINE__, _T(#expr_))
 
 ///////////////////////////////////////////////////////////////////////////
-// VS_VERSIONINFO
-//
-// Version resource structure.
-//
-struct VS_VERSIONINFO
-{
-    WORD wLength;
-    WORD wValueLength;
-    WORD wType;
-    WCHAR szKey[16];
-    VS_FIXEDFILEINFO Value;
-    WORD Padding;
-    WORD Children;
-};
-
-///////////////////////////////////////////////////////////////////////////
 // library
 //
 // Dynamic library resource wrapper.
@@ -133,36 +138,96 @@ error_message(DWORD error)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// file_version -- extract the version number resource as a tstring
+// version_resource -- return a the version number from a VS_FIXEDFILEINFO
 //
 tstring
-file_version(tstring file)
+version_resource(void *block)
+{
+    // Yse the ANSI version here, as VXDs only have ANSI resources
+    VS_FIXEDFILEINFO *ffi = 0;
+    LPSTR sub_block = "\\";
+    UINT len = 0;
+    TWS(::VerQueryValueA(block, sub_block, reinterpret_cast<void **>(&ffi),
+        &len));
+
+    tostringstream version;
+    version << ((ffi->dwFileVersionMS >> 16) & 0xFFFF) << _T(".")
+        << (ffi->dwFileVersionMS & 0xFFFF) << _T(".")
+        << ((ffi->dwFileVersionLS >> 16) & 0xFFFF) << _T(".")
+        << (ffi->dwFileVersionLS & 0xFFFF);
+    return version.str();
+}
+
+///////////////////////////////////////////////////////////////////////////
+// TEST_FALSE -- test an expression, and if false return the empty string
+//
+#define TEST_FALSE(expr_)   \
+    if (!(expr_))           \
+    {                       \
+        return _T("");      \
+    } else 0
+
+///////////////////////////////////////////////////////////////////////////
+// file_version
+//
+// Extract the version number resource as a tstring.  First, open the
+// file and examine its magic number information to determine if its
+// a file starting 
+//
+tstring
+file_version(const tstring &filename)
 {
     try
     {
-        library module(file);
-        TCHAR filename[MAX_PATH] = { 0 };
-        TWS(::GetModuleFileName(module, filename, NUM_OF(filename)));
-        std::vector<BYTE> buff(::GetFileVersionInfoSize(filename, 0));
-        TWS(::GetFileVersionInfo(filename, NULL, buff.size(), &buff[0]));
-        const VS_FIXEDFILEINFO &ffi =
-            reinterpret_cast<VS_VERSIONINFO *>(&buff[0])->Value;
+        USES_CONVERSION;
+        std::ifstream file(T2CA(filename.c_str()),
+            std::ios_base::in | std::ios_base::binary);
+        TEST_FALSE(file);
 
-        tostringstream version;
-        version << ((ffi.dwFileVersionMS >> 16) & 0xFFFF) << _T(".")
-            << (ffi.dwFileVersionMS & 0xFFFF) << _T(".")
-            << ((ffi.dwFileVersionLS >> 16) & 0xFFFF) << _T(".")
-            << (ffi.dwFileVersionLS & 0xFFFF);
-        return version.str();
+        // first, check for the DOS header at the front
+        IMAGE_DOS_HEADER dos = { 0 };
+        TEST_FALSE(file.read(reinterpret_cast<char *>(&dos), sizeof(dos)));
+        TEST_FALSE(IMAGE_DOS_SIGNATURE == dos.e_magic);
+
+        // now look for the PE header that follows
+        IMAGE_NT_HEADERS nt = { 0 };
+        TEST_FALSE(file.seekg(dos.e_lfanew, std::ios_base::beg));
+        TEST_FALSE(file.read(reinterpret_cast<char *>(&nt), sizeof(nt)));
+        if (IMAGE_NT_SIGNATURE == nt.Signature)
+        {
+            file.close();
+            LPTSTR file_arg = const_cast<LPTSTR>(filename.c_str());
+            std::vector<BYTE> buff(::GetFileVersionInfoSize(file_arg, 0));
+            TWS(::GetFileVersionInfo(file_arg, NULL, buff.size(), &buff[0]));
+            return version_resource(&buff[0]);
+        }
+
+        // ok, its a valid executable, but not a PE executable
+        TEST_FALSE(IMAGE_VXD_SIGNATURE == nt.Signature);
+
+        // its a VXD file, get the VXD version number
+        const IMAGE_VXD_HEADER *vxd =
+            reinterpret_cast<IMAGE_VXD_HEADER *>(&nt);
+        TEST_FALSE(vxd->e32_winreslen != 0);
+        TEST_FALSE(file.seekg(vxd->e32_winresoff, std::ios_base::beg));
+        std::vector<char> buff(vxd->e32_winreslen);
+        TEST_FALSE(file.read(&buff[0], buff.size()));
+        VXD_VERSION_RESOURCE *vxd_ver =
+            reinterpret_cast<VXD_VERSION_RESOURCE *>(&buff[0]);
+        return version_resource(&vxd_ver->bVerData);
     }
     catch (...)
     {
-        return _T("");
+        // fall through
     }
+    return _T("");
 }
 
 /////////////////////////////////////////////////////////////////////////////
-// CFileVersion
+// CFileVersion::get_Version
+//
+// Return the file version from a PE executable or VXD executable, otherwise
+// return the empty string.
 //
 STDMETHODIMP
 CFileVersion::get_Version(BSTR file, BSTR *pVal)
