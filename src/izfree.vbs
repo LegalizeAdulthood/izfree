@@ -564,7 +564,7 @@ sub load_opts(opts, ary)
     dim len : len = -1
     on error resume next : err.clear : len = ubound(ary)
     if (len >= 0) then
-        dim i : for i = 0 to ubound(ary)
+        dim i : for i = 0 to len
             opts.add new_option(ary(i))
         next
     elseif (err) then
