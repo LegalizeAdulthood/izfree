@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <HEAD>
-<TITLE>izfree Tutorial 4: Initializing TARGETDIR</TITLE>
+<TITLE>izfree Tutorial 4: Adding Shell Verbs</TITLE>
 </HEAD>
 <BODY>
 
@@ -11,94 +11,165 @@
 | <A HREF="tutorial.html">Tutorials</A>
 | Tutorial 4 ]</H3>
 
-<H3>Tutorial 4: Initializing TARGETDIR</H3>
+<H2>Tutorial 4: Adding Shell Verbs</H2>
 
-<P>Usually a program will want to install itself into the Program
-Files folder.  The TARGETDIR property determines where the components
-will be installed on the target machine.  This property is initially
-undefined and cannot be set to a fixed value because the Program Files
-folder may be different for different target machines.  The template database
-does not provide an action in the install sequence to initialize
-TARGETDIR.</P>
+<P>Zoom is a flexible image resizing program with lots of command line
+arguments. Remembering all those arguments and their exact meaning can be
+difficult.  Common image resizing tasks are
+to double the size of an image, or resize it to fit dimensions of a
+1280x1024 desktop.  We can extend the Windows Shell
+to provide new resize verbs for the kinds of image files
+that zoom understands.
+The following commands implement the verbs for common resizing operations.</P>
 
-<P>This tutorial shows how to initialize TARGETDIR for zoom so that its
-default installation location will be a directory called 'zoom' in the
-Program Files folder.</P>
+<P><TABLE BORDER=1>
+<THEAD><TR><TH>Verb</TH><TH>Command</TH></TR></THEAD>
+<TBODY>
+<TR><TD>Zoom 2x</TD>
+<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
+    -dst "%1-2x.jpg" -d 0 0 6000 6000 -map 2 2 0 0</CODE></TD></TR>
+<TR><TD>Zoom 1280x1024</TD>
+<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
+    -dst "%1-1280x1024.jpg" -d 0 0 1280 1024</CODE></TD></TR>
+<TR><TD>Zoom 1280</TD>
+<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
+    -dst "%1-1280.jpg" -d 0 0 1280 6000</CODE></TD></TR>
+<TR><TD>Zoom 1024</TD>
+<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
+    -dst "%1-1280.jpg" -d 0 0 6000 1024</CODE></TD></TR>
+<TR><TD>Zoom Blur</TD>
+<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
+    -dst "%1-blur.jpg" -blur 2</CODE></TR></TR>
+</TBODY>
+</TABLE></P>
 
-<P>When standard Windows Installer actions don't meet the needs of an
-installation, custom actions can be used.  Custom actions can be as
-simple as formatting a string or as complex as an arbitrary piece of
-code.  To set the TARGETDIR properly for the target machine, all we
-need to do is a little string formatting.</P>
+<P>You can enter this information manually after you
+install zoom, assuming you installed it to <CODE>C:\Program
+Files\Zoom</CODE>, through the Folder Options / File Types dialog in the
+shell.  The quotation marks are necessary to quote the spaces in the
+paths of the files for proper argument parsing with the shell.</P>
+
+<P>If you run <CODE>REGEDIT</CODE> after adding the verbs with the
+folder options dialog you can see that this information
+was entered into some registry keys under <CODE>HKCR\jpegfile</CODE>.
+You might have been expecting to see the information stored under
+<CODE>HKCR\.jpg</CODE>, but Windows uses an extra level of indirection
+between the file extension and its file association type.  In our
+case, this allows a single verb to work on JPEG files stored with
+extensions <CODE>.JPG</CODE>, <CODE>.JPE</CODE>, or <CODE>.JPEG</CODE>,
+which are all mapped to the file asocation type
+<CODE>jpegfile</CODE>.</P>
+
+<P>Great, except there's one problem.  The user can install zoom.exe
+anywhere on the machine, not just C:\Program Files\Zoom, and may not
+have that location in their path.  So we can't depend on the above
+commands to work if used literally as they appear above.  What we need
+to do is format the commands when the installation is run so that the
+location of <CODE>zoom.exe</CODE> will be resolved to the proper
+location for that target machine.</P>
+
+<P>With the <STRONG>Formatted</STRONG> string type in Windows
+Installer, you can obtain the installed location of any file by using
+the syntax <STRONG><CODE>[#</CODE></STRONG><EM>File
+key</EM><STRONG>]</STRONG>, where <EM>File key</EM> is the
+primary key of a row in the <STRONG>File</STRONG> table.</P>
+
+<P>In our case, we want the location of the <CODE>zoom.exe</CODE>,
+which had a generated file key of <CODE>f0_zoom.exe</CODE>.
+Substituting <CODE>[#f0_zoom.exe]</CODE> for <CODE>C:\Program
+Files\Zoom\zoom.exe</CODE> in the above commands localizes them
+properly on the target machine.  For example:</P>
+
+<P><CODE>"[#f0_zoom.exe]" -filt mitchell -square -src "%1" -dst
+	"%1-2x.jpg" -d 0 0 6000 6000 -map 2 2 0 0</CODE></P>
+
+<P>Note that the quotes (<CODE>"</CODE>) are still part of the command.
+The location of zoom still needs to be quoted
+for the shell, in case it was installed into a directory containing
+spaces, such as Program Files.</P>
+
+<P>Now we just need to write those strings into the registry, which we
+do with the <STRONG>Registry</STRONG> table.
+You might think that we want to use the <STRONG>Verb</STRONG> and
+<STRONG>Extension</STRONG> tables for this, but in this case we
+don't.  Zoom isn't acting as the COM server for the JPEG file
+type, it is only adding some command-line shorthands to the shell's
+context menu for JPEG files.</P>
 
 <OL>
-<LI><P>Select the <STRONG>CustomAction</STRONG> table and enter a new
-row with the following values.</P>
+<LI><P>Open the installation database and display the
+<STRONG>Registry</STRONG> table.
+<LI><P>Add the following new rows for the shell commands and verbs
+listed above. The data for the <STRONG>Value</STRONG> column of each
+row is the appropriate shell command listed above.</P>
 
 <P><TABLE BORDER=1>
 <THEAD>
-<TR><TH>Action</TH><TH>Type</TH><TH>Source</TH><TH>Target</TH></TR>
+<TR><TH>Registry</TH>
+<TH>Root</TH>
+<TH>Key</TH>
+<TH>Name</TH>
+<TH>Component_</TH></TR>
 </THEAD>
 <TBODY>
-<TR><TD><CODE>caSetTargetDir</CODE></TD>
-<TD><CODE>51</CODE></TD>
-<TD><CODE>TARGETDIR</CODE></TD>
-<TD><CODE>[ProgramFilesFolder]\zoom</CODE></TD>
-</TR>
+<TR><TD><CODE>rvJPEGDouble</CODE></TD>
+<TD><CODE>0</CODE></TD>
+<TD><CODE>jpegfile\shell\Zoom 2x\command</CODE></TD>
+<TD>NULL</CODE></TD>
+<TD><CODE>Executable</CODE></TD></TR>
+
+<TR><TD><CODE>rvJPEG1280x1024</CODE></TD>
+<TD><CODE>0</CODE></TD>
+<TD><CODE>jpegfile\shell\Zoom 1280x1024\command</CODE></TD>
+<TD>NULL</TD>
+<TD><CODE>Executable</CODE></TD></TR>
+
+<TR><TD><CODE>rvJPEG1280</CODE></TD>
+<TD><CODE>0</CODE></TD>
+<TD><CODE>jpegfile\shell\Zoom 1280\command</CODE></TD>
+<TD>NULL</TD>
+<TD><CODE>Executable</CODE></TD></TR>
+
+<TR><TD><CODE>rvJPEG1024</CODE></TD>
+<TD><CODE>0</CODE></TD>
+<TD><CODE>jpegfile\shell\Zoom 1024\command</CODE></TD>
+<TD>NULL</TD>
+<TD><CODE>Executable</CODE></TD></TR>
+
+<TR><TD><CODE>rvJPEGBlur</CODE></TD>
+<TD><CODE>0</CODE></TD>
+<TD><CODE>jpegfile\shell\Zoom Blur\command</CODE></TD>
+<TD>NULL</TD>
+<TD><CODE>Executable</CODE></TD></TR>
 </TBODY>
 </TABLE></P>
 
-<P>This custom action type sets a property named by the
-<STRONG>Source</STRONG> column from a formatted string in the
-<STRONG>Target</STRONG> column.<P>
-
-<LI><P>Now add the custom action to the install sequence tables.
-Select the <STRONG>InstallExecuteSequence</STRONG> table and click the
-<STRONG>Sequence</STRONG> column name to sort the actions by their
-sequence number.  We want to set TARGETDIR early in the sequence.
-Select a sequence number for the new custom action after the
-<STRONG>LaunchConditions</STRONG> standard action and before the next
-action in the sequence.  In the case of zoom, this is <CODE>120</CODE>.
-
-<P>Enter a new row into the table with the following values:</P>
-
-<P><TABLE BORDER=1>
-<THEAD>
-<TR><TH>Action</TH><TH>Condition</TH><TH>Sequence</TH></TR>
-</THEAD>
-<TBODY>
-<TR><TD><CODE>caSetTargetDir</CODE></TD>
-<TD><CODE>NOT TARGETDIR</CODE></TD>
-<TD><CODE>120</CODE></TD></TR>
-</TBODY>
-</TABLE></P>
-
-<P>The condition on the action allows TARGETDIR to be set from the
-command-line and take precedence over the default value set by the
-custom action.</P>
-
-<LI><P>Select the <STRONG>InstallUISequence</STRONG> table and enter
-the same row of data into that table.</P>
-
-<P>The action must be set on both sequences, in case the install is
-run without a user interface.  Installs with no user interface don't
-execute the actions in the <STRONG>InstallUISequence</STRONG>
-table.</P>
-
-<LI><P>Validate your database and correct any errors before saving the
-changes.</P>
+<LI><P>Validate the database to check for any errors made during
+editing and save your changes.</P>
 </OL>
+
+<P>Now when you install Zoom, the context menu (and File menu, in
+Windows Folder views) will display the items "Zoom 2x", "Zoom
+1280x1024", "Zoom 1280", "Zoom 1024", and "Zoom Blur".  Selecting one
+of these will perform the operation on the selected file and produce a
+new file containing the result in the same directory.  The output
+files are created from the input filenames with a suffix added.</P>
+
+<P>You can add verbs to use zoom as an image conversion program,
+although this is not its primary purpose, by giving the source and
+destination filenames different extensions, such as <CODE>zoom -src "%1"
+-dst "%1.jpg"</CODE> will convert a file to JPEG format.  You can also
+add verbs for the other file types supported by zoom.  <CODE>zoom -dev
+?</CODE> provides a list of understood formats.</P>
 
 <HR><UL>
 <LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
 <LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
+<!-- <LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A> -->
 <LI>Tutorial 3: Adding a Shortcut
-<LI>Tutorial 4: Initializing TARGETDIR
-<LI><A HREF="tut05.html">Tutorial 5: Adding Shell Verbs</A>
-<LI><A HREF="tut06.html">Tutorial 6: Registering a COM Object</A>
-<!--
-<LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
--->
+<LI>Tutorial 4: Adding Shell Verbs
+<LI><A HREF="tut05.html">Tutorial 5: Registering a COM Object</A>
+<LI><A HREF="tut06.html">Tutorial 6: Installing a Service</A>
 </UL>
 
 </BODY>

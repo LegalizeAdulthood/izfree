@@ -9,15 +9,14 @@
 | <A HREF="http://sourceforge.net/projects/izfree/">Project</A>
 | izfree ]</H3>
 
-<H1>izfree 1.0 alpha</H1>
+<H1>izfree 1.1</H1>
 
 <H3>Free Tools for Windows Installer</H3>
 
-<P>This is the alpha test release of version 1.0 of
-izfree, a collection of free tools for authoring
-Windows Installer <CODE>.MSI</CODE> installation databases.
+<P>This is izfree version 1.1, a collection of free tools for authoring
+Windows Installer <CODE>.MSI</CODE> installation packages.
 izfree is designed for use in conjunction with 
-the Orca database editor included in the Platform SDK.</P>
+the Orca database editor included in the Microsoft Platform SDK.</P>
 
 <P><TABLE><TR><TD VALIGN="top"><STRONG>Contents:</STRONG>
 <TD><UL>
@@ -30,34 +29,29 @@ the Orca database editor included in the Platform SDK.</P>
 
 <HR><H3><A NAME="izfree">izfree</A></H3>
 
-<P>izfree, formerly known as 'msidb', automates some
-tasks specific to the authoring of MSI installation database files
-with Orca.  Orca provides a basic way to edit database tables, but
-doesn't create them automatically.  izfree automates
-the following tasks:</P>
+<P>izfree automates some tasks specific to the authoring of MSI
+installation database files with Orca.  Orca provides a basic way to
+edit database tables, but doesn't create them automatically.  izfree
+automates the following tasks:</P>
 
 <UL>
 <LI>Create new Windows Installer compatible GUIDs
-<LI>Create a blank MSI package for editing
+<LI>Create a blank MSI package for new projects
 <LI>Create features and components that install a directory tree of files
 <LI>Preview and clone user interface dialogs
+<LI>Extract COM registration information from files<LI>Display table validation information
 </UL>
 
-<P>izfree assumes that you are already familiar with Windows Installer
-and the <A HREF="#MSISDK">MSI SDK documentation</A>.  If you are
+<P>izfree assumes that you are already familiar with Windows Installer,although version 1.1 makes it possible to create simple installationsthat install files and register COM objects with little or no knowledgeof Windows Installer.  Still, the <A HREF="#MSISDK">MSI SDKdocumentation</A>.  Will likely prove invaluable for anything beyondthe tasks automated by izfree or for debugging problems with yourinstallation package.</P><P>If you are a Visual Studio user and are
 completely new to Windows Installer, you might want to start with <A
 HREF="#VSI">Visual Studio Installer</A> and experiment with creating
-some simple installations and examining the msi with Orca.</P>
+some simple installations and examining the resulting msi with Orca.</P>
 
 <HR><H3><A NAME="project">Project Resources</A></H3>
 
 <UL>
-<LI><P><STRONG><A HREF="izfree-1.1.html">Preview of Version
+<LI><P><STRONG><A HREF="izfree-1.1.html">What's new for version
 1.1!</A></STRONG></P>
-
-<LI><P><STRONG><A HREF="izfree-1.0.html">What's new for version
-1.0</A></STRONG></P>
-
 <LI><P><STRONG><A HREF="screenshots.html">Screen shots of the
 tools</A></STRONG></P>
 
@@ -65,10 +59,9 @@ tools</A></STRONG></P>
 
 <LI><P><STRONG>Download the <A HREF=
 "http://sourceforge.net/project/showfiles.php?group_id=40188&release_id=67043"
->izfree 1.0 alpha release in zip
-form</A></STRONG></P>
+>izfree 1.1 release in zip form</A></STRONG></P>
 
-<P>The 1.0 alpha release of izfree.  Download the ZIP file and unpack
+<P>The 1.1 release of izfree.  Download the ZIP file and unpack
 it to a temporary directory.  Then invoke <CODE>izfree.msi</CODE> to
 install izfree onto your machine.  After installing izfree, you may
 remove the unpacked contents of the zip file.  You must already have
@@ -83,16 +76,6 @@ border="0" alt="SourceForge.net"></A></P>
 <P>You can log bug reports, feature requests or participate in the
 development of izfree through the sourceforge.net project page.</P>
 
-<LI><P><STRONG><A
-HREF="http://www.xmission.com/~legalize/installer/msidb-0.2.html">msidb
-0.2</A></STRONG></P>
-
-<P>This is the initial incarnation of izfree.  msidb is an HTML file
-with embedded client-side script that performs roughly the same tasks
-as izfree.  izfree 1.0 is mostly a rework and polish of msidb 0.2.
-The name was changed to avoid confusion with the MSI SDK tool
-called MSIDB.EXE.</P>
-
 </UL>
 
 <HR><H3><A NAME="msi">About Windows Installer</A></H3>
@@ -102,12 +85,11 @@ method by which they interact with the system to perform updates,
 you can easily imagine that a complete specifications of the actions
 of install programs covers quite a bit of territory.  What follows
 in this section is a summary of Windows Installer.  For more
-information see the SDK documentation linked at the end of this
-document.</P>
+information see the <A HREF="#MSISDK">MSI SDK documentation</A>.</P>
 
 <P>Windows Installer is a system component provided by Microsoft to
 address the problem of 'DLL Hell' and poor installation programs.
-Windows Installer is available as a redistributable for Windows 95,
+Windows Installer is available as a free redistributable for Windows 95,
 Windows 98, and Windows NT 4.0.  Windows Installer is included in
 Windows Me, Windows 2000 and Windows XP.</P>
 
@@ -120,7 +102,7 @@ application to be installed to determine what resources to install from
 source media onto the target machine.  Resources may be files, fonts,
 registry entries, COM servers, NT services, and any other piece of
 data that is required by your application.  The database is stored
-in a file with the extension '<CODE>.msi</CODE>'.</P>
+in a file with the extension '<CODE>.msi</CODE>'.</P><P>The database organizes the resources of an application into componentsand features.  Components represent the smallest unit of resources thatcan be individually installed on the target machine.  Components are groupedinto features to provide the functionality of an application.</P>
 
 <P>Windows Installer caches the database onto the target machine when
 a product is installed.  The cached database can be used to perform
@@ -177,11 +159,11 @@ the Orca database editor.  Orca.msi is located in the '%MSSDK%\bin'
 directory after you install the Platform SDK.</P> 
 
 <LI><P><STRONG><A HREF=
-"http://msdn.microsoft.com/vstudio/sp/vs6sp5/mmoverview.asp">Windows
-Installer Merge Modules for Visual Studio 6.0 Service Pack 5</A></STRONG></P>
+"http://msdn.microsoft.com/vstudio/sp/vs6sp4/mmoverview.asp">Windows
+Installer Merge Modules for Visual Studio 6.0 Service Pack 4</A></STRONG></P>
 
 <P>Merge modules for libraries provided with Visual Studio 6.0 Service
-Pack 5.  If your code depends on these libraries, such as comdlg32.ocx
+Pack 4.  If your code depends on these libraries, such as comdlg32.ocx
 or oleaut32.dll, then you should use the merge modules to ensure that
 the proper versions of these components are installed for use with
 your application.</P>

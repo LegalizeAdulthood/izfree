@@ -11,7 +11,7 @@
 | <A HREF="tutorial.html">Tutorials</A>
 | Tutorial 3 ]</H3>
 
-<H3>Tutorial 3: Adding a Shortcut</H3>
+<H2>Tutorial 3: Adding a Shortcut</H2>
 
 <P>This tutorial extends the basic install to include a shortcut under
 the <STRONG>Start</STRONG> / <STRONG>Programs</STRONG> menu to the file
@@ -20,157 +20,41 @@ the <STRONG>Start</STRONG> / <STRONG>Programs</STRONG> menu to the file
 <OL>
 <LI><P>Open the database with Orca and select the
 <STRONG>File</STRONG> table.  Locate the file you want to be the
-target of the shortcut.  For zoom, its '<CODE>ZOOM.TXT</CODE>'.</P>
+target of the shortcut.  For zoom, its '<CODE>ZOOM.TXT</CODE>', whichhas a file key of <CODE>ZOOM.TXT_f1</CODE> in this example.</P>
+<LI><P>We want to create a shortcut in the <CODE>Start</CODE> /<CODE>Programs</CODE> menu for the <CODE>All Users</CODE> profile.  First,we want to ensure that the installation is installed for all users.  To dothat, we add the <CODE>ALLUSERS</CODE> property to the <STRONG>Property</STRONG>table with a value of <CODE>1</CODE>.  Enter the following row into the<STRONG>Property</STRONG> table with Orca:</P><P><TABLE BORDER=1><THEAD><TR><TH>Property</TH><TH>Value</TH></TR></THEAD>
+<TBODY><TR><TD><CODE>ALLUSERS</CODE></TD><TD><CODE>1</CODE></TD></TR></TBODY></TABLE><P><LI><P>Next, we need to describe the directory where the shortcut will belocated.  We can use the standard directory property
+<CODE>ProgramMenuFolder</CODE>, which will be set to the proper directory
+on the target machine when <CODE>ALLUSERS</CODE> is set to 1.  However, we
+must still describe this directory in our installation.  To do that, weenter a row into the <STRONG>Directory</STRONG> table:</P>
 
-<LI><P>Each target of a shortcut must be the key path of a component.  Our
-target is in the Documentation component as shown by the
-<STRONG>Component_</STRONG> column in the <STRONG>File</STRONG>
-table. In this example, the Documentation component contains only the
-shortcut target, so it can be made the keyPath file for the
-component.</P>
-
-<P>In order to satisfy the rules for shortcuts, you may need to create
-a new component for the target of the shortcut.  If so, perform the
-following steps:</P>
-
-<P><OL>
-<LI>Display the <STRONG>Component</STRONG> table and select the row
-for the exsting component that contains the shortcut target.
-<LI>Select <STRONG>Edit</STRONG> / <STRONG>Copy Row(s)</STRONG> to copy
-the row to the clipboard.
-<LI>Select <STRONG>Edit</STRONG> / <STRONG>Paste Row(s)</STRONG> to
-paste a new row into the table.
-<LI>Launch izfree and select the New GUID tool.
-<LI>Click the New button to obtain a new GUID for the new component.
-Select the text in the input field and copy it to the clipboard.
-<LI>Select the <STRONG>ComponentId</STRONG> column of the new row and
-type Return.  Delete the initially selected value.  Paste the new GUID
-from izfree into the cell and press Return to finish editing the cell.
-<LI>Display the <STRONG>File</STRONG> table and select the
-<STRONG>Component_</STRONG> cell for the shortcut target.  Edit the
-cell to contain the name of the newly created component.
-</OL></P>
-
-<LI><P>Display the <STRONG>Component</STRONG> table, and highlight the
-<STRONG>KeyPath</STRONG> column and enter <CODE>ZOOM.TXT</CODE>'s key
-from the <STRONG>File</STRONG> table.  In this example, the file's
-key is '<CODE>f1_ZOOM.TXT</CODE>'.</P>
-
-<P><TABLE><TR><TD><IMG SRC="images/tut11.png.jpg" WIDTH=400 HEIGHT=313></TD>
-<TD VALIGN="center"><A HREF="images/tut11.png">19K PNG</A>,<BR>
-<A HREF="images/tut11.jpg">115K JPEG</A></P>
-
-<LI><P>Now create the shortcut.  Display the <STRONG>Shortcut</STRONG>
+<P><TABLE BORDER=1><THEAD><TR><TH>Directory</TH><TH>Directory_Parent</TH>
+<TH>DefaultDir</TH></TR></THEAD><TBODY><TR><TD><CODE>ProgramMenuFolder</CODE></TD><TD><CODE>TARGETDIR</CODE></TD><TD><CODE>.</CODE></TD></TR>
+</TBODY></TABLE></P>
+<LI><P>Now we can create the shortcut.  Display the <STRONG>Shortcut</STRONG>
 table and add a new row with the following columns, where NULL means
 that the column is empty.</P>
 
-<P><TABLE>
-<TR><TD>
-<TABLE BORDER=1>
+<P><TABLE BORDER=1>
 <TBODY>
-<TR><TH>Shortcut</TH><TD><CODE>zoom</CODE></TD></TR>
-<TR><TH>Directory_</TH><TD><CODE>zoomShortcutFolder</CODE></TD></TR>
+<TR><TH>Shortcut</TH><TD><CODE>sctZooom</CODE></TD></TR>
+<TR><TH>Directory_</TH><TD><CODE>ProgramMenuFolder</CODE></TD></TR>
 <TR><TH>Name</TH><TD><CODE>Zoom Documentation</CODE></TD></TR>
 <TR><TH>Component_</TH><TD><CODE>Documentation</CODE></TD></TR>
-<TR><TH>Target</TH><TD><CODE>Documentation</CODE></TD></TR>
+<TR><TH>Target</TH><TD><CODE>[#ZOOM.TXT_f1]</CODE></TD></TR>
 <TR><TH>Arguments</TH><TD>NULL</TD></TR>
 <TR><TH>Description</TH><TD><CODE>Zoom documentation</CODE></TD></TR>
 <TR><TH>HotKey</TH><TD>NULL</TD></TR>
 <TR><TH>Icon_</TH><TD>NULL</TD></TR>
 <TR><TH>IconIndex</TH><TD>NULL</TD></TR>
-<TR><TH>ShowCmd</TH><TD><CODE>1</CODE></TD></TR>
-<TR><TH>WkDir</TH><TD><CODE>TARGETDIR</CODE></TD></TR>
+<TR><TH>ShowCmd</TH><TD>NULL</TD></TR>
+<TR><TH>WkDir</TH><TD>NULL</TD></TR>
 </TBODY>
 </TABLE>
-</TD><TD>
-<IMG SRC="images/tut12.png" WIDTH=401 HEIGHT=321>
-</TD></TR>
-</TABLE></P>
-
-<LI><P>The <STRONG>Directory_</STRONG> column of the shortcut table is an
-external key into the <STRONG>Directory</STRONG> table.  The
-hierarchical structure of the folders containing shortcuts must be
-described in the <STRONG>Directory</STRONG> table.</P>
-
-<P>Display the <STRONG>Directory</STRONG> table and enter the
-following rows:</P>
-
-<P><TABLE BORDER=1>
-<THEAD>
-<TR><TH>Directory</TH><TH>Directory_Parent</TH><TH>DefaultDir</TH></TR>
-</THEAD>
-<TBODY>
-<TR>
-<TD><CODE>ProgramMenuFolder</CODE></TD>
-<TD><CODE>TARGETDIR</CODE></TD>
-<TD><CODE>.</CODE></TD>
-</TR>
-<TR>
-<TD><CODE>zoomShortcutFolder</CODE></TD>
-<TD><CODE>ProgramMenuFolder</CODE></TD>
-<TD><CODE>.</CODE></TD>
-</TR>
-</TBODY>
-</TABLE>
-</P>
-
-<P><A HREF="images/tut13.png"><IMG SRC="images/tut13.png.jpg"
-WIDTH=400 HEIGHT=313></A></P>
-
-<P>This makes the <CODE>zoomShortcutFolder</CODE> be at the same level
-as <CODE>ProgramMenuFolder</CODE>.  In other words, the shortcut will
-be placed on the Programs menu itself, not a submenu of Programs.  To
-place the shortcut in a submenu of the Programs menu, change the
-second row above to:</P>
-
-<P><TABLE BORDER=1>
-<THEAD>
-<TR><TH>Directory</TH><TH>Directory_Parent</TH><TH>DefaultDir</TH></TR>
-</THEAD>
-<TBODY>
-<TR>
-<TD><CODE>zoomShortcutFolder</CODE></TD>
-<TD><CODE>ProgramMenuFolder</CODE></TD>
-<TD><CODE>Zoom</CODE></TD>
-</TR>
-</TBODY>
-</TABLE>
-</P>
-
-<P>This would create a submenu for the shortcut called
-<CODE>Zoom</CODE> underneath the Programs menu.</P>
 
 <LI><P>Now validate the database to ensure that there are no errors
-from editing.  Validation warnings indicate situations that may
-require repair.  You will get the following warnings:</P>
+from editing.  Correct any mistakes made during editing and savethe corrected database.</P>
 
-<P><TABLE BORDER=1>
-<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerb1024</CODE> is used in an unsupported
-way. Shell extension verbs info should be registered via the Verb
-table. This entry may overwrite a value created through that table.</TD></TR>
-<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerb1280</CODE> is used in an unsupported way. Shell
-extension verbs info should be registered via the Verb table. This
-entry may overwrite a value created through that table.</TD></TR>
-<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerb1280x1024</CODE> is used in an unsupported
-way. Shell extension verbs info should be registered via the Verb
-table. This entry may overwrite a value created through that table.</TD></TR>
-<TR><TD><CODE>ICE33</CODE></TD><TD>WARNING</TD><TD>Reg key <CODE>rVerbDouble</CODE> is used in an unsupported
-way. Shell extension verbs info should be registered via the Verb
-table. This entry may overwrite a value created through that table.</TD></TR>
-<TR><TD><CODE>ICE57</CODE></TD><TD>WARNING</TD><TD>Component '<CODE>Documentation</CODE>' has both per-user and
-per-machine data with an HKCU Registry KeyPath.</TD></TR>
-</TABLE></P>
-
-<P>The <CODE>ICE33</CODE> warnings can be ignored because we don't
-want to register Zoom as the COM server for JPEG files, only extend
-the context menu.</P>
-
-<P>The <CODE>ICE57</CODE> warning can also be ignored.  The shortcut
-is installed on the user's Start menu, but the file itself is stored
-on machine-wide.  So that the component can be properly detected, we
-set the key path for the component to a registry entry in HKCU.</P>
-
-<LI><P>Now save the database.  The install now includes a working
+<P>The install now includes a working
 shortcut in the <STRONG>Start</STRONG> / <STRONG>Programs</STRONG>
 menu.  However, if you test this install you'll see that the shortcut
 lacks an icon in the menu.</P>
@@ -178,14 +62,14 @@ lacks an icon in the menu.</P>
 <LI><P>Select an icon for your shortcut and save it as an icon (.ICO)
 file.  We'll extract the icon from notepad and store it in the file
 <CODE>c:\tmp\zoomtxt.ico</CODE>.  Display the <STRONG>Icon</STRONG> table and
-add a new row.  Enter <CODE>zoomtxt.ico</CODE> for the
+add a new row.  Enter <CODE>icoZoom</CODE> for the
 <STRONG>Name</STRONG> column and for the <STRONG>Data</STRONG> column,
 enter the filename <CODE>c:\tmp\zoomtxt.ico</CODE> to import the icon
 data into the column.</P>
 
 <LI><P>Display the <STRONG>Shortcut</STRONG> table and highlight the
 <STRONG>Icon_</STRONG> column for your shortcut.  Edit the value to be
-<CODE>zoomtxt.ico</CODE>, the key for the new record in the
+<CODE>icoZoom</CODE>, the key for the new record in the
 <STRONG>Icon_</STRONG> table.</P>
 
 <LI><P>Validate your install once more, correcting any errors resulting
@@ -198,12 +82,9 @@ from editing.</P>
 <LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
 <LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
 <LI>Tutorial 3: Adding a Shortcut
-<LI><A HREF="tut04.html">Tutorial 4: Initializing TARGETDIR</A>
-<LI><A HREF="tut05.html">Tutorial 5: Adding Shell Verbs</A>
-<LI><A HREF="tut06.html">Tutorial 6: Registering a COM Object</A>
-<!--
-<LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
--->
+<LI><A HREF="tut04.html">Tutorial 4: Adding Shell Verbs</A>
+<LI><A HREF="tut05.html">Tutorial 5: Registering a COM Object</A>
+<LI><A HREF="tut06.html">Tutorial 6: Installing a Service</A>
 </UL></P>
 
 </BODY>

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <HEAD>
-<TITLE>izfree Tutorial 6: Registering a COM Object</TITLE>
+<TITLE>izfree Tutorial 6: Installing a Service</TITLE>
 </HEAD>
 <BODY>
 
@@ -11,258 +11,94 @@
 | <A HREF="tutorial.html">Tutorials</A>
 | Tutorial 6 ]</H3>
 
-<H3>Tutorial 6: Registering a COM Object</H3>
+<H2>Tutorial 6: Installing a Service</H2>
 
-<P>This tutorial assumes that the reader is familiar with COM, but not
-necessarily familiar with how Windows Installer registers COM
-objects.  For more information about COM, see the Platform SDK
-documentation.</P> 
+<P>A <EM>Windows NT service</EM> is a special executable program run by
+the system for performing background tasks.  Windows 9x/Me does not support
+services.  On Windows NT-based systems (Windows NT, Windows 2000, and
+Windows XP), Windows Installer itself has a service executable that is
+used to execute the installation script generated from your database.</P>
 
-<P>COM objects are reusable bits of software distributed in binary
-form.  COM objects register themselves with the system to make
-themselves accessible to applications.  Registration is the process of
-writing data to the system registry that identifies the location of
-the COM object's executable file and its properties.</P>
+<P>Services run in a different security context than the interactive user,
+and by default they run as the <CODE>Local System</CODE> account.  While
+the local system account is considered part of the "trusted computing
+base" and has god-like powers over the system, it also has a very restricted
+operating environment.  For instance, the local system account does not
+have permission to access file shares on the network.  For
+more about services, see the book "<CITE>Professional NT Services</CITE>"
+by Kevin
+Miller.  For more about the Windows NT security model, see the book
+"<CITE>Programming Windows Security</CITE>" by Keith Brown.</P>
 
-<P>COM objects installed by an application need to be registered on the
-target machine.  Similarly, the registration information must be
-removed when the object itself is removed.  Windows Installer provides
-several tables for recording the registration information for a COM
-object.</P>
+<P>Windows Installer manipulates services through the information contained
+in the <STRONG>ServiceControl</STRONG> and <STRONG>ServiceInstall</STRONG>
+database tables.  This information is used by the standard actions
+<STRONG>StopServices</STRONG>
+<STRONG>DeleteServices</STRONG>
+<STRONG>InstallServices</STRONG>
+and
+<STRONG>StartServices</STRONG>.</P>
 
-<P>The <STRONG>Class</STRONG>,
-<STRONG>ProgId</STRONG>,
-<STRONG>TypeLib</STRONG>,
-<STRONG>AppId</STRONG>,
-<STRONG>Extension</STRONG>,
-<STRONG>Registry</STRONG>,
-<STRONG>Verb</STRONG>, and
-<STRONG>MIME</STRONG> tables provide for the registration of COM
-objects.  There is quite a bit of information in those tables, and its
-quite tedious to enter it all by hand.  However, doing so at least
-once will make you familiar with the purpose of all the tables and how
-they are used in your installation.  This understanding is invaluable
-in debugging COM registration problems.</P>
-
-<P>izfree uses a COM object to generate new GUIDs for use with
-Windows Installer.  This tutorial will use izfree's installation and
-registration of this COM object, in <CODE>guidgen.dll</CODE>, as an
-example.  The Zoom application used in previous tutorials does not
-contain any COM objects.</P>
+<P>Packages with services generally need to control services, install
+new services, and possibly set security context information on newly
+installed services.</P>
 
 <OL>
-<LI><P>First, gather the necessary registration information for your
-code.  This involves at a minimum your object's CLSID information under
-<CODE>HKEY_CLASSES_ROOT\CLSID\{</CODE><EM>your guid</EM><CODE>}</CODE>
-when the object is registered.  If the component is not registered, then
-you will have to extract the necessary information from your source code
-or documentation.  Information under your object's CLSID is entered into
-corresdonding entries in the <STRONG>Class</STRONG> table.  Make a note
-of any information that you haven't yet entered into the class table
-for later.</P>
+<LI><P>To install a service, you need to populate a row of the
+<STRONG>ServiceInstall</STRONG> table for each service to be installed.
+The information in this table corresponds to the arguments passed to
+the <CODE>::CreateService</CODE> Win32 API function.  If your service
+was created by the ATL AppWizard in Visual Studio, then you can extract
+the information for this database table directly from the generated
+code.</P>
 
-<P>izfree's <STRONG>Class</STRONG> table has this entry for the
-GUID generator object.  The <STRONG>AppId_</STRONG>,
-<STRONG>FileTypeMask</STRONG>, <STRONG>Icon_</STRONG>,
-<STRONG>IconIndex</STRONG>, <STRONG>DefInprocHandler</STRONG>,
-<STRONG>Argument</STRONG>, and <STRONG>Attributes</STRONG> columns are
-<EM>NULL</EM>.
-</P>
+<P>Many services are related and depend on each other for proper
+functioning.  This information is recorded in the <STRONG>Dependencies</STRONG>
+column of the <STRONG>ServiceInstall</STRONG> table.  COM EXE servers always
+depend on the service <CODE>RPCSS</CODE> (Remote Procedure Call System
+Service).  izfree can automatically extract rows of the
+<STRONG>ServiceInstall</STRONG> table for COM services that create a
+service as part of their self-registration process.</P>
 
-<P><TABLE BORDER=1>
-<TBODY>
-<TR><TH>CLSID</TH>
-<TD><CODE>{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}</CODE></TD></TR>
-<TR><TH>Context</TH>
-<TD><CODE>InprocServer32</CODE></TD></TR>
-<TR><TH>Component_</TH>
-<TD><CODE>guidgen.dll</CODE></TD></TR>
-<TR><TH>ProgId_Default</TH>
-<TD><CODE>Guidgen.Generator.1</CODE></TD></TR>
-<TR><TH>Description</TH>
-<TD><CODE>GUID Generator</CODE></TD></TR>
-<TR><TH>Feature_</TH>
-<TD><CODE>guidgen.dll</CODE></TD></TR>
-</TBODY>
-</TABLE></P>
+<LI><P>If your service is a COM server, make sure that an entry
+for your COM server has been entered into the <STRONG>AppId</STRONG>
+table.  Your COM server may fail to start if this information is not
+present.</P>
 
-<LI><P>guidgen has a default ProgId specified in the
-<STRONG>Class</STRONG> table.  Its ProgId information also needs to be
-entered into the <STRONG>ProgId</STRONG> table.  First, the
-version-dependent ProgId is associated with its specific COM server.
-guidgen's version-dependent ProgId has this entry in the ProgId
-table:</P>
+<LI><P>You can manipulate any service through the
+<STRONG>ServiceControl</STRONG> table.  For instance, your package might
+require that a service be restarted in order to find new information added
+by your package.</P>
 
-<P><TABLE BORDER=1>
-<TR><TH>ProgId</TH>
-<TD><CODE>Guidgen.Generator.1</CODE></TD></TR>
-<TR><TH>ProgId_Parent</TH>
-<TD><EM>NULL</EM></TD></TR>
-<TR><TH>Class_</TH>
-<TD><CODE>{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}</CODE></TD></TR>
-<TR><TH>Description</TH>
-<TD><CODE>GUID Generator</CODE></TD></TR>
-<TR><TH>Icon_</TH>
-<TD><EM>NULL</EM></TD></TR>
-<TR><TH>IconIndex</TH>
-<TD><EM>NULL</EM></TD></TR>
-</TABLE></P>
+<LI><P>If your service requires a specific security context, you will need
+custom actions to provide that security context.  For instance, you may
+want the service to run as a specific account which is created with the
+installation of the package.  This reduces the chance that the system
+could be used to compromise the security of the target machine, since the
+service will be running in a restricted security context.  The local system
+account is considered part of the "trusted computing base" and you should
+not run your services as the local system account unless absolutely
+necessary.</P>
 
-<P>The version-independent ProgId for guidgen has this entry in the
-ProgId table:</P>
+<P>Windows Installer does not include any tables for manipulating the
+security context of the target machine (local user accounts, local groups,
+access rights, permissions, etc.)
+The MSI SDK contains an example of a custom action that creates user
+accounts.  You will need to create any special user accounts before any
+service using such an account is installed.</P>
 
-<P><TABLE BORDER=1>
-<TR><TH>ProgId</TH>
-<TD><CODE>Guidgen.Generator</CODE></TD></TR>
-<TR><TH>ProgId_Parent</TH>
-<TD><CODE>Guidgen.Generator.1</CODE></TD></TR>
-<TR><TH>Class_</TH>
-<TD><CODE>{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}</CODE></TD></TR>
-<TR><TH>Description</TH>
-<TD><CODE>GUID Generator</CODE></TD></TR>
-<TR><TH>Icon_</TH>
-<TD><EM>NULL</EM></TD></TR>
-<TR><TH>IconIndex</TH>
-<TD><EM>NULL</EM></TD></TR>
-</TABLE></P>
-
-<LI><P>guidgen is a scriptable object and needs its type library
-registered to register its interfaces and provide type information to
-scripting development tools.  guidgen's type library is compiled into
-its executable, <CODE>guidgen.dll</CODE>.  The type library can be
-registered when the guidgen component is installed by adding the
-following row to the <STRONG>TypeLib</STRONG> table:</P>
-
-<P><TABLE BORDER=1>
-<TR><TH>LibID</TH>
-<TD><CODE>{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}</CODE></TD></TR>
-<TR><TH>Language</TH>
-<TD><CODE>0</CODE></TD></TR>
-<TR><TH>Component_</TH>
-<TD><CODE>guidgen.dll</CODE></TD></TR>
-<TR><TH>Version</TH>
-<TD><CODE>256</CODE></TD></TR>
-<TR><TH>Description</TH>
-<TD><CODE>guidgen 1.0 Type Library</CODE></TD></TR>
-<TR><TH>Directory_</TH>
-<TD><EM>NULL</EM></TD></TR>
-<TR><TH>Feature_</TH>
-<TD><CODE>guidgen.dll</CODE></TD></TR>
-<TR><TH>Cost</TH>
-<TD><EM>NULL</EM></TD></TR>
-</TABLE></P>
-
-<P>The <STRONG>LibID</STRONG> column gives the GUID for the type
-library.  You will need to extract this from the registration
-information for your COM object.  The <STRONG>Version</STRONG> column
-encodes the major and minor versions as major*256 + minor.</P>
-
-<LI><P>Finally, additional information about the COM server may need
-to be written into the registry.  Not every COM registry key is
-directly supported by a Windows Installer database table.  Take the
-list of registration information you created in step 1, and cross off
-every bit of registration information that has already been accounted
-for by the <STRONG>Class</STRONG>, <STRONG>ProgId</STRONG>, and
-<STRONG>TypeLib</STRONG> tables.
-In the case of guidgen, it has the a <CODE>ThreadingModel</CODE>
-setting, a <CODE>Programmable</CODE> component category and a type
-library setting.</P>
-
-<P>These settings are entered into the <STRONG>Registry</STRONG> table
-with the following rows:</P>
-
-<P><TABLE BORDER=1>
-<TR><TH>Registry</TH><TD>
-<CODE>HKCR_CLSID_guidgen.dll_InprocServer32</CODE>
-</TD></TR>
-<TR><TH>Root</TH><TD>
-<CODE>0</CODE>
-</TD></TR>
-<TR><TH>Key</TH><TD>
-<CODE>CLSID\{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}\InprocServer32</CODE>
-</TD></TR>
-<TR><TH>Name</TH><TD>
-<CODE>ThreadingModel</CODE>
-</TD></TR>
-<TR><TH>Value</TH><TD>
-<CODE>Apartment</CODE>
-</TD></TR>
-<TR><TH>Component_</TH><TD>
-<CODE>guidgen.dll</CODE>
-</TD></TR>
-</TABLE></P>
-
-<P><TABLE BORDER=1>
-<TR><TH>Registry</TH><TD>
-<CODE>HKCR_CLSID_guidgen.dll_Programmable</CODE>
-</TD></TR>
-<TR><TH>Root</TH><TD>
-<CODE>0</CODE>
-</TD></TR>
-<TR><TH>Key</TH><TD>
-<CODE>CLSID\{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}\Programmable</CODE>
-</TD></TR>
-<TR><TH>Name</TH><TD>
-<EM>NULL</EM>
-</TD></TR>
-<TR><TH>Value</TH><TD>
-<EM>NULL</EM>
-</TD></TR>
-<TR><TH>Component_</TH><TD>
-<CODE>guidgen.dll</CODE>
-</TD></TR>
-</TABLE></P>
-
-<P><TABLE BORDER=1>
-<TR><TH>Registry</TH><TD>
-<CODE>HKCR_CLSID_guidgen.dll_TypeLib</CODE>
-</TD></TR>
-<TR><TH>Root</TH><TD>
-<CODE>0</CODE>
-</TD></TR>
-<TR><TH>Key</TH><TD>
-<CODE>CLSID\{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}\TypeLib</CODE>
-</TD></TR>
-<TR><TH>Name</TH><TD>
-<EM>NULL</EM>
-</TD></TR>
-<TR><TH>Value</TH><TD>
-<CODE>{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}</CODE>
-</TD></TR>
-<TR><TH>Component_</TH><TD>
-<CODE>guidgen.dll</CODE>
-</TD></TR>
-</TABLE></P>
-
-<P>The keys in the <STRONG>Registry</STRONG> column only have the
-requirement that they be unique.  Here, keys were chosen to be
-semantically meaningful to a human reader.</P>
-
-<LI><P>guidgen doesn't provide any new file types, so there are no entries
-in the <STRONG>Extension</STRONG>, <STRONG>MIME</STRONG> or
-<STRONG>Verb</STRONG> tables.  Similarly, guidgen is meant to be used
-as a local inproc server only, not as a distributed application
-server, so it has no entries in the <STRONG>AppId</STRONG> table.</P>
-
-<LI><P>Validate the database and correct any mistakes made in editing
-before saving your modified database.</P>
-
+<P>Any security information associated with a COM server, such as that
+configured by <CODE>DCOMNCFG</CODE> will also need a custom action for
+adding and removing this information.  The <STRONG>AppId</STRONG> table
+does not provide a way to set security permissions on a COM server.</P>
 </OL>
-
-<P>Repeat each of these steps for each object that you need to
-register.</P>
-
 <HR><UL>
 <LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
 <LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
-<!-- <LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A> -->
-<LI>Tutorial 3: Adding a Shortcut
-<LI><A HREF="tut04.html">Tutorial 4: Initializing TARGETDIR</A>
-<LI><A HREF="tut05.html">Tutorial 5: Adding Shell Verbs</A>
-<LI>Tutorial 6: Registering a COM Object
-<!--
-<LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
--->
+<LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A>
+<LI><A HREF="tut04.html">Tutorial 4: Adding Shell Verbs</A>
+<LI><A HREF="tut05.html">Tutorial 5: Registering COM Objects</A>
+<LI>Tutorial 6: Installing a Service
 </UL>
 
 </BODY>

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <HTML>
 <HEAD>
-<TITLE>izfree Tutorial 5: Adding Shell Verbs</TITLE>
+<TITLE>izfree Tutorial 5: Registering a COM Object</TITLE>
 </HEAD>
 <BODY>
 
@@ -11,168 +11,319 @@
 | <A HREF="tutorial.html">Tutorials</A>
 | Tutorial 5 ]</H3>
 
-<H3>Tutorial 5: Adding Shell Verbs</H3>
+<H2>Tutorial 5: Registering a COM Object</H2>
 
-<P>Zoom is a flexible image resizing program with lots of command line
-arguments. Remembering all those arguments and their exact meaning can be
-difficult.  Common image resizing tasks are
-to double the size of an image, or resize it to fit dimensions of a
-1280x1024 desktop.  We can extend the Windows Shell
-to provide new resize verbs for the kinds of image files
-that zoom understands.
-The following commands implement the verbs for common resizing operations.</P>
+<P>This tutorial assumes that the reader is familiar with COM, but not
+necessarily familiar with how Windows Installer registers COM
+objects.  For more information about COM, see the Platform SDK
+documentation.</P> 
 
-<P><TABLE BORDER=1>
-<THEAD><TR><TH>Verb</TH><TH>Command</TH></TR></THEAD>
-<TBODY>
-<TR><TD>Zoom 2x</TD>
-<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
-    -dst "%1-2x.jpg" -d 0 0 6000 6000 -map 2 2 0 0</CODE></TD></TR>
-<TR><TD>Zoom 1280x1024</TD>
-<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
-    -dst "%1-1280x1024.jpg" -d 0 0 1280 1024</CODE></TD></TR>
-<TR><TD>Zoom 1280</TD>
-<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
-    -dst "%1-1280.jpg" -d 0 0 1280 6000</CODE></TD></TR>
-<TR><TD>Zoom 1024</TD>
-<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
-    -dst "%1-1280.jpg" -d 0 0 6000 1024</CODE></TD></TR>
-<TR><TD>Zoom Blur</TD>
-<TD><CODE>"C:\Program Files\Zoom\zoom.exe" -filt mitchell -square -src "%1"
-    -dst "%1-blur.jpg" -blur 2</CODE></TR></TR>
-</TBODY>
-</TABLE></P>
+<P>COM objects are reusable bits of software distributed in binary
+form.  COM objects register themselves with the system to make
+themselves accessible to applications.  Registration is the process of
+writing data to the system registry that identifies the location of
+the COM object's executable file and its properties.</P>
 
-<P>You can enter this information manually after you
-install zoom, assuming you installed it to <CODE>C:\Program
-Files\Zoom</CODE>, through the Folder Options / File Types dialog in the
-shell.  The quotation marks are necessary to quote the spaces in the
-paths of the files for proper argument parsing with the shell.</P>
+<P>COM objects installed by an application need to be registered on the
+target machine.  Similarly, the registration information must be
+removed when the object itself is removed.  Windows Installer provides
+several tables for recording the registration information for a COM
+object.</P>
 
-<P>If you run <CODE>REGEDIT</CODE> after adding the verbs with the
-folder options dialog you can see that this information
-was entered into some registry keys under <CODE>HKCR\jpegfile</CODE>.
-You might have been expecting to see the information stored under
-<CODE>HKCR\.jpg</CODE>, but Windows uses an extra level of indirection
-between the file extension and its file association type.  In our
-case, this allows a single verb to work on JPEG files stored with
-extensions <CODE>.JPG</CODE>, <CODE>.JPE</CODE>, or <CODE>.JPEG</CODE>,
-which are all mapped to the file asocation type
-<CODE>jpegfile</CODE>.</P>
+<P>The <STRONG>Class</STRONG>,
+<STRONG>ProgId</STRONG>,
+<STRONG>TypeLib</STRONG>,
+<STRONG>AppId</STRONG>,
+<STRONG>Extension</STRONG>,
+<STRONG>Registry</STRONG>,
+<STRONG>Verb</STRONG>, and
+<STRONG>MIME</STRONG> tables provide for the registration of COM
+objects.  There is quite a bit of information in those tables, and its
+quite tedious to enter it all by hand.  However, doing so at least
+once will make you familiar with the purpose of all the tables and how
+they are used in your installation.  This understanding is invaluable
+in debugging COM registration problems.</P>
 
-<P>Great, except there's one problem.  The user can install zoom.exe
-anywhere on the machine, not just C:\Program Files\Zoom, and may not
-have that location in their path.  So we can't depend on the above
-commands to work if used literally as they appear above.  What we need
-to do is format the commands when the installation is run so that the
-location of <CODE>zoom.exe</CODE> will be resolved to the proper
-location for that target machine.</P>
-
-<P>With the <STRONG>Formatted</STRONG> string type in Windows
-Installer, you can obtain the installed location of any file by using
-the syntax <STRONG><CODE>[#</CODE></STRONG><EM>File
-key</EM><STRONG>]</STRONG>, where <EM>File key</EM> is the
-primary key of a row in the <STRONG>File</STRONG> table.</P>
-
-<P>In our case, we want the location of the <CODE>zoom.exe</CODE>,
-which had a generated file key of <CODE>f0_zoom.exe</CODE>.
-Substituting <CODE>[#f0_zoom.exe]</CODE> for <CODE>C:\Program
-Files\Zoom\zoom.exe</CODE> in the above commands localizes them
-properly on the target machine.  For example:</P>
-
-<P><CODE>"[#f0_zoom.exe]" -filt mitchell -square -src "%1" -dst
-	"%1-2x.jpg" -d 0 0 6000 6000 -map 2 2 0 0</CODE></P>
-
-<P>Note that the quotes (<CODE>"</CODE>) are still part of the command.
-The location of zoom still needs to be quoted
-for the shell, in case it was installed into a directory containing
-spaces, such as Program Files.</P>
-
-<P>Now we just need to write those strings into the registry, which we
-do with the <STRONG>Registry</STRONG> table.
-You might think that we want to use the <STRONG>Verb</STRONG> and
-<STRONG>Extension</STRONG> tables for this, but in this case we
-don't.  Zoom isn't acting as the COM server for the JPEG file
-type, it is only adding some command-line shorthands to the shell's
-context menu for JPEG files.</P>
-
+<P>izfree uses a COM object to generate new GUIDs for use with
+Windows Installer.  This tutorial will use izfree's installation and
+registration of this COM object, in <CODE>guidgen.dll</CODE>, as an
+example.  The Zoom application used in other tutorials does not
+contain any COM objects.</P>
+<H3>A Manual Example</H3><P>First, let's take a look at manually registering a COM object forsome concrete examples with the COM related tables.</P>
 <OL>
-<LI><P>Open the installation database and display the
-<STRONG>Registry</STRONG> table.
-<LI><P>Add the following new rows for the shell commands and verbs
-listed above. The data for the <STRONG>Value</STRONG> column of each
-row is the appropriate shell command listed above.</P>
+<LI><P>First, gather the necessary registration information for your
+code.  This involves at a minimum your object's CLSID information under
+<CODE>HKEY_CLASSES_ROOT\CLSID\{</CODE><EM>your guid</EM><CODE>}</CODE>
+when the object is registered.  If the component is not registered, then
+you will have to extract the necessary information from your source code
+or documentation.  Information under your object's CLSID is entered into
+corresdonding entries in the <STRONG>Class</STRONG> table.  Make a note
+of any information that you haven't yet entered into the class table
+for later.</P>
+
+<P>izfree's <STRONG>Class</STRONG> table has this entry for the
+GUID generator object.  The <STRONG>AppId_</STRONG>,
+<STRONG>FileTypeMask</STRONG>, <STRONG>Icon_</STRONG>,
+<STRONG>IconIndex</STRONG>, <STRONG>DefInprocHandler</STRONG>,
+<STRONG>Argument</STRONG>, and <STRONG>Attributes</STRONG> columns are
+<EM>NULL</EM>.
+</P>
 
 <P><TABLE BORDER=1>
-<THEAD>
-<TR><TH>Registry</TH>
-<TH>Root</TH>
-<TH>Key</TH>
-<TH>Name</TH>
-<TH>Component_</TH></TR>
-</THEAD>
 <TBODY>
-<TR><TD><CODE>rvJPEGDouble</CODE></TD>
-<TD><CODE>0</CODE></TD>
-<TD><CODE>jpegfile\shell\Zoom 2x\command</CODE></TD>
-<TD>NULL</CODE></TD>
-<TD><CODE>Executable</CODE></TD></TR>
-
-<TR><TD><CODE>rvJPEG1280x1024</CODE></TD>
-<TD><CODE>0</CODE></TD>
-<TD><CODE>jpegfile\shell\Zoom 1280x1024\command</CODE></TD>
-<TD>NULL</TD>
-<TD><CODE>Executable</CODE></TD></TR>
-
-<TR><TD><CODE>rvJPEG1280</CODE></TD>
-<TD><CODE>0</CODE></TD>
-<TD><CODE>jpegfile\shell\Zoom 1280\command</CODE></TD>
-<TD>NULL</TD>
-<TD><CODE>Executable</CODE></TD></TR>
-
-<TR><TD><CODE>rvJPEG1024</CODE></TD>
-<TD><CODE>0</CODE></TD>
-<TD><CODE>jpegfile\shell\Zoom 1024\command</CODE></TD>
-<TD>NULL</TD>
-<TD><CODE>Executable</CODE></TD></TR>
-
-<TR><TD><CODE>rvJPEGBlur</CODE></TD>
-<TD><CODE>0</CODE></TD>
-<TD><CODE>jpegfile\shell\Zoom Blur\command</CODE></TD>
-<TD>NULL</TD>
-<TD><CODE>Executable</CODE></TD></TR>
+<TR><TH>CLSID</TH>
+<TD><CODE>{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}</CODE></TD></TR>
+<TR><TH>Context</TH>
+<TD><CODE>InprocServer32</CODE></TD></TR>
+<TR><TH>Component_</TH>
+<TD><CODE>guidgen.dll</CODE></TD></TR>
+<TR><TH>ProgId_Default</TH>
+<TD><CODE>Guidgen.Generator.1</CODE></TD></TR>
+<TR><TH>Description</TH>
+<TD><CODE>GUID Generator</CODE></TD></TR>
+<TR><TH>Feature_</TH>
+<TD><CODE>guidgen.dll</CODE></TD></TR>
 </TBODY>
 </TABLE></P>
 
-<LI><P>Validate the database to check for any errors made during
-editing and save your changes.</P>
+<LI><P>guidgen has a default ProgId specified in the
+<STRONG>Class</STRONG> table.  Its ProgId information also needs to be
+entered into the <STRONG>ProgId</STRONG> table.  First, the
+version-dependent ProgId is associated with its specific COM server.
+guidgen's version-dependent ProgId has this entry in the ProgId
+table:</P>
+
+<P><TABLE BORDER=1>
+<TR><TH>ProgId</TH>
+<TD><CODE>Guidgen.Generator.1</CODE></TD></TR>
+<TR><TH>ProgId_Parent</TH>
+<TD><EM>NULL</EM></TD></TR>
+<TR><TH>Class_</TH>
+<TD><CODE>{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}</CODE></TD></TR>
+<TR><TH>Description</TH>
+<TD><CODE>GUID Generator</CODE></TD></TR>
+<TR><TH>Icon_</TH>
+<TD><EM>NULL</EM></TD></TR>
+<TR><TH>IconIndex</TH>
+<TD><EM>NULL</EM></TD></TR>
+</TABLE></P>
+
+<P>The version-independent ProgId for guidgen has this entry in the
+ProgId table:</P>
+
+<P><TABLE BORDER=1>
+<TR><TH>ProgId</TH>
+<TD><CODE>Guidgen.Generator</CODE></TD></TR>
+<TR><TH>ProgId_Parent</TH>
+<TD><CODE>Guidgen.Generator.1</CODE></TD></TR>
+<TR><TH>Class_</TH>
+<TD><CODE>{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}</CODE></TD></TR>
+<TR><TH>Description</TH>
+<TD><CODE>GUID Generator</CODE></TD></TR>
+<TR><TH>Icon_</TH>
+<TD><EM>NULL</EM></TD></TR>
+<TR><TH>IconIndex</TH>
+<TD><EM>NULL</EM></TD></TR>
+</TABLE></P>
+
+<LI><P>guidgen is a scriptable object and needs its type library
+registered to register its interfaces and provide type information to
+scripting development tools.  guidgen's type library is compiled into
+its executable, <CODE>guidgen.dll</CODE>.  The type library can be
+registered when the guidgen component is installed by adding the
+following row to the <STRONG>TypeLib</STRONG> table:</P>
+
+<P><TABLE BORDER=1>
+<TR><TH>LibID</TH>
+<TD><CODE>{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}</CODE></TD></TR>
+<TR><TH>Language</TH>
+<TD><CODE>0</CODE></TD></TR>
+<TR><TH>Component_</TH>
+<TD><CODE>guidgen.dll</CODE></TD></TR>
+<TR><TH>Version</TH>
+<TD><CODE>256</CODE></TD></TR>
+<TR><TH>Description</TH>
+<TD><CODE>guidgen 1.0 Type Library</CODE></TD></TR>
+<TR><TH>Directory_</TH>
+<TD><EM>NULL</EM></TD></TR>
+<TR><TH>Feature_</TH>
+<TD><CODE>guidgen.dll</CODE></TD></TR>
+<TR><TH>Cost</TH>
+<TD><EM>NULL</EM></TD></TR>
+</TABLE></P>
+
+<P>The <STRONG>LibID</STRONG> column gives the GUID for the type
+library.  You will need to extract this from the registration
+information for your COM object.  The <STRONG>Version</STRONG> column
+encodes the major and minor versions as major*256 + minor.</P>
+
+<LI><P>Finally, additional information about the COM server may need
+to be written into the registry.  Not every COM registry key is
+directly supported by a Windows Installer database table.  Take the
+list of registration information you created in step 1, and cross off
+every bit of registration information that has already been accounted
+for by the <STRONG>Class</STRONG>, <STRONG>ProgId</STRONG>, and
+<STRONG>TypeLib</STRONG> tables.
+In the case of guidgen, it has the a <CODE>ThreadingModel</CODE>
+setting, a <CODE>Programmable</CODE> component category and a type
+library setting.</P>
+
+<P>These settings are entered into the <STRONG>Registry</STRONG> table
+with the following rows:</P>
+
+<P><TABLE BORDER=1>
+<TR><TH>Registry</TH><TD>
+<CODE>HKCR_CLSID_guidgen.dll_InprocServer32</CODE>
+</TD></TR>
+<TR><TH>Root</TH><TD>
+<CODE>0</CODE>
+</TD></TR>
+<TR><TH>Key</TH><TD>
+<CODE>CLSID\{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}\InprocServer32</CODE>
+</TD></TR>
+<TR><TH>Name</TH><TD>
+<CODE>ThreadingModel</CODE>
+</TD></TR>
+<TR><TH>Value</TH><TD>
+<CODE>Apartment</CODE>
+</TD></TR>
+<TR><TH>Component_</TH><TD>
+<CODE>guidgen.dll</CODE>
+</TD></TR>
+</TABLE></P>
+
+<P><TABLE BORDER=1>
+<TR><TH>Registry</TH><TD>
+<CODE>HKCR_CLSID_guidgen.dll_Programmable</CODE>
+</TD></TR>
+<TR><TH>Root</TH><TD>
+<CODE>0</CODE>
+</TD></TR>
+<TR><TH>Key</TH><TD>
+<CODE>CLSID\{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}\Programmable</CODE>
+</TD></TR>
+<TR><TH>Name</TH><TD>
+<EM>NULL</EM>
+</TD></TR>
+<TR><TH>Value</TH><TD>
+<EM>NULL</EM>
+</TD></TR>
+<TR><TH>Component_</TH><TD>
+<CODE>guidgen.dll</CODE>
+</TD></TR>
+</TABLE></P>
+
+<P><TABLE BORDER=1>
+<TR><TH>Registry</TH><TD>
+<CODE>HKCR_CLSID_guidgen.dll_TypeLib</CODE>
+</TD></TR>
+<TR><TH>Root</TH><TD>
+<CODE>0</CODE>
+</TD></TR>
+<TR><TH>Key</TH><TD>
+<CODE>CLSID\{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}\TypeLib</CODE>
+</TD></TR>
+<TR><TH>Name</TH><TD>
+<EM>NULL</EM>
+</TD></TR>
+<TR><TH>Value</TH><TD>
+<CODE>{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}</CODE>
+</TD></TR>
+<TR><TH>Component_</TH><TD>
+<CODE>guidgen.dll</CODE>
+</TD></TR>
+</TABLE></P>
+
+<P>The keys in the <STRONG>Registry</STRONG> column only have the
+requirement that they be unique.  Here, keys were chosen to be
+semantically meaningful to a human reader.</P>
+
+<LI><P>guidgen doesn't provide any new file types, so there are no entries
+in the <STRONG>Extension</STRONG>, <STRONG>MIME</STRONG> or
+<STRONG>Verb</STRONG> tables.  Similarly, guidgen is meant to be used
+as a local inproc server only, not as a distributed application
+server, so it has no entries in the <STRONG>AppId</STRONG> table.</P>
+
+<LI><P>Validate the database and correct any mistakes made in editing
+before saving your modified database.</P>
+
+<LI><P>Repeat each of these steps for each object that you need to
+register.</P>
 </OL>
 
-<P>Now when you install Zoom, the context menu (and File menu, in
-Windows Folder views) will display the items "Zoom 2x", "Zoom
-1280x1024", "Zoom 1280", "Zoom 1024", and "Zoom Blur".  Selecting one
-of these will perform the operation on the selected file and produce a
-new file containing the result in the same directory.  The output
-files are created from the input filenames with a suffix added.</P>
+<H3>An Automated Example</H3><P>Now that you have an understanding of the kind of data written intothe COM-related tables, let's take a look at how izfree 1.1 can automatethis for us. izfree 1.1 can automatically extract COM registration
+information from self-registering COM objects.  Most COM objects are
+self-registering, which means that they can be asked to record their
+own registration information on the target system.  When a COM object
+self-registers, Windows Installer cannot provide advanced features such
+as self-repair or advertisement.</P>
 
-<P>You can add verbs to use zoom as an image conversion program,
-although this is not its primary purpose, by giving the source and
-destination filenames different extensions, such as <CODE>zoom -src "%1"
--dst "%1.jpg"</CODE> will convert a file to JPEG format.  You can also
-add verbs for the other file types supported by zoom.  <CODE>zoom -dev
-?</CODE> provides a list of understood formats.</P>
+<P>izfree takes a small snapshot of the system and then asks the COM
+object to register itself.  After the registration has completed, izfree
+compares the system's state after the registration with that taken in the
+snapshot.  The differences between the system before and after
+self-registration are used to populate the COM-related tables.</P>
 
+<P>izfree 1.1 will also notice actions taken on services during
+self-registration and will use that information to populate the
+<STRONG>ServiceControl</STRONG> and <STRONG>ServiceInstall</STRONG>
+tables.</P>
+<P>The COM registration tool in izfree 1.1 assumes that the COM object'sfile and component has already been incorporated into the database.  This
+can be done manually or with izfree's new component tool.</P>
+
+<P>This example will use a fictitious program called '<CODE>Bazooka</CODE>'
+that contains two COM objects.  The first COM object is a DLL server called
+<CODE>testdll.dll</CODE> and the second COM object is an EXE server called
+<CODE>service.exe</CODE>.  <CODE>service.exe</CODE> is a Windows NT service
+EXE created with ATL.  When the ATL AppWizard creates a service EXE project,it inserts code to create the service in the self-registration code for the
+EXE.</P>
+<OL>
+<LI><P>Launch izfree and open a database that has been prepared with<STRONG>File</STRONG> and <STRONG>Component</STRONG> table entries for
+your COM object.</P>
+
+<LI><P>Select the COM registration tool.  The following form is
+displayed.</P>
+
+<P><TABLE><TR><TD><IMG SRC="images/tut5-1.png.jpg" WIDTH=400 HEIGHT=300></TD>
+<TD><A HREF="images/tut5-1.png">17K PNG</A>,<BR>
+<A HREF="images/tut5-1.jpg">71K JPEG</A></TD></TR></TABLE></P>
+<P>Enter the location of the COM server from which registration informationis to be extracted.  If the COM server is a service, check the Service EXEcheckbox.  Select a feature and component with which this COM server isassociated.  If you created the entries with izfree, the name of theappropriate feature and component will contain the filename of theserver.</P><P>Usually you will not need to edit the list of monitored registry keys.By default izfree monitors all the important registry keys for COM objectregistration as well as typical keys used to record other applicationconfiguration information.  If izfree misses some information from yourobject's self-registration process, you can add additional registry keysto the list.</P>
+<LI><P>Click 'Next' to advance to the next step in the wizard sequence.izfree will self-register your COM server and extract
+the registration information.  A summary of the extracted information will
+be displayed.</P>
+
+<P><TABLE><TR><TD><IMG SRC="images/tut5-2.png.jpg" WIDTH=400 HEIGHT=300></TD>
+<TD><A HREF="images/tut5-2.png">K PNG</A>,<BR>
+<A HREF="images/tut5-2.jpg">K JPEG</A></TD></TR></TABLE></P>
+
+<P>If it looks like something from the registration was missed based on the
+summary information, you can go back to the first page of the COM registration
+wizard sequence and add additional registry keys in order to capture the
+necessary information.</P>
+
+<P>When you are satisfied with the information that has been extracted,
+click the 'Finish' button to add the extracted information to the
+database.</P>
+
+<LI><P>Repeat the process for any additional COM servers in your project.
+In this example, we repeat the process for the service EXE and note that
+a record in the <STRONG>ServiceInstall</STRONG> table was extracted.</P>
+
+<P><TABLE><TR><TD><IMG SRC="images/tut5-3.png.jpg" WIDTH=400 HEIGHT=300></TD>
+<TD><A HREF="images/tut5-3.png">K PNG</A>,<BR>
+<A HREF="images/tut5-3.jpg">K JPEG</A></TD></TR></TABLE></P>
+
+<LI><P>Save the changes to your database and exit izfree.  Open your database
+in Orca to validate the added information.  The database should validate
+without errors.</P>
+</OL><P>As you can see, izfree 1.1 makes this process much simpler than doingit by hand.  Advanced uses of COM may still require that you understandthe COM-related database tables for fine tuning of the basics provided byizfree.</P>
 <HR><UL>
 <LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
 <LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
-<!-- <LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A> -->
-<LI>Tutorial 3: Adding a Shortcut
-<LI><A HREF="tut04.html">Tutorial 4: Initializing TARGETDIR</A>
-<LI>Tutorial 5: Adding Shell Verbs
-<LI><A HREF="tut06.html">Tutorial 6: Registering a COM Object</A>
-<!--
-<LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
--->
+<LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A>
+<LI><A HREF="tut04.html">Tutorial 4: Adding Shell Verbs</A>
+<LI>Tutorial 5: Registering a COM Object
+<LI><A HREF="tut06.html">Tutorial 6: Installing a Service</A>
 </UL>
 
 </BODY>

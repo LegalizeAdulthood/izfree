@@ -6,21 +6,21 @@
 <BODY>
 
 <H3>[ <A HREF="http://sourceforge.net/">SourceForge.net</A>
-| <A HREF="http://sourceforge.net/projects/izfree/">Project</A>
+| <A HREF="http://sourceforge.net/projects/izfree/">Project</A> 
 | <A HREF="http://izfree.sourceforge.net/">izfree</A>
-| <A HREF="tutorial.html">Tutorials</A>
+| <A href="tutorial.html">Tutorials</A>
 | Tutorial 1 ]</H3>
 
-<H3>Tutorial 1: The Basics</H3>
+<H2>Tutorial 1: The Basics</H2>
 
 <P>This tutorial installs the 'zoom.exe' console application and its
 associated manual page file 'ZOOM.TXT'.  The files are copied onto the
 target machine and nothing more.</P>
 
-<P>Zoom is a simple console <A HREF=
-"http://www.xmission.com/~legalize/zoom.html">program for resizing image
-files</A>.  It is <A HREF=
-"ftp://ftp.xmission.com/pub/users/l/legalize/graphics/zoom.zip">available
+<P>Zoom is a simple console <A href=
+"http://www.xmission.com/~legalize/zoom.html"  zoom.html?? ~legalize www.xmission.com http:>program for resizing image
+files</A>.  It is <A href=
+"ftp://ftp.xmission.com/pub/users/l/legalize/graphics/zoom.zip"  zoom.zip?? graphics legalize l users pub ftp.xmission.com ftp:>available
 as a ZIP file</A> containing the two files mentioned above.</P>
 
 <OL>
@@ -41,14 +41,19 @@ For zoom, make a local directory called
 <CODE>ZOOM.TXT</CODE> inside.</P>
 
 <LI><P>Launch izfree.</P>
-<LI><P>Select the 'New Package' tool.</P>
-<LI><P>Fill out the form for the new package.  You can browse for the
-database templates or the output database by clicking the '...'
-buttons to the right of the input fields.  For the product code,
-package guid and upgrade code, you can click the 'New' buttons to
-generate new GUIDs for these fields.  If you are re-creating an
-existing package or upgrading an existing package, then you should
-enter the appropriate GUIDs in the necessary fields.</P>
+<LI><P>Click the "New..." button at the top left corner of the window to
+bring up the new package dialog.</P>
+
+<LI><P>Fill out the form for the new package. You can browse for the database 
+templates or the output database by clicking the '...' buttons to the right of 
+the input fields.  The installation directory will be associated with the
+<CODE>APPDIR</CODE> public property through entries in the
+<STRONG>Directory</STRONG> table.</P>
+
+<P>For the product code, package guid and upgrade code, you can click the 
+'New' buttons to generate new GUIDs for these fields. If you are re-creating 
+an existing package or upgrading an existing package, then you should enter 
+the appropriate GUIDs in the necessary fields.</P>
 
 <P>Don't place the MSI database in the build directory unless you want
 the MSI database installed with the product.  Since this is typically
@@ -58,31 +63,45 @@ another location.  We'll put it in '<CODE>c:\tmp</CODE>'.</P>
 <P>When you have finished entering the data, your form should look
 like this (but with different GUIDs):</P>
 
-<P><TABLE><TR><TD><IMG WIDTH=400 HEIGHT=300 SRC="images/tut01.png.jpg"></TD>
-<TD VALIGN="center"><A HREF="images/tut01.png">15K PNG</A>,<BR>
-<A HREF="images/tut01.jpg">69K JPEG</A></TD></TR></TABLE></P>
+<P><TABLE><TR><TD><IMG height=284 src="images/tut1-1.png.jpg" width=400></TD>
+<TD VALIGN="center"><A href="images/tut1-1.png">12K PNG</A>,<BR>
+<A href="images/tut1-1.jpg">48K JPEG</A></TD></TR></TABLE></P>
 
-<LI><P>Select the 'New Package' tool to create a new package from
-the database templates.  The output database now contains a complete
-blank database that will pass all internal consistency evaluators
-(ICEs) published with the MSI SDK.  You can open the database in Orca
-and examine the blank database if you wish.</P>
+<LI><P>Click the 'Create Package' button to create a new package from
+the database templates.  After the templates are combined to create a blank
+database, izfree uses the information you entered on the form to create
+a minimal set of required summary information and standard properties.
+The database will pass all internal consistency evaluators
+(ICEs) published with the MSI SDK.</P>
 
-<LI><P>Select the 'New Components' tool.  Enter the filename of the
-database you created in the previous step as the output database.
-This is the database to which the new components will be written.
+<P>After the database has been created, it becomes the current database
+in izfree.  The current database in izfree is indicated at the top of the
+main window.  When the current database has been modified, but not yet
+saved to disk, an asterisk will display to the right of the database
+filename.  Once a database has been opened in izfree, tools for
+manipulating the database are shown in the pane on the left side.</P>
+
+<P><TABLE><TR><TD><IMG HEIGHT=300 WIDTH=400 SRC="images/tut1-2.png.jpg"></TD>
+<TD VALIGN="center"><A HREF="images/tut1-2.png">9K PNG</A>,<BR>
+<A HREF="images/tut1-2.jpg">38K JPEG</A></TD></TR></TABLE></P>
+
+<LI><P>Select the 'New Components' tool.
 Enter the directory containing your target directory layout.  In this
 example, the build directory '<CODE>c:\tmp\zoom</CODE>' is
 entered.</P>
 
-<LI><P>Click the 'Scan' button.  A tree view of the components created
-from the scanned directory is shown on the lower left.  Selecting an
+<P><TABLE><TR><TD><IMG height=300 src="images/tut1-3.png.jpg" width=400></TD>
+<TD VALIGN="center"><A href="images/tut1-3.png">13K PNG</A>,<BR>
+<A href="images/tut1-3.jpg">54K JPEG</A></TD></TR></TABLE></P>
+
+<LI><P>Click the 'Next' button.  A tree view of the components created
+from the scanned directory is displayed.  Selecting an
 item in the tree view displays its corresponding source and target
 directories on the right.</P>
 
-<P><TABLE><TR><TD><IMG WIDTH=400 HEIGHT=300 SRC="images/tut02.png.jpg"></TD>
-<TD VALIGN="center"><A HREF="images/tut02.png">13K PNG</A>,<BR>
-<A HREF="images/tut02.jpg">54K JPEG</A></TD></TR></TABLE></P>
+<P><TABLE><TR><TD><IMG height=300 src="images/tut1-4.png.jpg" width=400></TD>
+<TD VALIGN="center"><A href="images/tut1-4.png">13K PNG</A>,<BR>
+<A href="images/tut1-4.jpg">54K JPEG</A></TD></TR></TABLE></P>
 
 <P>You can edit the names of the components (but not the files) by
 clicking the label in the tree view.  Clicking the label the first
@@ -90,13 +109,32 @@ time selects the label.  Pause briefly and click the label again and
 it will change to an edit box, allowing you to enter a new component
 name.</P>
 
-<P><TABLE><TR><TD><IMG WIDTH=400 HEIGHT=300 SRC="images/tut03.png.jpg"></TD>
-<TD VALIGN="center"><A HREF="images/tut03.png">13K PNG</A>,<BR>
-<A HREF="images/tut03.jpg">55K JPEG</A>
+<LI><P>Click the 'Next' button.  Select the installation directory
+and associated feature for the new components.  In our case, the directory
+is <CODE>APPDIR</CODE>, and the associated feature is <CODE>All</CODE>.
+Using the form on the right, you can create a new feature if there are
+no existing features or no appropriate feature exists.</P>
+
+<P><TABLE><TR><TD><IMG height=300 src="images/tut1-5.png.jpg" width=400></TD>
+<TD VALIGN="center"><A href="images/tut1-5.png">13K PNG</A>,<BR>
+<A href="images/tut1-5.jpg">55K JPEG</A>
 </TD></TR></TABLE></P>
 
-<LI><P>Click the 'Save' button to save the new components to the named
-database.</P>
+<LI><P>Click the 'Next' button.  A summary of the information to be
+committed to the database is shown.</P>
+
+<P><TABLE><TR><TD><IMG height=300 src="images/tut1-6.png.jpg" width=400></TD>
+<TD VALIGN="center"><A href="images/tut1-6.png">13K PNG</A>,<BR>
+<A href="images/tut1-6.jpg">55K JPEG</A>
+</TD></TR></TABLE></P>
+
+<LI><P>Click the 'Finish' button to commit the generated file, component,
+and feature entries to the database.</P>
+
+<LI><P>izfree now displays an asterisk next to the database filename.
+This indicates that you have modified the database, but not
+yet saved the modifications to disk.  Click the 'Save' button to save
+your database changes.</P>
 
 <LI><P>izfree creates an installation that expects the source
 directory structure at the same level as the MSI file.  Move the MSI
@@ -109,16 +147,12 @@ case, we move '<CODE>zoom.msi</CODE>' from '<CODE>c:\tmp</CODE>' to
 
 <HR><UL>
 <LI>Tutorial 1: The Basics
-<LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
+<LI><A href="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
 <LI>Tutorial 3: Adding a Shortcut
-<LI><A HREF="tut04.html">Tutorial 4: Initializing TARGETDIR</A>
-<LI><A HREF="tut05.html">Tutorial 5: Adding Shell Verbs</A>
-<LI><A HREF="tut06.html">Tutorial 6: Registering a COM Object</A>
-<!--
-<LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
--->
+<LI><A href="tut04.html">Tutorial 4: Adding Shell Verbs</A>
+<LI><A href="tut05.html">Tutorial 5: Registering a COM Object</A>
+<LI><A HREF="tut06.html">Tutorial 6: Installing a Service</A>
+</LI>
 </UL>
-
 </BODY>
 </HTML>
-
