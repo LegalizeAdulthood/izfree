@@ -59,5 +59,38 @@ MTL=midl.exe
 
 # Name "izfree - Win32 Release"
 # Name "izfree - Win32 Debug"
+# Begin Source File
+
+SOURCE=.\izfree.hhp
+
+!IF  "$(CFG)" == "izfree - Win32 Release"
+
+# PROP Ignore_Default_Tool 1
+USERDEP__IZFRE="izfree.hhc"	
+# Begin Custom Build
+InputPath=.\izfree.hhp
+
+"izfree.chm" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	"c:\program files\html help workshop\hhc" $(InputPath) 
+	@echo done. 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "izfree - Win32 Debug"
+
+# PROP Ignore_Default_Tool 1
+USERDEP__IZFRE="izfree.hhc"	
+# Begin Custom Build
+InputPath=.\izfree.hhp
+
+"izfree.chm" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	"c:\program files\html help workshop\hhc" $(InputPath) 
+	@echo done. 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Target
 # End Project
