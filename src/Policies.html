@@ -156,6 +156,16 @@ sub change_str
     dim root, anme : extract_root_name root, name
     write_str_control window.event.srcElement.id, root, name
 end sub
+
+sub validate_search_order
+    window.event.returnValue = _
+        (instr("nmu", lcase(chr(window.event.keyCode))) > 0)
+end sub
+
+sub validate_log_flags
+    window.event.returnValue = _
+        (instr("iwearucmopv!", lcase(chr(window.event.keyCode))) > 0)
+end sub
 --></SCRIPT>
 <SCRIPT ID=clientEventHandlersVBS LANGUAGE=vbscript>
 <!--
@@ -180,6 +190,9 @@ sub userDisableRollback_onChange        : change_bool : end sub
 sub userSearchOrder_onChange            : change_str : end sub
 sub userTransformsAtSource_onChange     : change_bool : end sub
 
+sub userSearchOrder_onKeyPress : validate_search_order : end sub
+sub sysLogging_onKeyPress : validate_log_flags : end sub
+
 sub window_onLoad()
     read_user_bool "AlwaysInstallElevated"
     read_user_bool "DisableMedia"
@@ -199,27 +212,6 @@ sub window_onLoad()
     read_sys_str "Logging"
     read_sys_bool "SafeForScripting"
     read_sys_bool "TransformsSecure"
-end sub
-
-sub window_onUnloadXXXX
-    write_user_bool "AlwaysInstallElevated"
-    write_user_bool "DisableMedia"
-    write_user_bool "DisableRollback"
-    write_user_str "SearchOrder"
-    write_user_bool "TransformsAtSource"
-    
-    write_sys_bool "AllowLockdownBrowse"
-    write_sys_bool "AllowLockdownPatch"
-    write_sys_bool "AlwaysInstallElevated"
-    write_sys_dword "Debug"
-    write_sys_bool "DisableBrowse"
-    write_sys_bool "DisableMSI"
-    write_sys_bool "DisablePatch"
-    write_sys_bool "DisableRollback"
-    write_sys_bool "EnableAdminTSRemote"
-    write_sys_str "Logging"
-    write_sys_bool "SafeForScripting"
-    write_sys_bool "TransformsSecure"
 end sub
 -->
 </SCRIPT>
@@ -253,7 +245,7 @@ end sub
     <OPTION VALUE="1">Yes
     </SELECT></TD></TR>
     </TABLE></TD>
-<TD WIDTH=100% VALIGN="top">
+<TD WIDTH=50% VALIGN="top">
     <TABLE>
     <TR><TD COLSPAN=2 ALIGN="left"><H4>Machine Policies</H4></TD></TR>
     <TR><TD ALIGN="right">Allow Lockdown Browse:</TD>
