@@ -83,6 +83,20 @@ sub si_prop(si, name, value)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' set_dir
+'
+' Set a record in the directory table
+'
+sub set_dir(view, dir, parent, defdir)
+    on error resume next
+    dim rec : set rec = installer().CreateRecord(3) : check
+    rec.stringdata(1) = dir
+    rec.stringdata(2) = parent
+    rec.stringdata(3) = defdir
+    view.execute rec : check
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' create_package
 '
 ' Given the inputs from the form, create a blank MSI package ready for
@@ -93,7 +107,7 @@ end sub
 '
 sub create_package(template_dir, database, manufacturer, _
                    product_name, product_version, product_code, _
-                   package_guid, upgrade_code)
+                   package_guid, upgrade_code, target_root, target_dir)
     on error resume next
     g_source = template_dir
     if (right(g_source, 1) <> "\") then
@@ -104,20 +118,24 @@ sub create_package(template_dir, database, manufacturer, _
         g_dest = g_dest & ".msi"
     end if
 
+    ' start with schema
     if (fso().FileExists(g_dest)) then
         fso().DeleteFile g_dest : check
     end if
     fso().CopyFile g_source & "schema.msi", g_dest : check
 
+    ' merge in sequence and UI tables
     if (InStr(g_dest, " ")) then
         g_dest = chr(34) & g_dest & chr(34)
     end if
     merge "Sequence.msi"
     merge "UISample.msi"
     
+    ' now open the resulting file to substitute form values
     set g_db = _
         installer().OpenDatabase(g_dest, msiOpenDatabaseModeTransact) : check
     
+    ' set the summary information properties
     dim si : set si = g_db.SummaryInformation(9) 
     si_prop si, PID_TITLE, "Installation Database"
     si_prop si, PID_TITLE, "Installation Database"
@@ -134,6 +152,7 @@ sub create_package(template_dir, database, manufacturer, _
     si.persist : check
     set si = nothing
     
+    ' set the required properties in the Property table
     dim view : set view = g_db.OpenView("INSERT INTO `Property`(" &_
             "`Property`,`Value`) VALUES (?,?)") : check
     set_property view, "Manufacturer", manufacturer
@@ -142,8 +161,25 @@ sub create_package(template_dir, database, manufacturer, _
     set_property view, "ProductVersion", product_version
     set_property view, "UpgradeCode", upgrade_code
     view.close : check
-    set view = nothing
-
+    
+    ' give the new package a root install directory
+    set view = g_db.OpenView("INSERT INTO `Directory`(`Directory`," &_
+        "`Directory_Parent`,`DefaultDir`) VALUES (?,?,?)") : check
+    set_dir view, "TARGETDIR", "", "SourceDir"
+    set_dir view, target_root, "TARGETDIR", "."
+    set_dir view, "APPDIR", target_root, target_dir & ":."
+    view.close : check
+    
+    ' give the new package a root feature
+    set view = g_db.OpenView("insert into `Feature`(`Feature`," &_
+        "`Feature_Parent`,`Title`,`Description`,`Display`,`Level`," &_
+        "`Directory_`,`Attributes`) values ('All', '', 'All Features'," &_
+        " 'All features in " & product_name & ".', 10, 1, 'APPDIR', 0)") : _
+        check
+    view.execute : check
+    view.close : check
+    
+    ' save changes
     g_db.commit : check    
 end sub
 
@@ -210,14 +246,11 @@ end sub
 '
 sub create_onClick
     dim all : set all = document.forms("CreateForm").all
-    create_package all("templateDir").value, _
-                        all("database").value, _
-                        all("manufacturer").value, _
-                        all("productName").value, _
-                        all("productVersion").value, _
-                        all("productCode").value, _
-                        all("packageGuid").value, _
-                        all("upgradeCode").value
+    create_package all("templateDir").value, all("database").value, _
+        all("manufacturer").value, all("productName").value, _
+        all("productVersion").value, all("productCode").value, _
+        all("packageGuid").value, all("upgradeCode").value, _
+        all("targetRoots").value, all("targetDir").value
     set all = nothing
     set_database g_dest, g_db, false
     window.close
@@ -261,6 +294,19 @@ sub window_onload
     read_tool_input "manufacturer", ""
     read_tool_input "productName", ""
     read_tool_input "productVersion", "1.0"
+    
+    load_opts document.all("targetRoots"), array("AdminToolsFolder", _
+        "AppDataFolder", "AdminToolsFolder", "AppDataFolder", _
+        "CommonAppDataFolder", "CommonFilesFolder", "CommonFiles64Folder", _
+        "DesktopFolder", "FavoritesFolder", "FontsFolder", _
+        "LocalAppDataFolder", "MyPicturesFolder", "PersonalFolder", _
+        "ProgramFilesFolder", "ProgramFiles64Folder", "ProgramMenuFolder", _
+        "SendToFolder", "StartMenuFolder", "StartupFolder", "System16Folder", _
+        "SystemFolder", "System64Folder", "TempFolder", "TemplateFolder", _
+        "WindowsFolder", "WindowsVolume")
+        
+    read_tool_input "targetRoots", "ProgramFilesFolder"
+    read_tool_input "targetDir", document.all("productName").value
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -283,6 +329,8 @@ sub window_onUnload
     write_tool_input "manufacturer"
     write_tool_input "productName"
     write_tool_input "productVersion"
+    write_tool_input "targetRoots"
+    write_tool_input "targetDir"
     dialog_unload
 end sub
 
@@ -372,6 +420,14 @@ sub cancel_onClick
     window.close
 end sub
 
+sub browseTargetDir_onClick
+    ' browse for directory
+    ' compare paths of special directories against prefix of browsed dir
+    ' if not special, then warn
+    ' else
+    ' create directory table entries from special folder to selected subdir
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -379,11 +435,22 @@ end sub
 </HEAD>
 <BODY LEFTMARGIN=20 RIGHTMARGIN=20>
 
-<H3><A NAME="CreatePackage">Create a New Installation Package</A></H3>
+<!-- <H3><A NAME="CreatePackage">Create a New Installation Package</A></H3>
 
 <P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
-
-<FORM NAME="CreateForm"><P><TABLE>
+-->
+<FORM NAME="CreateForm">
+<P><TABLE WIDTH=100%>
+<TR><TD COLSPAN=2>
+    <TABLE><TR>
+        <TD WIDTH=100%>
+            <H3><A NAME="CreatePackage">Create a New Installation Package</A></H3>
+        </TD>
+        <TD VALIGN="top">
+            <SPAN ID="help" CLASS="anchor">Help?</SPAN>
+        </TD>
+    </TR></TABLE>
+</TD></TR>
 <TR><TD>Template Directory:</TD>
 <TD><INPUT NAME="templateDir" SIZE=50>
 <INPUT TYPE="button" VALUE="..." ID="BrowseTemplateDir"></TD></TR>
@@ -396,6 +463,11 @@ end sub
 <TD><INPUT NAME="productName" SIZE=50></TD></TR>
 <TR><TD>Product Version:</TD>
 <TD><INPUT NAME="productVersion" SIZE=8></TD></TR>
+<TR><TD>Installation Directory:</TD>
+<TD><SELECT ID="targetRoots"></SELECT>
+\ <INPUT ID="targetDir" SIZE=25>
+<INPUT ID="browseTargetDir" TYPE="button" VALUE="...">
+</TD></TR>
 <TR><TD>Product Code:</TD>
 <TD><INPUT NAME="productCode" SIZE=41>
 <INPUT TYPE="button" VALUE="New" id=guid1 name=guid1></TD></TR>
