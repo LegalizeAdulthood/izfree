@@ -1,0 +1,30 @@
+<HTML>
+<HEAD>
+<META NAME=VI60_defaultClientScript CONTENT=VBScript>
+<META NAME="GENERATOR" CONTENT="Microsoft Visual Studio 6.0">
+<TITLE>Create a Windows Installer GUID</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+on error resume next
+
+sub create_onClick
+    set_guid_button "CreateGUID", "GUID"
+end sub
+
+sub help_onClick
+    show_help "NewGUID"
+end sub
+--></SCRIPT>
+</HEAD>
+<BODY>
+<H3>Create New GUID</H3>
+<SPAN ID="help" NAME="help" CLASS="anchor">Help?</SPAN>
+<FORM NAME="CreateGUID">
+<INPUT NAME="GUID" SIZE=45>
+<INPUT ID="create" NAME="create" TYPE="button" VALUE="New">
+</FORM>
+<P ID="debug"></P>
+</BODY>
+</HTML>

@@ -1,0 +1,126 @@
+<HTML><HEAD>
+<META name=VI60_defaultClientScript content=VBScript>
+<HTA:APPLICATION NAVIGABLE="yes" ICON="izfree.ico" APPLICATIONNAME="izfree" />
+<TITLE>izfree Tools for Windows Installer</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT LANGUAGE="VBScript" TYPE="text/vbscript"><!--
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+option explicit
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim g_installer, g_wsh, g_fso, g_generator
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' selected_tool
+'
+' Name of currently selected SPAN that represents the tool loaded in the
+' IFRAME.
+'
+dim selected_tool
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' change_tool
+'
+' Switches the visual style of the currently selected tool and loads the
+' corresponding file into the IFRAME.
+'
+sub change_tool
+    dim span : set span = window.event.srcElement
+    if (selected_tool <> "") then
+        document.all(selected_tool).className = "anchor"
+    end if
+    selected_tool = span.id
+    span.className = "selected"
+    document.all("tool").src = span.id & ".html"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' xxx_onClick
+'
+' Event handlers to load the corresponding tools.
+'
+sub NewGUID_onClick : change_tool : end sub
+sub NewPackage_onClick : change_tool : end sub
+sub NewComponents_onClick : change_tool : end sub
+sub PreviewDialogs_onClick : change_tool : end sub
+sub ATLCOM_onClick : change_tool : end sub
+sub MergeModule_onClick : change_tool : end sub
+sub EditDialog_onClick : change_tool : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onLoad
+'
+' Initialize the application.
+'
+sub window_onLoad
+    on error resume next
+    set g_wsh = check_object("WScript.Shell")
+    set g_installer = check_object("WindowsInstaller.Installer")
+    set g_fso = check_object("Scripting.FileSystemObject")
+    set g_generator = check_object("Guidgen.Generator")
+    selected_tool = read_setting("", "Tool")
+    if (selected_tool = "") then
+        selected_tool = "NewGUID"
+    end if
+    document.all(selected_tool).className = "selected"
+    document.all("tool").src = selected_tool & ".html"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' window_onUnload
+'
+' Cleans up resources allocated in the application init.
+'
+sub window_onUnload
+    write_setting "", "Tool", selected_tool
+    set g_installer = nothing
+    set g_wsh = nothing
+    set g_fso = nothing
+    set g_generator = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' quit_onClick
+'
+' Close the window on quit.
+'
+sub quit_onClick : window.close : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' resize the window immediately, don't wait for document to load.
+window.resizeTo 800, 600
+--></SCRIPT>
+</HEAD><BODY ID="Main"><TABLE WIDTH="100%" HEIGHT="100%" CELLPADDING="0">
+<TR VALIGN="top">
+<TD COLSPAN=2 WIDTH="100%">
+<H1>izfree Tools for Windows Installer 1.0</H1>
+</TD>
+</TR>
+<TR HEIGHT="100%" VALIGN="top">
+<TD WIDTH="18%" HEIGHT="100%" VALIGN="top">
+<HR>
+<P><SPAN ID="NewGUID" CLASS="anchor">New GUID</SPAN></P>
+<P><SPAN ID="NewPackage" CLASS="anchor">New Package</SPAN></P>
+<P><SPAN ID="NewComponents" CLASS="anchor">New Components</SPAN></P>
+<P><SPAN ID="PreviewDialogs" CLASS="anchor">Preview Dialogs</SPAN></P>
+<!-- COM registration extraction from an ATL .rgs file is in development. -->
+<P CLASS="invisible"><SPAN ID="ATLRegistration" CLASS="anchor">ATL COM</SPAN></P>
+<!-- Automatic COM registration extraction from a binary image is in development. -->
+<P CLASS="invisible"><SPAN ID="COMRegistration" CLASS="anchor">COM Registration</SPAN></P>
+<!-- Use Orca for merge modules -->
+<P CLASS="invisible"><SPAN ID="MergeModule" CLASS="anchor">Merge Module</SPAN></P>
+<!-- A dialog editor is in development. -->
+<P CLASS="invisible"><SPAN ID="EditDialog" CLASS="anchor">Edit Dialog</SPAN></P>
+<HR>
+<P><INPUT TYPE="button" ID="quit" VALUE="Quit" NAME="quit"></P>
+<HR>
+</TD>
+<TD WIDTH="85%" HEIGHT="100%">
+<P ID="debug"></P>
+<IFRAME NAME="tool" WIDTH="100%" ID="tool" HEIGHT="100%" APPLICATION="yes"></IFRAME>
+</TD>
+</TR>
+</TABLE>
+</BODY>
+</HTML>

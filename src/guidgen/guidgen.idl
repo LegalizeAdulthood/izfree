@@ -1,0 +1,40 @@
+// guidgen.idl : IDL source for guidgen.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (guidgen.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+[
+	object,
+	uuid(67E7999E-9B44-4CB3-974A-235670564EC8),
+	dual,
+	helpstring("IGenerator Interface"),
+	pointer_default(unique)
+]
+interface IGenerator : IDispatch
+{
+	[id(1), helpstring("method Generate")]
+    HRESULT Generate([out, retval] BSTR *guid);
+};
+
+[
+	uuid(699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC),
+	version(1.0),
+	helpstring("guidgen 1.0 Type Library")
+]
+library GUIDGENLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(186D8B3C-C050-4F03-BC33-64B24FEAE4A1),
+		helpstring("Generator Class")
+	]
+	coclass Generator
+	{
+		[default] interface IGenerator;
+	};
+};

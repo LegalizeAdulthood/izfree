@@ -1,0 +1,501 @@
+<HTML>
+<HEAD>
+<META name=VI60_defaultClientScript content=VBScript>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<TITLE>Scan Directory for Components</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim num_files : dim files()
+const fil_dir = 0
+const fil_name = 1
+const fil_component = 2
+const fil_size = 3
+const fil_dims = 3
+dim num_dirs : dim dirs()
+const dir_dir = 0
+const dir_name = 1
+const dir_parent = 2
+const dir_default = 3
+const dir_dims = 3
+dim num_components : dim components()
+const cmp_name = 0
+const cmp_dir = 1
+const cmp_file_list = 2
+const cmp_dims = 2
+dim num_dir_components
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_component_table
+'
+' Write Component table into database.
+'
+sub save_component_table(db)
+    dim view : set view = db.openview("INSERT INTO `Component`(" &_
+        "`Component`,`ComponentId`,`Directory_`,`Attributes`," &_
+        "`Condition`,`KeyPath`) VALUES (?,?,?,0,'','')") : check
+    dim digits : digits = sig_digits(num_components)
+    dim i : for i = 0 to num_components-1
+        dim rec : set rec = installer().CreateRecord(3) : check
+        rec.stringdata(1) = components(cmp_name, i)
+        rec.stringdata(2) = new_guid()
+        rec.stringdata(3) = dirs(dir_name, components(cmp_dir, i))
+        view.execute rec : check : if err.number then exit sub
+        set rec = nothing
+    next
+    view.close : check
+    set view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_file_table
+'
+' Write File table into database.
+'
+sub save_file_table(db)
+    dim view : set view = db.OpenView("INSERT INTO `File`(" & _
+            "`File`,`Component_`,`FileName`,`FileSize`,`Version`," & _
+            "`Language`,`Attributes`,`Sequence`) " & _
+            "VALUES (?,?,?,?,'','',0,1)") : check
+
+    dim digits : digits = sig_digits(num_files)
+    dim i : for i = 0 to num_files-1
+        dim rec : set rec = installer().CreateRecord(4) : check
+        rec.stringdata(1) = "f" & right("000000" & i, digits) & "_" & files(fil_name, i)
+        rec.stringdata(2) = components(cmp_name, files(fil_component, i))
+        rec.stringdata(3) = wit_filename(files(fil_name, i))
+        rec.integerdata(4) = files(fil_size, i)
+        view.execute rec : check : if err.number then exit sub
+        set rec = nothing
+    next
+    
+    view.close : check
+    set view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_directory_table
+'
+' Write Directory table into database.
+'
+sub save_directory_table(db)
+    dim view : set view = db.openview("INSERT INTO `Directory`(" &_
+        "`Directory`,`Directory_Parent`,`DefaultDir`) VALUES (?,?,?)") : check
+    dim i : for i = 0 to num_dirs-1
+        dim rec : set rec = installer().CreateRecord(3) : check
+        rec.stringdata(1) = dirs(dir_name, i)
+        rec.stringdata(2) = dirs(dir_parent, i)
+        rec.stringdata(3) = dirs(dir_default, i)
+        view.execute rec : check : if err.number then exit sub
+        set rec = nothing
+    next
+    view.close : check
+    set view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_media_table
+'
+' Write Media table into database.
+'
+sub save_media_table(db)
+    dim view : set view = db.openview("INSERT INTO `Media`(`DiskId`,`LastSequence`,`DiskPrompt`,`Cabinet`,`VolumeLabel`,`Source`) " &_
+        "VALUES (1,1,'','','','')") : check
+    view.execute : check
+    view.close : check
+    set view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_feature_table
+'
+' Write Feature table into database.
+sub save_feature_table(db)
+    dim view : set view = db.openview("INSERT INTO `Feature`(" &_
+        "`Feature`,`Feature_Parent`,`Title`,`Description`,`Display`,`Level`,`Directory_`,`Attributes`) " &_
+        "VALUES (?,?,?,?,?,?,?,0)") : check
+        
+    dim i : for i = 0 to num_components-1
+        dim rec : set rec = installer().CreateRecord(7) : check
+        rec.stringdata(1) = components(cmp_name, i) 'feature
+        rec.stringdata(2) = "All"                   'parent
+        rec.stringdata(3) = components(cmp_name, i) 'title
+        rec.stringdata(4) = components(cmp_name, i) 'description
+        rec.integerdata(5) = 2*(i+100)              'display
+        rec.integerdata(6) = 1                      'level
+        rec.stringdata(7) = "" 'dirs(dir_name, components(cmp_dir, i)) 'directory
+        view.execute rec : check : if err.number then exit sub
+        set rec = nothing
+    next
+    dim all : set all = installer().createrecord(7) : check
+    all.stringdata(1) = "All"
+    all.stringdata(2) = ""
+    all.stringdata(3) = "All"
+    all.stringdata(4) = "All"
+    all.integerdata(5) = 10
+    all.integerdata(6) = 1
+    all.stringdata(7) = "TARGETDIR"
+    view.execute all : check : if err.number then exit sub
+    view.close : check
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_feature_components_table
+'
+' Write FeatureComponents table into database.
+'
+sub save_feature_components_table(db)
+    dim view : set view = db.openview("INSERT INTO `FeatureComponents`(" &_
+        "`Feature_`,`Component_`) VALUES (?,?)") : check
+    dim i : for i = 0 to num_components-1
+        dim rec : set rec = installer().CreateRecord(2) : check
+        rec.stringdata(1) = components(cmp_name, i)
+        rec.stringdata(2) = components(cmp_name, i)
+        view.execute rec : check
+    next
+    view.close : check
+    set view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' enum_files
+'
+' Enumerate the directories and files in a directory hierarchy
+'
+sub enum_files(base, parent, dir)
+    ' enumerate files in this folder
+    dim file : for each file in dir.files
+        redim preserve files(fil_dims, num_files)
+        files(fil_dir, num_files) = num_dirs
+        files(fil_name, num_files) = file.name
+        files(fil_size, num_files) = fso().GetFile(file.path).Size
+        num_files = num_files + 1
+    next
+    set file = nothing
+
+    ' record this folder
+    redim preserve dirs(dir_dims, num_dirs+1)
+    dim name : name = dir.path ' dirs(dir_dir, num_dirs) = dir.path
+    if (lcase(left(name, len(base))) = lcase(base)) then
+        name = mid(name, len(base)+2)
+    end if
+    if (name = "") then
+        name = "TARGETDIR"
+        dirs(dir_dir, num_dirs) = "."
+        dirs(dir_name, num_dirs) = name
+        dirs(dir_parent, num_dirs) = ""
+        dirs(dir_default, num_dirs) = "SourceDir"
+    else
+        dirs(dir_dir, num_dirs) = name
+        dim slash : slash = instr(name, "\")
+        do while (slash)
+            name = left(name, slash-1) & "_" & mid(name, slash+1)
+            slash = instr(slash, name, "\")
+        loop
+        dirs(dir_name, num_dirs) = name
+        dirs(dir_parent, num_dirs) = parent
+        dirs(dir_default, num_dirs) = wit_filename(dir.name)
+    end if
+    num_dirs = num_dirs+1
+
+    ' record subfolders
+    dim subfolder : for each subfolder in dir.subfolders
+        enum_files base, name, subfolder
+    next
+    set subfolder = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' create_component
+'
+' Create a unique component just for this file -- used for .exe, .dll, etc.
+'
+sub create_component(file_idx, name)
+    redim preserve components(cmp_dims, num_components)
+    components(cmp_name, num_components) = name
+    components(cmp_dir, num_components) = files(fil_dir, file_idx)
+    components(cmp_file_list, num_components) = file_idx
+    files(fil_component, file_idx) = num_components
+    num_components = num_components+1
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' add_to_component
+'
+' Look for a directory component with which to associate this file
+'
+sub add_to_component(file_idx)
+    ' scan list to see if we have a directory component already
+    dim i : for i = num_components - num_dir_components to num_components-1
+        if (components(cmp_dir, i) = files(fil_dir, file_idx)) then
+            components(cmp_file_list, i) = _
+                components(cmp_file_list, i) & "," & file_idx
+            files(fil_component, file_idx) = i
+            exit sub
+        end if
+    next
+    
+    ' didn't find it, so create new directory component
+    redim preserve components(cmp_dims, num_components)
+    dim compname : compname = dirs(dir_dir, files(fil_dir, file_idx))
+    dim slash : slash = instr(compname, "\")
+    do while (slash)
+        compname = left(compname, slash-1) & "_" & mid(compname, slash+1)
+        slash = instr(slash, compname, "\")
+    loop
+    if (compname = ".") then compname = "Top"
+    create_component file_idx, compname
+    num_dir_components = num_dir_components + 1
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' determine_components
+'
+' Scan file list and create a collection of components according to
+' Windows Installer component rules:
+'   Create components for any .hlp, .dll, .ocx, .exe
+'   Remaining files grouped into components by directory.
+'   First file selected as key file.
+'
+sub determine_components
+    redim assigned_files(num_files)
+    ' scan for special files requiring their own component
+    dim i : for i = 0 to num_files-1
+        dim ext : ext = lcase(right(files(fil_name, i), 4))
+        if (ext = ".exe") or (ext = ".dll") or (ext = ".ocx") or (ext = ".hlp") then
+            create_component i, files(fil_name, i)
+            assigned_files(i) = num_components
+        else
+            assigned_files(i) = -1
+        end if
+    next
+    
+    ' any files not yet assigned to a component will be dumped into a
+    ' component for each directory
+    for i = 0 to num_files-1
+        if (assigned_files(i) = -1) then
+            add_to_component(i)
+        end if
+    next
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' display_components
+'
+' Create tree view of components
+'
+sub display_components(tv)
+    dim i : for i = 0 to num_components-1
+        tv.Nodes.Add ,, "R" & i, components(cmp_name, i)
+        
+        dim start : start = 1
+        dim finish : finish = instr(start, components(cmp_file_list, i), ",")
+        dim file
+        do while (finish)
+            file = cint(mid(components(cmp_file_list, i), start, finish-start))
+            start = finish+1
+            finish = instr(start, components(cmp_file_list, i), ",")
+            tv.nodes.add "R" & i, tvwChild, "F" & file, files(fil_name, file)
+        loop
+        file = cint(mid(components(cmp_file_list, i), start))
+        tv.nodes.add "R" & i, tvwChild, "F" & file, files(fil_name, file)
+    next
+    set tv = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' update_create_components
+'
+' Set UI state based on current values
+'
+sub update_create_components
+    document.forms("CreateComponents").all("save").disabled = (num_components = 0)
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' save_onClick
+'
+' Open named database for writing and store File, Directory, Media,
+' Component, Feature and FeatureComponent rows for information in
+' the arrays.
+'
+sub save_onClick
+    ' open database
+    dim database : database = document.forms("CreateComponents").all("Database").value
+    dim db : set db = installer().OpenDatabase(database, msiOpenDatabaseModeTransact) : check
+    
+    save_file_table db
+    save_directory_table db
+    save_media_table db
+    save_component_table db
+    save_feature_table db
+    save_feature_components_table db
+    db.commit : check    
+    set db = nothing
+    update_create_components
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' scan_onClick
+'
+sub scan_onClick
+    num_dirs = 0
+    num_files = 0
+    num_components = 0    
+    num_dir_components = 0
+
+    dim dir : dir = document.forms("CreateComponents").all("ScanDir").value
+    dim folder : set folder = fso().GetFolder(dir) : check
+    enum_files dir, "", folder
+    set folder = nothing
+    
+    determine_components
+    
+    dim i : for i = 0 to num_dirs-1
+        if (lcase(left(dirs(dir_dir, i), len(dir))) = lcase(dir)) then
+            dim slash : slash = 0
+            if (mid(dirs(dir_dir, i), len(dir)+1, 1) = "\") then slash = 1
+            dirs(dir_dir, i) = mid(dirs(dir_dir, i), len(dir)+1+slash)
+        end if
+    next
+    dim tv : set tv = document.forms("CreateComponents").all("ComponentTree")
+    tv.nodes.clear
+    display_components tv
+    update_create_components
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' ComponentTree_AfterLabelEdit
+'
+' If they changed the label of a root node (a component name), then
+' put store new component name
+'
+sub ComponentTree_AfterLabelEdit(cancel, newstring)
+    if (not cancel) then
+        dim tv : set tv = document.forms("CreateComponents").all("ComponentTree")
+        select case left(tv.SelectedItem.key, 1)
+        case "R"
+            components(cmp_name, cint(mid(tv.selecteditem.key, 2))) = newstring
+        end select
+        set tv = nothing
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' ComponentTree_NodeClick
+'
+' Update the component detail for the currently selected item.
+'
+sub ComponentTree_NodeClick(node)
+    dim target_dir : target_dir = ""
+    select case left(node.key, 1)
+    case "R" 
+        target_dir = dirs(dir_dir, components(cmp_dir, cint(mid(node.key, 2))))
+    case "F"
+        target_dir = dirs(dir_dir, files(fil_dir, cint(mid(node.key, 2))))
+    case else
+        MsgBox("Unknown key '" & node.key & "'")
+        target_dir = node.key
+    end select
+    dim source_dir
+    if (target_dir = ".") then
+        target_dir = "TARGETDIR"
+        source_dir = "SourceDir"
+    else
+        source_dir = "SourceDir\" & target_dir
+        target_dir = "TARGETDIR\" & target_dir
+    end if
+    document.forms("CreateComponents").all("TargetDir").innerhtml = target_dir
+    document.forms("CreateComponents").all("SourceDir").innerhtml = source_dir
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub write_tool_input(name)
+    write_input "NewComponents", document.forms("CreateComponents").all, name
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub read_tool_input(name, fallback)
+    read_input "NewComponents", document.forms("CreateComponents").all, name, _
+        fallback
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onLoad
+    read_tool_input "Database", ""
+    read_tool_input "ScanDir", ""
+    update_scan
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onUnload
+    write_tool_input "Database"
+    write_tool_input "ScanDir"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub DatabaseBrowse_onClick
+    dim file : file = browse_for_existing_file(INSTALLER_FILE_FILTER)
+    if (file <> "") then
+        document.all("Database").value = file
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub ScanBrowse_onClick
+    dim dir : dir = browse_for_existing_dir("Output directory:")
+    if (dir <> "") then
+        document.all("ScanDir").value = dir
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub help_onClick
+    show_help "NewComponents"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub update_scan
+    document.all("scan").disabled = _
+        (trim(document.all("ScanDir").value) = "")
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub ScanDir_onChange : update_scan : end sub
+sub ScanDir_onKeyUp : update_scan : end sub
+--></SCRIPT>
+</HEAD>
+<BODY>
+
+<H3>Scan Directory for Components</H3>
+
+<P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
+
+<FORM NAME="CreateComponents">
+<P>Output Database:
+<INPUT NAME="Database" SIZE=30 >
+<INPUT TYPE="button" NAME="DatabaseBrowse" VALUE="...">
+<INPUT TYPE="button" VALUE="Save" id=save name=save disabled><BR>
+Scan Directory:
+<INPUT NAME="ScanDir" SIZE=30>
+<INPUT TYPE="button" NAME="ScanBrowse" VALUE="...">
+<INPUT TYPE="button" VALUE="Scan" id=scan name=scan DISABLED>
+</P>
+
+<P><TABLE>
+<TR><TH>Components:</TH><TH>Component Detail:</TH></TR>
+<TR><TD>
+      <OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 
+      id=ComponentTree style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="0"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT></TD>
+<TD VALIGN=top><TABLE>
+<TR><TH>Source Directory:</TH><TD ID="SourceDir"> </TD></TR>
+<TR><TH>Target Directory:</TH><TD ID="TargetDir"> </TD></TR>
+</TABLE>
+</TD></TR>
+</TABLE>
+</FORM>
+</BODY>
+</HTML>

@@ -1,0 +1,186 @@
+<HTML>
+<HEAD>
+<META name=VI60_defaultClientScript content=VBScript>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<TITLE>merge module automation</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub write_tool_input(name)
+    write_input "MergeModule", document.forms("mergeModules").all, name
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub read_tool_input(name, fallback)
+    read_input "MergeModule", document.forms("mergeModules").all, name, _
+        fallback
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onLoad
+    read_tool_input "file", ""
+    read_tool_input "module", ""
+    read_tool_input "feature", ""
+    enable_merge
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onUnload
+    write_tool_input "file"
+    write_tool_input "module"
+    write_tool_input "feature"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub BrowseFile_onClick
+    dim file : file = browse_for_existing_file(INSTALLER_FILE_FILTER)
+    if (file <> "") then
+        document.all("file").value = file
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub BrowseModule_onClick
+    dim file : file = browse_for_existing_file(_
+        "Merge Modules (*.msm)|*.msm|All Files (*.*)|*.*")
+    if (file <> "") then
+        document.all("module").value = file
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub scan_onClick
+    dim file : file = document.all("file").value
+    if ((file <> "") and fso().FileExists(file)) then
+        dim db : set db = installer().OpenDatabase(file, msiOpenDatabaseModeReadOnly)
+        dim view : set view = db.OpenView("SELECT `Feature` FROM `Feature`")
+        view.execute
+        dim rec : set rec = view.fetch
+        document.all("features").innerHTML = ""
+        do while (not rec is nothing)
+            dim o : set o = document.createElement("OPTION")
+            o.text = rec.stringdata(1)
+            o.value = rec.stringdata(1)
+            document.all("features").options.add o
+            set rec = view.fetch
+        loop
+        view.close
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub enable_merge
+    document.all("merge").disabled = (document.all("feature").value = "")
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub feature_onKeyUp : enable_merge : end sub
+sub feature_onChange : enable_merge : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub features_onChange
+    dim features : set features = document.all("features")
+    dim opts : set opts = features.options
+    if (features.selectedIndex >= 0) then
+        document.all("feature").value = opts(features.selectedIndex).value
+        enable_merge
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub add_result(str)
+    dim div : set div = document.all("Results")
+    dim s : set s = document.createElement("SPAN")
+    s.innerHTML = str
+    div.appendChild s
+    div.appendChild document.createElement("BR")
+end sub
+
+sub add_table_element(parent, elem, text)
+    dim element : set element = document.createElement(elem)
+    element.innerHTML = text
+    parent.appendChild element
+end sub
+
+sub add_header(row, text) : add_table_element row, "TH", text : end sub
+sub add_column(row, text) : add_table_element row, "TD", text : end sub
+
+function collection(stringlist)
+    dim ary()
+    redim ary(stringlist.Count-1)
+    dim i : for i = 1 to stringlist.Count
+        ary(i-1) = stringlist(i)
+    next
+    collection = join(ary, ", ")    
+end function
+
+sub add_error_row(table, error)
+    dim body : set body = table.tbodies(0)
+    body.insertRow
+    dim row : set row = body.rows(body.rows.length-1)
+    add_column row, error.Type
+    add_column row, error.Path
+    add_column row, error.Language
+    add_column row, error.DatabaseTable
+    add_column row, error.ModuleTable
+    add_column row, collection(error.DatabaseKeys)
+    add_column row, collection(error.ModuleKeys)
+end sub
+
+sub merge_onClick
+    dim target : target = document.all("file").value
+    dim module : module = document.all("module").value
+    dim feature : feature = document.all("feature").value
+    if (target <> "") and (module <> "") and (feature <> "") then
+        dim merge : set merge = check_object("Msm.Merge")
+        merge.OpenDatabase target
+        merge.OpenModule module, 0
+        merge.Merge feature, ""
+        if (merge.Errors.Count > 0) then
+            dim results : set results = document.all("Results")
+            results.className = ""
+            results.all("count").innerText = merge.Errors.Count
+            set results = results.all("table")
+            dim error : for each error in merge.Errors
+                add_error_row results, error
+            next
+        end if
+    end if
+end sub
+--></SCRIPT>
+</HEAD>
+<BODY>
+<H3>Add Merge Modules</H3>
+<P><FORM ID="mergeModules">
+Target File: <INPUT TYPE="text" VALUE="" ID="file">
+<INPUT TYPE="button" VALUE="..." ID="BrowseFile"><BR>
+Source Module: <INPUT TYPE="text" VALUE="" ID="module">
+<INPUT TYPE="button" VALUE="..." ID="BrowseModule"><BR>
+Target Feature: <INPUT TYPE="text" VALUE="" ID="feature">
+<INPUT TYPE="button" VALUE="Scan" ID="scan"><BR>
+<SELECT ID="features" SIZE=5></SELECT><BR>
+<INPUT TYPE="button" VALUE="Merge" ID="merge" DISABLED>
+</FORM></P>
+
+<P ID="Results" CLASS="invisible"><SPAN ID="count"></SPAN>&nbsp;merge errors:<BR>
+<TABLE BORDER=1 ID="table">
+<THEAD>
+<TR>
+    <TH>Type</TH>
+    <TH>Path</TH>
+    <TH>Language</TH>
+    <TH>Database Table</TH>
+    <TH>Module Table</TH>
+    <TH>Database Keys</TH>
+    <TH>Module Keys</TH>
+</TR>
+</THEAD>
+<TBODY>
+</TBODY>
+</TABLE>
+</P>
+</BODY>
+</HTML>

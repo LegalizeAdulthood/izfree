@@ -1,0 +1,13 @@
+Microsoft Visual Studio Solution File, Format Version 1.00
+Project("{2CA5CB9B-D322-11D0-AD8F-00C04FB6BE4C}") = "izfree", "izfree.vup", "{5A6BB2DF-CBA1-4947-B8CE-829517975091}"
+EndProject
+Global
+	GlobalSection(LocalDeployment) = postSolution
+		StartupProject = {5A6BB2DF-CBA1-4947-B8CE-829517975091}
+	EndGlobalSection
+	GlobalSection(BuildOrder) = postSolution
+		0 = {5A6BB2DF-CBA1-4947-B8CE-829517975091}
+	EndGlobalSection
+	GlobalSection(DeploymentRoot) = postSolution
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,122 @@
+<HTML>
+<HEAD>
+<META name=VI60_defaultClientScript content=VBScript>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<TITLE>izfree Help</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+
+sub window_onload
+    dim anchor : anchor = window.dialogArguments
+    if (anchor <> "") then
+        document.all("div" & anchor).className = ""
+        window.scrollTo 0, document.anchors(anchor).offsetTop
+    end if
+end sub
+--></SCRIPT>
+</HEAD>
+<BODY LEFTMARGIN=20 rightmargin=20 bottommargin=20 topmargin=20>
+<H2>izfree Tools for Windows Installer Help</H2>
+
+<DIV ID="divNewGUID" CLASS="invisible">
+<H3><A NAME="NewGUID">Create New GUID</A></H3>
+<P>Windows Installer requires GUIDs that have no lower case letters.
+Tools like UUIDGEN and GUIDGEN generate GUIDs with lower case letters.
+This simple script generates a GUID and ensures that all the letters
+are in upper case.  The result is placed in a text box for copy/paste
+into Orca or some other Windows Installer related utility.</P>
+
+<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close"></P>
+</DIV>
+
+<DIV ID="divNewPackage" CLASS="invisible">
+<H3><A NAME="NewPackage">Create a New Installation Package</A></H3>
+
+<P>This form creates a blank installation database that validates in Orca
+with no errors.
+A new installation package can be created by merging the contents
+of the template files into a single database and setting a few properties
+on the database and the summary information stream.  The text fields
+allow you to provide the necessary required information.  You can enter
+your own GUIDs or generate new GUIDs for the fields requiring GUIDs.</P>
+
+<P>The Windows Installer SDK samples include several template files
+that can be used as the basis of an installation.  These files are:</P>
+<DL>
+<DT><STRONG>schema.msi</STRONG>
+<DD>A blank database schema containing unpopulated database tables.
+<DT><STRONG>Sequence.msi</STRONG>
+<DD>This database contains the sequence tables InstallUISequence,
+InstallExecuteSequence, AdminUISequence, AdminExecuteSequence,
+AdvtUISequence, AdvtExecuteSequence.  The tables are prepopulated
+with the suggested standard sequence as described in the SDK docs.
+<DT><STRONG>UISample.msi</STRONG>
+<DD>This database contains a simple installation user 
+  interface as a collection of dialogs.</DD>       
+</DL>
+
+<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close"></P>
+</DIV>
+
+<DIV ID="divNewComponents" CLASS="invisible">
+<H3><A NAME="NewComponents">Scan a Directory for Components</A></H3>
+
+<P>This form scans a directory tree and minimally constructs rows for
+the File, Directory, Media, Component, Feature, and FeatureComponents
+tables.  It displays the components and their associated files in a
+tree view after the directories have been scanned.</P>
+
+<P>This form works in two stages.  First construct a directory containing
+your installation as you would like it organized on the distribution
+media.  Then enter the path of that directory into the form and click
+the scan button.  This scans the directory and automatically creates
+components for the directory contents.  All files in a directory that
+don't require their own component are collected into a component for
+that directory.</P>
+
+<P>Once the tree view has been populated with components, enter the name
+of an existing MSI database and click the save button to insert the necessary
+rows into the File, Directory, Media, Component, Feature and FeatureComponent
+tables.
+If you don't have an existing MSI database, use the create package form
+to create one.</P>
+
+<P>A single feature named "All" is the parent of all the other features
+created.  A feature is created for each component in the installation.
+The source and target directory hierarchies are identical.</P>
+
+<P>This is a minimal installation that only copies files.  It doesn't
+automatically detect COM components or enter their registration information
+into the installation.  It doesn't control services, the registry, search
+for files/applications, etc., etc., etc.  Use Orca or some other MSI editor
+to add that information to the installation database after this form
+generates your basic installation.</P>
+
+<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close" id=button2 name=button2></P>
+</DIV>
+
+<DIV ID="divPreviewDialogs" CLASS="invisible">
+<H3><A NAME="PreviewDialogs">User Interface Dialog Tools</A></H3>
+
+<P>This form allows you to preview the user interface 
+dialogs within an installation database. When a database is opened, the list box 
+is populated with the names of the dialoags in the databse. Select a dialog name 
+and then click the Preview button to display the dialog. To end the display of 
+the dialog click the Clear button. Select the close button before opening 
+another database.</P>
+
+<P>You can also clone an existing dialog into the installation 
+database.</P>           
+
+<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close" id=button3 name=button3></P>
+</DIV>
+
+<DIV ID="divCOMRegistration" CLASS="invisible">
+<H3><A NAME="COMRegistration">ATL COM Registration</A></H3>
+<P>ATL COM Registration help.</P>
+<P><INPUT TYPE="button" VALUE="Ok" onClick="window.close"></P>
+</DIV>
+</BODY>
+</HTML>

@@ -1,0 +1,258 @@
+<HTML>
+<HEAD>
+<META name=VI60_defaultClientScript content=VBScript>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<LINK REL="stylesheet" HREF="izfree.css">
+<TITLE>Extract ATL COM Registration</TITLE>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT language=VBScript type=text/vbscript>
+option explicit
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim atl_db : set atl_db = nothing
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub Scan_onClick
+    document.all.Objects.innerHTML = ""
+    dim fld : set fld = fso().GetFolder(document.all.Source.value) : check
+    dim file : for each file in fld.Files
+        if (lcase(right(file.Name, 4)) = ".rgs") then
+            dim o : set o = document.createElement("OPTION")
+            o.value = file.Name
+            o.text = file.Name
+            'o.outerText = file.Name
+            document.all.objects.options.add(o)
+        end if
+    next
+    set file = nothing
+    set fld = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub Open_onClick
+    if (document.all.Database.value = "") then return
+    if not (atl_db is nothing) then Close_onClick
+    set atl_db = installer()..OpenDatabase(document.all.Database.value, _
+        msiOpenDatabaseModeTransact) : check
+    document.all.Close.disabled = false
+    Objects_onChange
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub Close_onClick
+    set atl_db = nothing
+    document.all.Close.disabled = true
+    document.all.Register.disabled = true
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim parse_state : parse_state = 0
+dim brace_level : brace_level = 0
+dim tokens(), num_tokens : num_tokens = 0
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+function WholeKey
+    WholeKey = ""
+    if (brace_level > 0) then
+        dim res : res = keys(0)
+        dim i : for i = 1 to brace_level
+            res = res & "\" & keys(i)
+        next
+        WholeKey = res
+    end if
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+const tokStringValue = 0
+const tokForceRemove = 1
+const tokHKCR = 2
+const tokEss = 3
+const tokLeftBrace = 4
+const tokRightBrace = 5
+const tokEqual = 6
+const tokNoRemove = 7
+const tokVal = 8
+const tokDelete = 9
+const tokHKCU = 10
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub push_token(token, value)
+    num_tokens = num_tokens + 1
+    redim preserve tokens(2,num_tokens)
+    tokens(0,num_tokens-1) = token
+    tokens(1,num_tokens-1) = value
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub pop_token(byref token, byref value)
+    token = tokens(0, num_tokens-1)
+    value = tokens(1, num_tokens-1)
+    num_tokens = num_tokens-1
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub parse_token(token, value)
+    select case parse_state
+    case 0                              ' expecting root token
+        if (token = tokHKCU or token = tokHKCR) then
+            push_token token, value
+            parse_state = 1
+        else
+            MsgBox("Unrecognized root key '" & value & "'")
+        end if
+    case 1                              ' expecting left brace
+        if (token <> tokLeftBrace) then
+            MsgBox("Missing { after root key.")
+        else
+            push_token token, value
+            parse_state = 2
+        end if
+    case 2                              ' expecting key name
+        select case token
+        case tokStringValue : push_token token, value : parse_state = 3
+        case tokForceRemove : push_token token, value
+        case tokNoRemove : push_token token, value
+        case tokRightBrace
+            do
+                pop_token token, value
+            loop until tokLeftBrace = token
+            
+            brace_level = brace_level - 1
+        end select
+    case 4                              ' expecting assignment
+        if (tokEqual = token) then
+            push_token token, value
+            parse_state = 5
+        elseif (tokLeftBrace = token) then
+            push_token token, value
+            brace_level = brace_level + 1
+        else
+            MsgBox("Unexpected token (" & token & ") '" & value & "'")
+        end if
+    case 5                              ' expecting value
+        if (tokEss <> token) then
+            if  (tokStringValue = token) then
+                push_token token, value
+            end if
+        else
+            MsgBox("Unexpected token (" & token & ") '" & value & "'")
+        end if
+    end select
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub parse_rgs(line)
+    line = trim(Replace(line, vbTab, " "))
+    dim token : token = 0
+    dim value : value = ""
+    do while (len(line) > 0)
+        if (left(line, 1) = "'") then
+            line = mid(line, 2)
+            dim quote : quote = InStr(line, "'")
+            if (quote > 0) then
+                value = left(line, quote-1)
+                line = mid(line, quote+1)
+            else
+                value = line
+                line = ""
+            end if
+        else
+            dim space : space = InStr(line, " ")
+            if (space > 0) then
+                value = left(line, space-1)
+                line = mid(line, space+1)
+            else
+                value = line
+                line = ""
+            end if
+        end if
+        line = trim(line)
+        select case lcase(value)
+        case "hkcu" : token = tokHKCU
+        case "hkey_current_user" : token = tokHKCU
+        case "hkcr" : token = tokHKCR
+        case "hkey_classes_root" : token = tokHKCR
+        case "forceremove" : token = tokForceRemove
+        case "noremove" : token = tokNoRemove
+        case "val" : token = tokVal
+        case "delete": token = tokDelete
+        case "{" : token = tokLeftBrace
+        case "}" : token = tokRightBrace
+        case "=" : token = tokEqual
+        case "s" : token = tokEss
+        case else : token = tokStringValue
+        end select
+        parse_token token, value
+    loop
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub scan_rgs(file)
+    dim dir : dir = document.all.Source.value
+    if (right(dir, 1) <> "\") then dir = dir & "\"
+    
+    dim str : set str = fso().OpenTextFile(dir & file, ForReading) : check
+    do while not (str.AtEndOfStream)
+        parse_rgs(str.ReadLine)
+    loop
+    str.Close    
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub Register_onClick
+    dim o : for each o in document.all.Objects.options
+        if (o.selected) then
+            scan_rgs(o.text)
+        end if
+    next
+    
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub Objects_onChange
+    if (document.all.Close.disabled = false) then
+        document.all.Register.disabled = (document.all.Objects.selectedIndex = -1)
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub BrowseSource_onClick
+    dim source : source = browse_for_existing_dir("ATL source directory:")
+    if (source <> "") then
+        document.all("Source").value = source
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub BrowseDatabase_onClick
+    dim file : file = browse_for_existing_file(INSTALLER_FILE_FILTER)
+    if (file <> "") then
+        document.all("Database").value = file
+    end if
+end sub
+</SCRIPT>
+</HEAD>
+<BODY>
+<P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
+<FORM NAME="ATLTool">
+<TABLE>
+<TR><TD>ATL Source Location:</TD>
+    <TD><INPUT NAME="Source" VALUE="c:\data\projects\msidb\guidgen" SIZE=50>
+    <INPUT TYPE="button" ID="BrowseSource" VALUE="..." NAME="BrowseSource">
+    </TD></TR>
+<TR><TD><INPUT TYPE="button" VALUE="Scan" NAME="Scan"></TD></TR>
+<TR><TD><SELECT size=10 id=ATLObjects name=Objects length="10" multiple></SELECT>
+</TD></TR>
+<TR><TD>
+<TR><TD>Database:</TD>
+    <TD><INPUT NAME="Database" VALUE="test.msi" SIZE=50>
+    <INPUT TYPE="button" ID="BrowseDatabase" VALUE="..." NAME="BrowseDatabase">
+    </TD></TR>
+<TR><TD><INPUT TYPE="button" VALUE="Open" NAME="Open">
+<INPUT TYPE="button" VALUE="Close" NAME="Close" disabled>
+<INPUT TYPE="button" VALUE="Register" NAME="Register" disabled></TD></TR>
+</TABLE>
+</FORM>
+
+</BODY>
+</HTML>

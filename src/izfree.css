@@ -1,0 +1,15 @@
+.anchor
+{
+    COLOR: blue;
+    CURSOR: hand;
+    TEXT-DECORATION: underline
+}
+.selected
+{
+    FONT-WEIGHT: bolder
+}
+.invisible
+{
+    DISPLAY: none;
+    VISIBILITY: hidden
+}

@@ -1,0 +1,313 @@
+<HTML>
+<HEAD>
+<META name=VI60_defaultClientScript content=VBScript>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<TITLE>Dialog Tools</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim dialog_db, preview : set dialog_db = nothing : set preview = nothing
+dim current_dialog : current_dialog = ""
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub load_dialogs(list, db)
+    on error resume next
+    dim view : set view = db.openview("select `Dialog` from `Dialog`") : check
+    view.execute : check
+    dim rec : set rec = view.fetch
+    dim dialogs(), num_dialogs : num_dialogs = 0
+    do while not (rec is nothing)
+        redim preserve dialogs(num_dialogs)
+        dialogs(num_dialogs) = rec.stringdata(1)
+        num_dialogs = num_dialogs + 1
+        set rec = view.fetch
+    loop
+    dim i : for i = 0 to num_dialogs-2
+        dim j : for j = i+1 to num_dialogs-1
+            if (dialogs(j) < dialogs(i)) then
+                dim tmp : tmp = dialogs(j)
+                dialogs(j) = dialogs(i) : dialogs(i) = tmp
+            end if
+        next
+    next
+    list.innerHTML = ""
+    for i = 0 to num_dialogs-1
+        dim opt : set opt = document.createElement("OPTION")
+        opt.text = dialogs(i)
+        opt.value = dialogs(i)
+        list.options.add(opt)
+        set opt = nothing
+    next
+    set rec = nothing
+    view.close
+    set view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub clone_dialog_rows(table, dest_query, parent, clone, column)
+    on error resume next
+    dim src_query : src_query = "SELECT * FROM `" & table & "` WHERE `" & table & _
+        "`.`" & column & "` = '" & parent & "'"
+    dim src_view : set src_view = dialog_db.OpenView(src_query) : check
+    src_view.execute : check
+    dim records(), num_records : num_records = 0
+    dim rec : set rec = src_view.fetch : check
+    do while (not rec is nothing)
+        redim preserve records(num_records)
+        rec.stringdata(1) = clone
+        set records(num_records) = rec
+        num_records = num_records + 1
+        set rec = src_view.fetch
+    loop
+    src_view.close : check
+    set src_view = nothing
+    
+    dest_query = "INSERT INTO `" & table & "`" & dest_query
+    dim dest_view : set dest_view = dialog_db.OpenView(dest_query) : check
+    dim i : for i = 0 to num_records-1
+        dest_view.execute records(i) : check
+    next
+    dest_view.close
+    set dest_view = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_dialog_table
+'
+sub clone_dialog_table(parent, clone)
+    clone_dialog_rows "Dialog", _
+        "(`Dialog`,`HCentering`,`VCentering`,`Width`,`Height`,`Attributes`," &_
+        "`Title`,`Control_First`,`Control_Default`,`Control_Cancel`) " &_
+        "VALUES (?,?,?,?,?,?,?,?,?,?)", _
+        parent, clone, "Dialog"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_control_table
+'
+sub clone_control_table(parent, clone)
+    clone_dialog_rows "Control", _
+        "(`Dialog_`,`Control`,`Type`,`X`,`Y`,`Width`,`Height`,`Attributes`," &_
+        "`Property`,`Text`,`Control_Next`,`Help`) " &_
+        "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", _
+        parent, clone, "Dialog_"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_control_condition_table
+'
+sub clone_control_condition_table(parent, clone)
+    clone_dialog_rows "ControlCondition", _
+        "(`Dialog_`,`Control_`,`Action`,`Condition`) VALUES (?,?,?,?)", _
+        parent, clone, "Dialog_"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_control_event_table
+'
+sub clone_control_event_table(parent, clone)
+    clone_dialog_rows "ControlEvent", _
+        "(`Dialog_`,`Control_`,`Event`,`Argument`,`Condition`,`Ordering`) " &_
+        "VALUES (?,?,?,?,?,?)", _
+        parent, clone, "Dialog_"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_event_mapping_table
+'
+sub clone_event_mapping_table(parent, clone)
+    clone_dialog_rows "EventMapping", _
+        "(`Dialog_`,`Control_`,`Event`,`Attribute`) VALUES (?,?,?,?)", _
+        parent, clone, "Dialog_"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' open_onClick
+'
+' Open an MSI database and create the preview object for viewing dialogs
+'
+sub open_onClick
+    dim file : file = document.forms("DialogTool").all("Database").value
+    if (not fso().FileExists(file)) then
+        MsgBox("File " & file & " does not exist.")
+        exit sub
+    end if
+    
+    if (not preview is nothing) then
+        close_onClick
+    end if
+    dim list : set list = document.forms("DialogTool").all("Dialogs")
+    dim db : db = document.forms("DialogTool").all("Database").value
+    set dialog_db = installer().OpenDatabase(db, msiOpenDatabaseModeTransact) : check
+    load_dialogs list, dialog_db
+    set preview = dialog_db.enableuipreview
+    set list = nothing
+    update_dialog_tool
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' close_onClick
+'
+' Close the dialog preview and the database.  Clear the listbox of dialog
+' names.
+'
+sub close_onClick
+    if (not preview is nothing) then
+        preview.viewdialog("")
+        set preview = nothing
+    end if
+    set dialog_db = nothing
+    document.forms("DialogTool").all("Dialogs").innerHTML = ""
+    update_dialog_tool
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' update_dialog_tool
+'
+' Update form UI state based on current values
+'
+sub update_dialog_tool
+    dim form : set form = document.forms("DialogTool")
+    dim disabled : disabled = dialog_db is nothing
+    form.all("Close").disabled = disabled
+    dim list : set list = document.forms("DialogTool").all("Dialogs")
+    disabled = disabled or preview is nothing or list.selectedIndex = -1
+    form.all("preview").disabled = disabled
+    form.all("Clone").disabled = disabled
+    disabled = disabled or current_dialog = ""
+    form.all("Clear").disabled = disabled
+end sub
+
+sub dialogs_onClick : update_dialog_tool : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' preview_onClick
+'
+' Preview the dialog selected in the listbox.
+'
+sub preview_onClick
+    dim list : set list = document.forms("DialogTool").all("Dialogs")
+    dim selected : selected = list.selectedIndex
+    if (selected <> -1) then
+        current_dialog = list.options(selected).value
+        preview.viewdialog(current_dialog)
+    end if
+    update_dialog_tool
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clear_onClick
+'
+' Clear any previewed dialog.
+'
+sub clear_onClick
+    current_dialog = ""
+    preview.viewdialog(current_dialog)
+    update_dialog_tool
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' clone_onClick
+'
+sub clone_onClick
+    on error resume next
+    dim list : set list = document.forms("DialogTool").all("Dialogs")
+    if (list.selectedIndex <> -1) then
+        on_clear_preview
+        dim parent_dlg : parent_dlg = list.options(list.selectedindex).value
+        dim num : num = 0
+        do while num < len(parent_dlg) and (instr("0123456789", mid(parent_dlg, len(parent_dlg)-num, 1)))
+            num = num+1
+        loop
+        dim clone
+        if (num > 0) then
+            clone = left(parent_dlg, num)
+            num = cint(mid(tmp, num))
+        else
+            clone = parent_dlg
+        end if
+        num = num + 1
+        clone = InputBox("Clone " & parent_dlg & " to child named:", "Clone Dialog", clone & num)
+        if (clone <> "") then
+            clone_dialog_table parent_dlg, clone
+            clone_control_table parent_dlg, clone
+            clone_control_condition_table parent_dlg, clone
+            clone_control_event_table parent_dlg, clone
+            clone_event_mapping_table parent_dlg, clone
+            dialog_db.commit : check
+            load_dialogs list, dialog_db
+        end if
+    end if
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' edit_onClick
+'
+sub edit_onClick
+    on error resume next
+    dim list : set list = document.forms("DialogTool").all("Dialogs")
+    if (list.selectedIndex <> -1) then
+		edit_dialog list.options(list.selectedIndex).value, dialog_db
+    end if
+end sub
+
+sub BrowseDatabase_onClick
+    dim file : file = browse_for_existing_file(INSTALLER_FILE_FILTER)
+    if (file <> "") then
+        document.all("Database").value = file
+    end if
+end sub
+
+sub help_onClick
+    show_help "PreviewDialogs"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub write_tool_input(name)
+    write_input "PreviewDialogs", document.forms("DialogTool").all, name
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub read_tool_input(name, fallback)
+    read_input "PreviewDialogs", document.forms("DialogTool").all, name, _
+        fallback
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onLoad
+    read_tool_input "Database", ""
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub window_onUnload
+    write_tool_input "Database"
+end sub
+--></SCRIPT>
+</HEAD>
+<BODY>
+
+<H3><A NAME="DialogTool">Dialog Tools</A></H3>
+
+<P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
+
+<FORM NAME="DialogTool">
+<TABLE>
+<TR><TD>Input Database:</TD>
+<TD><INPUT NAME="Database" VALUE="test.msi" SIZE=50>
+<INPUT TYPE="button" VALUE="..." ID="BrowseDatabase"></TD></TR>
+<TR><TD></TD>
+<TD><INPUT TYPE="button" VALUE="Open" NAME="open" ID="open">
+<INPUT TYPE="button" VALUE="Close" NAME="close" ID="close" disabled></TD></TR>
+<TR><TD><SELECT size=10 id=dialogs name=dialogs length="10"></SELECT></TD>
+<TD>
+<INPUT TYPE="button" VALUE="Preview" disabled id=preview>
+<INPUT TYPE="button" VALUE="Clear" disabled id=clear>
+<INPUT TYPE="button" VALUE="Clone" disabled id=clone>
+</TD></TR>
+</TABLE>
+</FORM>
+</BODY>
+</HTML>
