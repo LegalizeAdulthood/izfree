@@ -263,7 +263,7 @@ namespace IzFree.Scan
         {
             try
             {
-                return project.GetIntegerProperty("FileCounter");
+                return project.GetIntegerIzProperty("FileCounter");
             }
             catch (PropertyNotFoundException)
             {
@@ -311,7 +311,7 @@ namespace IzFree.Scan
                 view.Close();
             }
 
-            project.SetProperty("FileCounter",
+            project.SetIzProperty("FileCounter",
                 (fileCounter + m_files.Count).ToString());
         }
 

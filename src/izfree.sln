@@ -94,8 +94,6 @@ Global
 		izfree.vbs = izfree.vbs
 		MergeModule.html = MergeModule.html
 		NewComponents.html = NewComponents.html
-		NewGUID.html = NewGUID.html
-		NewPackage.html = NewPackage.html
 		Policies.html = Policies.html
 		PreviewDialogs.html = PreviewDialogs.html
 		ReadMe.txt = ReadMe.txt

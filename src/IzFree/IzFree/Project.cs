@@ -122,6 +122,44 @@ namespace IzFree
             get { return m_db; }
         }
 
+        public bool Modified
+        {
+            get { return m_modified; }
+            set { m_modified = value; }
+        }
+        private bool m_modified = false;
+
+        private object FindIzProperty(string name)
+        {
+            ReadIzProperties();
+            if (!m_properties.ContainsKey(name))
+            {
+                throw new PropertyNotFoundException(name);
+            }
+            return m_properties[name];
+        }
+        public string GetIzProperty(string name)
+        {
+            return FindIzProperty(name) as string;
+        }
+        public int GetIntegerIzProperty(string name)
+        {
+            return System.Convert.ToInt32(FindIzProperty(name));
+        }
+
+        public void SetIzProperty(string name, string data)
+        {
+            ReadIzProperties();
+            m_properties[name] = data;
+            m_modified = true;
+        }
+        public void SetIntegerIzProperty(string name, int data)
+        {
+            SetIzProperty(name, data.ToString());
+        }
+        #endregion
+
+        #region Public Methods
         public void Close()
         {
             m_db.Dispose();
@@ -135,7 +173,7 @@ namespace IzFree
         {
             if (m_modified)
             {
-                WriteProperties();
+                WriteIzProperties();
             }
             m_db.Commit();
             m_modified = false;
@@ -150,45 +188,22 @@ namespace IzFree
 #endif
         }
 
-        public bool Modified
+        public bool TableExists(string name)
         {
-            get { return m_modified; }
-            set { m_modified = value; }
-        }
-        private bool m_modified = false;
-
-        private object FindProperty(string name)
-        {
-            ReadProperties();
-            if (!m_properties.ContainsKey(name))
+            using (View view = Application.ExecView(m_db,
+                       "SELECT `Name` FROM `_Tables` WHERE `Name`='" +
+                       name + "'"))
             {
-                throw new PropertyNotFoundException(name);
+                using (Record rec = view.Fetch())
+                {
+                    return (rec != null);
+                }
             }
-            return m_properties[name];
         }
-        public string GetProperty(string name)
-        {
-            return FindProperty(name) as string;
-        }
-        public int GetIntegerProperty(string name)
-        {
-            return System.Convert.ToInt32(FindProperty(name));
-        }
+        #endregion
 
-        public void SetProperty(string name, string data)
-        {
-            ReadProperties();
-            m_properties[name] = data;
-            m_modified = true;
-        }
-        public void SetIntegerProperty(string name, int data)
-        {
-            SetProperty(name, data.ToString());
-        }
-
-        private Hashtable m_properties = null;
-
-        private void WriteProperties()
+        #region Private Methods
+        private void WriteIzProperties()
         {
             if (m_izPropertyTableExists)
             {
@@ -196,9 +211,9 @@ namespace IzFree
                 foreach (string key in m_properties.Keys)
                 {
                     using (View view = Application.ExecView(m_db,
-                                "UPDATE `IzProperty` SET `Value`='" +
-                                (m_properties[key] as string) +
-                                "' WHERE `Name`='" + key + "'"))
+                               "UPDATE `IzProperty` SET `Value`='" +
+                               (m_properties[key] as string) +
+                               "' WHERE `Name`='" + key + "'"))
                     {
                         view.Close();
                     }
@@ -208,8 +223,8 @@ namespace IzFree
             {
                 // create table
                 using (View view = Application.ExecView(m_db,
-                    "CREATE TABLE `IzProperty`(`Name` CHAR(72) NOT NULL, " +
-                    "`Value` CHAR NOT NULL PRIMARY KEY `Name`)"))
+                           "CREATE TABLE `IzProperty`(`Name` CHAR(72) NOT NULL, " +
+                           "`Value` CHAR NOT NULL PRIMARY KEY `Name`)"))
                 {
                     view.Close();
                 }
@@ -237,7 +252,7 @@ namespace IzFree
 
                 // insert records
                 using (View view = Application.ExecView(m_db,
-                    "INSERT INTO `IzProperty`(`Name`,`Value`) VALUES (?,?)"))
+                           "INSERT INTO `IzProperty`(`Name`,`Value`) VALUES (?,?)"))
                 {
                     using (Record rec = new Record(2))
                     {
@@ -253,8 +268,7 @@ namespace IzFree
             }
         }
 
-        private bool m_izPropertyTableExists = false;
-        private void ReadProperties()
+        private void ReadIzProperties()
         {
             if (m_properties != null)
             {
@@ -262,31 +276,21 @@ namespace IzFree
             }
 
             m_properties = new Hashtable();
-            using (View view = Application.ExecView(m_db,
-                       "SELECT `Name` FROM `_Tables` WHERE `Name`='IzProperty'"))
+            m_izPropertyTableExists = TableExists("IzProperty");
+            if (m_izPropertyTableExists)
             {
-                Record rec = view.Fetch();
-                m_izPropertyTableExists = (rec != null);
-                if (m_izPropertyTableExists)
+                using (View view = Application.ExecView(m_db,
+                            "SELECT `Name`,`Value` FROM `IzProperty`"))
                 {
-                    view.Close();
-                    rec.Dispose();
-                    using (View view2 = Application.ExecView(m_db,
-                               "SELECT `Name`,`Value` FROM `IzProperty`"))
+                    for (Record rec = view.Fetch(); rec != null; rec = view.Fetch())
                     {
-                        for (rec = view2.Fetch(); rec != null; rec = view2.Fetch())
-                        {
-                            m_properties[rec.GetString(1)] = rec.GetString(2);
-                            rec.Dispose();
-                        }
+                        m_properties[rec.GetString(1)] = rec.GetString(2);
+                        rec.Dispose();
                     }
                 }
-                view.Close();
             }
         }
-        #endregion
 
-        #region Private Methods
         private void Merge(string sourcePath)
         {
             using (Database source =
@@ -294,6 +298,25 @@ namespace IzFree
             {
                 m_db.Merge(source, "IzFreeMergeErrors");
             }
+        }
+
+        // get entry from Property table
+        public string GetProperty(string name)
+        {
+            string text = "";
+            using (View view = Application.ExecView(Database,
+                       "SELECT `Value` FROM `Property` WHERE `Property`='" +
+                       name + "'"))
+            {
+                Record rec = view.Fetch();
+                view.Close();
+                if (rec != null)
+                {
+                    text = rec.GetString(1);
+                    rec.Dispose();
+                }
+            }
+            return text;
         }
 
         private void SetProperty(View view, string name, string val)
@@ -321,6 +344,8 @@ namespace IzFree
         #region Private Instance Data
         private string m_filename = null;
         private Database m_db = null;
+        private bool m_izPropertyTableExists = false;
+        private Hashtable m_properties = null;
         #endregion
 	}
 }

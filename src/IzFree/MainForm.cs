@@ -55,6 +55,32 @@ namespace IzFree
         private System.Windows.Forms.MenuItem fileCloseItem;
         private System.Windows.Forms.MenuItem fileSeparatorItem;
         private System.Windows.Forms.MenuItem fileSummaryInformationItem;
+        private System.Windows.Forms.TabPage dialogPreviewTab;
+        private System.Windows.Forms.Label dialogsLabel;
+        private System.Windows.Forms.ListBox dialogsListBox;
+        private System.Windows.Forms.ComboBox actionsComboBox;
+        private System.Windows.Forms.GroupBox standardDialogsGroupBox;
+        private System.Windows.Forms.Label fatalErrorLabel;
+        private System.Windows.Forms.Label userExitLabel;
+        private System.Windows.Forms.Label exitLabel;
+        private System.Windows.Forms.LinkLabel fatalErrorLinkLabel;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.LinkLabel userExitLinkLabel;
+        private System.Windows.Forms.LinkLabel exitLinkLabel;
+        private System.Windows.Forms.LinkLabel errorDialogLinkLabel;
+        private System.Windows.Forms.Label eventsLabel;
+        private System.Windows.Forms.ListBox eventsListBox;
+        private System.Windows.Forms.GroupBox eventDetailGroupBox;
+        private System.Windows.Forms.Label eventNameLabel;
+        private System.Windows.Forms.Label eventOrderingLabel;
+        private System.Windows.Forms.Label eventConditionLabel;
+        private System.Windows.Forms.Label eventNameValueLabel;
+        private System.Windows.Forms.Label eventOrderingValueLabel;
+        private System.Windows.Forms.Label eventConditionValueLabel;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button showButton;
+        private System.Windows.Forms.Button hideButton;
+        private System.Windows.Forms.Button cloneButton;
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -139,9 +165,38 @@ namespace IzFree
             this.componentsTab = new System.Windows.Forms.TabPage();
             this.fileSystemTab = new System.Windows.Forms.TabPage();
             this.registryTab = new System.Windows.Forms.TabPage();
+            this.dialogPreviewTab = new System.Windows.Forms.TabPage();
+            this.cloneButton = new System.Windows.Forms.Button();
+            this.hideButton = new System.Windows.Forms.Button();
+            this.showButton = new System.Windows.Forms.Button();
+            this.eventDetailGroupBox = new System.Windows.Forms.GroupBox();
+            this.eventConditionValueLabel = new System.Windows.Forms.Label();
+            this.eventOrderingValueLabel = new System.Windows.Forms.Label();
+            this.eventNameValueLabel = new System.Windows.Forms.Label();
+            this.eventConditionLabel = new System.Windows.Forms.Label();
+            this.eventOrderingLabel = new System.Windows.Forms.Label();
+            this.eventNameLabel = new System.Windows.Forms.Label();
+            this.eventsListBox = new System.Windows.Forms.ListBox();
+            this.eventsLabel = new System.Windows.Forms.Label();
+            this.standardDialogsGroupBox = new System.Windows.Forms.GroupBox();
+            this.errorDialogLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.exitLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.userExitLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.exitLabel = new System.Windows.Forms.Label();
+            this.userExitLabel = new System.Windows.Forms.Label();
+            this.fatalErrorLinkLabel = new System.Windows.Forms.LinkLabel();
+            this.fatalErrorLabel = new System.Windows.Forms.Label();
+            this.actionsComboBox = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.dialogsListBox = new System.Windows.Forms.ListBox();
+            this.dialogsLabel = new System.Windows.Forms.Label();
             this.projectTabControl.SuspendLayout();
             this.tablesTab.SuspendLayout();
             this.featuresTab.SuspendLayout();
+            this.dialogPreviewTab.SuspendLayout();
+            this.eventDetailGroupBox.SuspendLayout();
+            this.standardDialogsGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainMenu
@@ -350,6 +405,7 @@ namespace IzFree
             this.projectTabControl.Controls.Add(this.componentsTab);
             this.projectTabControl.Controls.Add(this.fileSystemTab);
             this.projectTabControl.Controls.Add(this.registryTab);
+            this.projectTabControl.Controls.Add(this.dialogPreviewTab);
             this.projectTabControl.Location = new System.Drawing.Point(0, 0);
             this.projectTabControl.Multiline = true;
             this.projectTabControl.Name = "projectTabControl";
@@ -385,6 +441,7 @@ namespace IzFree
                 | System.Windows.Forms.AnchorStyles.Left) 
                 | System.Windows.Forms.AnchorStyles.Right)));
             this.tableRowPropertyGrid.CommandsVisibleIfAvailable = true;
+            this.tableRowPropertyGrid.HelpVisible = false;
             this.tableRowPropertyGrid.LargeButtons = false;
             this.tableRowPropertyGrid.LineColor = System.Drawing.SystemColors.ScrollBar;
             this.tableRowPropertyGrid.Location = new System.Drawing.Point(288, 8);
@@ -392,6 +449,7 @@ namespace IzFree
             this.tableRowPropertyGrid.Size = new System.Drawing.Size(296, 446);
             this.tableRowPropertyGrid.TabIndex = 2;
             this.tableRowPropertyGrid.Text = "PropertyGrid";
+            this.tableRowPropertyGrid.ToolbarVisible = false;
             this.tableRowPropertyGrid.ViewBackColor = System.Drawing.SystemColors.Window;
             this.tableRowPropertyGrid.ViewForeColor = System.Drawing.SystemColors.WindowText;
             // 
@@ -473,6 +531,262 @@ namespace IzFree
             this.registryTab.TabIndex = 3;
             this.registryTab.Text = "Registry";
             // 
+            // dialogPreviewTab
+            // 
+            this.dialogPreviewTab.Controls.Add(this.cloneButton);
+            this.dialogPreviewTab.Controls.Add(this.hideButton);
+            this.dialogPreviewTab.Controls.Add(this.showButton);
+            this.dialogPreviewTab.Controls.Add(this.eventDetailGroupBox);
+            this.dialogPreviewTab.Controls.Add(this.eventsListBox);
+            this.dialogPreviewTab.Controls.Add(this.eventsLabel);
+            this.dialogPreviewTab.Controls.Add(this.standardDialogsGroupBox);
+            this.dialogPreviewTab.Controls.Add(this.actionsComboBox);
+            this.dialogPreviewTab.Controls.Add(this.label1);
+            this.dialogPreviewTab.Controls.Add(this.dialogsListBox);
+            this.dialogPreviewTab.Controls.Add(this.dialogsLabel);
+            this.dialogPreviewTab.Location = new System.Drawing.Point(4, 22);
+            this.dialogPreviewTab.Name = "dialogPreviewTab";
+            this.dialogPreviewTab.Size = new System.Drawing.Size(596, 468);
+            this.dialogPreviewTab.TabIndex = 6;
+            this.dialogPreviewTab.Text = "UI Preview";
+            // 
+            // cloneButton
+            // 
+            this.cloneButton.Enabled = false;
+            this.cloneButton.Location = new System.Drawing.Point(208, 80);
+            this.cloneButton.Name = "cloneButton";
+            this.cloneButton.Size = new System.Drawing.Size(80, 23);
+            this.cloneButton.TabIndex = 11;
+            this.cloneButton.Text = "Clone...";
+            // 
+            // hideButton
+            // 
+            this.hideButton.Enabled = false;
+            this.hideButton.Location = new System.Drawing.Point(208, 56);
+            this.hideButton.Name = "hideButton";
+            this.hideButton.Size = new System.Drawing.Size(80, 23);
+            this.hideButton.TabIndex = 10;
+            this.hideButton.Text = "Hide";
+            this.hideButton.Click += new System.EventHandler(this.hideButton_Click);
+            // 
+            // showButton
+            // 
+            this.showButton.Location = new System.Drawing.Point(208, 32);
+            this.showButton.Name = "showButton";
+            this.showButton.Size = new System.Drawing.Size(80, 23);
+            this.showButton.TabIndex = 9;
+            this.showButton.Text = "Show";
+            this.showButton.Click += new System.EventHandler(this.showButton_Click);
+            // 
+            // eventDetailGroupBox
+            // 
+            this.eventDetailGroupBox.Controls.Add(this.eventConditionValueLabel);
+            this.eventDetailGroupBox.Controls.Add(this.eventOrderingValueLabel);
+            this.eventDetailGroupBox.Controls.Add(this.eventNameValueLabel);
+            this.eventDetailGroupBox.Controls.Add(this.eventConditionLabel);
+            this.eventDetailGroupBox.Controls.Add(this.eventOrderingLabel);
+            this.eventDetailGroupBox.Controls.Add(this.eventNameLabel);
+            this.eventDetailGroupBox.Location = new System.Drawing.Point(272, 240);
+            this.eventDetailGroupBox.Name = "eventDetailGroupBox";
+            this.eventDetailGroupBox.Size = new System.Drawing.Size(312, 208);
+            this.eventDetailGroupBox.TabIndex = 8;
+            this.eventDetailGroupBox.TabStop = false;
+            this.eventDetailGroupBox.Text = "Event Detail";
+            // 
+            // eventConditionValueLabel
+            // 
+            this.eventConditionValueLabel.Location = new System.Drawing.Point(72, 88);
+            this.eventConditionValueLabel.Name = "eventConditionValueLabel";
+            this.eventConditionValueLabel.Size = new System.Drawing.Size(232, 112);
+            this.eventConditionValueLabel.TabIndex = 10;
+            this.eventConditionValueLabel.Text = "event condition";
+            // 
+            // eventOrderingValueLabel
+            // 
+            this.eventOrderingValueLabel.Location = new System.Drawing.Point(72, 56);
+            this.eventOrderingValueLabel.Name = "eventOrderingValueLabel";
+            this.eventOrderingValueLabel.Size = new System.Drawing.Size(232, 24);
+            this.eventOrderingValueLabel.TabIndex = 9;
+            this.eventOrderingValueLabel.Text = "event order";
+            // 
+            // eventNameValueLabel
+            // 
+            this.eventNameValueLabel.Location = new System.Drawing.Point(72, 24);
+            this.eventNameValueLabel.Name = "eventNameValueLabel";
+            this.eventNameValueLabel.Size = new System.Drawing.Size(232, 24);
+            this.eventNameValueLabel.TabIndex = 8;
+            this.eventNameValueLabel.Text = "event name";
+            // 
+            // eventConditionLabel
+            // 
+            this.eventConditionLabel.Location = new System.Drawing.Point(8, 88);
+            this.eventConditionLabel.Name = "eventConditionLabel";
+            this.eventConditionLabel.Size = new System.Drawing.Size(56, 24);
+            this.eventConditionLabel.TabIndex = 7;
+            this.eventConditionLabel.Text = "Condition:";
+            this.eventConditionLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // eventOrderingLabel
+            // 
+            this.eventOrderingLabel.Location = new System.Drawing.Point(8, 56);
+            this.eventOrderingLabel.Name = "eventOrderingLabel";
+            this.eventOrderingLabel.Size = new System.Drawing.Size(56, 24);
+            this.eventOrderingLabel.TabIndex = 6;
+            this.eventOrderingLabel.Text = "Ordering:";
+            this.eventOrderingLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // eventNameLabel
+            // 
+            this.eventNameLabel.Location = new System.Drawing.Point(8, 24);
+            this.eventNameLabel.Name = "eventNameLabel";
+            this.eventNameLabel.Size = new System.Drawing.Size(56, 24);
+            this.eventNameLabel.TabIndex = 5;
+            this.eventNameLabel.Text = "Event:";
+            this.eventNameLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // eventsListBox
+            // 
+            this.eventsListBox.Location = new System.Drawing.Point(8, 264);
+            this.eventsListBox.Name = "eventsListBox";
+            this.eventsListBox.Size = new System.Drawing.Size(248, 186);
+            this.eventsListBox.TabIndex = 7;
+            this.eventsListBox.DoubleClick += new System.EventHandler(this.eventsListBox_DoubleClick);
+            this.eventsListBox.SelectedIndexChanged += new System.EventHandler(this.eventsListBox_SelectedIndexChanged);
+            // 
+            // eventsLabel
+            // 
+            this.eventsLabel.Location = new System.Drawing.Point(8, 240);
+            this.eventsLabel.Name = "eventsLabel";
+            this.eventsLabel.Size = new System.Drawing.Size(100, 16);
+            this.eventsLabel.TabIndex = 6;
+            this.eventsLabel.Text = "Events:";
+            // 
+            // standardDialogsGroupBox
+            // 
+            this.standardDialogsGroupBox.Controls.Add(this.errorDialogLinkLabel);
+            this.standardDialogsGroupBox.Controls.Add(this.exitLinkLabel);
+            this.standardDialogsGroupBox.Controls.Add(this.userExitLinkLabel);
+            this.standardDialogsGroupBox.Controls.Add(this.label2);
+            this.standardDialogsGroupBox.Controls.Add(this.exitLabel);
+            this.standardDialogsGroupBox.Controls.Add(this.userExitLabel);
+            this.standardDialogsGroupBox.Controls.Add(this.fatalErrorLinkLabel);
+            this.standardDialogsGroupBox.Controls.Add(this.fatalErrorLabel);
+            this.standardDialogsGroupBox.Location = new System.Drawing.Point(304, 64);
+            this.standardDialogsGroupBox.Name = "standardDialogsGroupBox";
+            this.standardDialogsGroupBox.Size = new System.Drawing.Size(280, 152);
+            this.standardDialogsGroupBox.TabIndex = 5;
+            this.standardDialogsGroupBox.TabStop = false;
+            this.standardDialogsGroupBox.Text = "Standard Dialogs";
+            // 
+            // errorDialogLinkLabel
+            // 
+            this.errorDialogLinkLabel.Location = new System.Drawing.Point(104, 120);
+            this.errorDialogLinkLabel.Name = "errorDialogLinkLabel";
+            this.errorDialogLinkLabel.Size = new System.Drawing.Size(168, 24);
+            this.errorDialogLinkLabel.TabIndex = 7;
+            this.errorDialogLinkLabel.TabStop = true;
+            this.errorDialogLinkLabel.Text = "error dialog";
+            this.errorDialogLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.errorDialogLinkLabel_LinkClicked);
+            // 
+            // exitLinkLabel
+            // 
+            this.exitLinkLabel.Location = new System.Drawing.Point(104, 88);
+            this.exitLinkLabel.Name = "exitLinkLabel";
+            this.exitLinkLabel.Size = new System.Drawing.Size(168, 24);
+            this.exitLinkLabel.TabIndex = 6;
+            this.exitLinkLabel.TabStop = true;
+            this.exitLinkLabel.Text = "exit";
+            this.exitLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.exitLinkLabel_LinkClicked);
+            // 
+            // userExitLinkLabel
+            // 
+            this.userExitLinkLabel.Location = new System.Drawing.Point(104, 56);
+            this.userExitLinkLabel.Name = "userExitLinkLabel";
+            this.userExitLinkLabel.Size = new System.Drawing.Size(168, 24);
+            this.userExitLinkLabel.TabIndex = 5;
+            this.userExitLinkLabel.TabStop = true;
+            this.userExitLinkLabel.Text = "user exit";
+            this.userExitLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.userExitLinkLabel_LinkClicked);
+            // 
+            // label2
+            // 
+            this.label2.Location = new System.Drawing.Point(8, 120);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(88, 24);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "[ErrorDialog]";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // exitLabel
+            // 
+            this.exitLabel.Location = new System.Drawing.Point(8, 88);
+            this.exitLabel.Name = "exitLabel";
+            this.exitLabel.Size = new System.Drawing.Size(88, 24);
+            this.exitLabel.TabIndex = 3;
+            this.exitLabel.Text = "Exit (-1):";
+            this.exitLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // userExitLabel
+            // 
+            this.userExitLabel.Location = new System.Drawing.Point(8, 56);
+            this.userExitLabel.Name = "userExitLabel";
+            this.userExitLabel.Size = new System.Drawing.Size(88, 24);
+            this.userExitLabel.TabIndex = 2;
+            this.userExitLabel.Text = "User Exit (-2):";
+            this.userExitLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // fatalErrorLinkLabel
+            // 
+            this.fatalErrorLinkLabel.Location = new System.Drawing.Point(104, 24);
+            this.fatalErrorLinkLabel.Name = "fatalErrorLinkLabel";
+            this.fatalErrorLinkLabel.Size = new System.Drawing.Size(168, 24);
+            this.fatalErrorLinkLabel.TabIndex = 1;
+            this.fatalErrorLinkLabel.TabStop = true;
+            this.fatalErrorLinkLabel.Text = "fatal error";
+            this.fatalErrorLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.fatalErrorLinkLabel_LinkClicked);
+            // 
+            // fatalErrorLabel
+            // 
+            this.fatalErrorLabel.Location = new System.Drawing.Point(8, 24);
+            this.fatalErrorLabel.Name = "fatalErrorLabel";
+            this.fatalErrorLabel.Size = new System.Drawing.Size(88, 24);
+            this.fatalErrorLabel.TabIndex = 0;
+            this.fatalErrorLabel.Text = "Fatal Error (-3):";
+            this.fatalErrorLabel.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            // 
+            // actionsComboBox
+            // 
+            this.actionsComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.actionsComboBox.Location = new System.Drawing.Point(304, 32);
+            this.actionsComboBox.Name = "actionsComboBox";
+            this.actionsComboBox.Size = new System.Drawing.Size(184, 21);
+            this.actionsComboBox.TabIndex = 3;
+            this.actionsComboBox.SelectedIndexChanged += new System.EventHandler(this.actionsComboBox_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(304, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(152, 16);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Install UI Sequence Dialogs:";
+            // 
+            // dialogsListBox
+            // 
+            this.dialogsListBox.Location = new System.Drawing.Point(8, 32);
+            this.dialogsListBox.Name = "dialogsListBox";
+            this.dialogsListBox.Size = new System.Drawing.Size(184, 186);
+            this.dialogsListBox.TabIndex = 1;
+            this.dialogsListBox.SelectedIndexChanged += new System.EventHandler(this.dialogsListBox_SelectedIndexChanged);
+            // 
+            // dialogsLabel
+            // 
+            this.dialogsLabel.Location = new System.Drawing.Point(8, 8);
+            this.dialogsLabel.Name = "dialogsLabel";
+            this.dialogsLabel.Size = new System.Drawing.Size(100, 16);
+            this.dialogsLabel.TabIndex = 0;
+            this.dialogsLabel.Text = "Dialogs:";
+            // 
             // MainForm
             // 
             this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
@@ -485,6 +799,9 @@ namespace IzFree
             this.projectTabControl.ResumeLayout(false);
             this.tablesTab.ResumeLayout(false);
             this.featuresTab.ResumeLayout(false);
+            this.dialogPreviewTab.ResumeLayout(false);
+            this.eventDetailGroupBox.ResumeLayout(false);
+            this.standardDialogsGroupBox.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -500,6 +817,11 @@ namespace IzFree
         }
 
         #region Private Methods
+        private MSI.View ExecView(string sql)
+        {
+            return Application.ExecView(Database, sql);
+        }
+
         private void AddFeatures(Hashtable tree, TreeNode parentNode,
             string parentLabel, string parent)
         {
@@ -537,59 +859,64 @@ namespace IzFree
 
         private void NewDatabase()
         {
-            PopulateTabs(m_application.Project.Database);
+            PopulateTabs();
             DatabaseOpen(true);
         }
 
-        private void PopulateComponentsTab(MSI.Database db)
+        private void PopulateComponentsTab()
         {
             Debug.WriteLine("\nComponents:");
-            MSI.View view = IzFree.Application.ExecView(db,
-                "SELECT `Component`,`ComponentId`,`Directory_`," +
-                    "`Attributes`,`Condition`,`KeyPath` FROM `Component`" +
-                " ORDER BY `Component`");
-            for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+            using (MSI.View view = ExecView(
+                       "SELECT `Component`,`ComponentId`,`Directory_`," +
+                       "`Attributes`,`Condition`,`KeyPath` FROM `Component`" +
+                       " ORDER BY `Component`"))
             {
-                Debug.WriteLine(String.Format("Component={0}, " +
-                    "ComponentId={1}, Directory_={2}, Attributes={3}, " +
-                    "Condition={4}, KeyPath={5}", rec.GetString(1),
-                    rec.GetString(2), rec.GetString(3), rec.GetInteger(4),
-                    rec.GetString(5), rec.GetString(6)));
-                rec.Dispose();
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    Debug.WriteLine(String.Format("Component={0}, " +
+                        "ComponentId={1}, Directory_={2}, Attributes={3}, " +
+                        "Condition={4}, KeyPath={5}", rec.GetString(1),
+                        rec.GetString(2), rec.GetString(3), rec.GetInteger(4),
+                        rec.GetString(5), rec.GetString(6)));
+                    rec.Dispose();
+                }
+                view.Close();
             }
-            view.Close();
         }
 
-        private void PopulateFeaturesTab(MSI.Database db)
+        private void PopulateFeaturesTab()
         {
-            MSI.View view = IzFree.Application.ExecView(db,
-                "SELECT `Feature`,`Feature_Parent` FROM `Feature`" +
-                " ORDER BY `Feature_Parent`");
             ArrayList roots = new ArrayList();
             Hashtable tree = new Hashtable();
-            for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+            using (MSI.View view = ExecView(
+                       "SELECT `Feature`,`Feature_Parent` FROM `Feature`" +
+                       " ORDER BY `Feature_Parent`"))
             {
-                if (rec.IsNull(2))
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
                 {
-                    roots.Add(rec.GetString(1));
-                }
-                else
-                {
-                    string child = rec.GetString(1);
-                    string parent = rec.GetString(2);;
-                    if (tree.ContainsKey(parent))
+                    if (rec.IsNull(2))
                     {
-                        (tree[parent] as ArrayList).Add(child);
+                        roots.Add(rec.GetString(1));
                     }
                     else
                     {
-                        ArrayList tmp = new ArrayList();
-                        tmp.Add(child);
-                        tree[parent] = tmp;
+                        string child = rec.GetString(1);
+                        string parent = rec.GetString(2);;
+                        if (tree.ContainsKey(parent))
+                        {
+                            (tree[parent] as ArrayList).Add(child);
+                        }
+                        else
+                        {
+                            ArrayList tmp = new ArrayList();
+                            tmp.Add(child);
+                            tree[parent] = tmp;
+                        }
                     }
+                    rec.Dispose();
                 }
+                view.Close();
             }
-            view.Close();
 
             roots.Sort();
             foreach (ArrayList children in tree.Values)
@@ -608,81 +935,191 @@ namespace IzFree
             }
         }
 
-        private void PopulateFileSystemTab(MSI.Database db)
+        private void PopulateFileSystemTab()
         {
             Debug.WriteLine("\nFiles:");
-            MSI.View view = IzFree.Application.ExecView(db,
-                "SELECT `File`,`Component_`,`FileName`,`FileSize`," +
-                    "`Version`,`Language`,`Attributes`,`Sequence` " +
-                "FROM `File` ORDER BY `File`");
-            for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+            using (MSI.View view = ExecView(
+                       "SELECT `File`,`Component_`,`FileName`,`FileSize`," +
+                       "`Version`,`Language`,`Attributes`,`Sequence` " +
+                       "FROM `File` ORDER BY `File`"))
             {
-                Debug.WriteLine(String.Format("File={0}, Component_={1}, " +
-                    "FileName={2}, FileSize={3}, Version={4}, " +
-                    "Language={5}, Attributes={6}, Sequence={7}",
-                    rec.GetString(1), rec.GetString(2),
-                    rec.GetString(3), rec.GetInteger(4), rec.GetString(5),
-                    rec.GetString(6), rec.GetInteger(7), rec.GetInteger(8)));
-                rec.Dispose();
-            }
-            view.Close();
-        }
-
-        private void PopulateRegistryTab(MSI.Database db)
-        {
-            Debug.WriteLine("\nRegistry:");
-            MSI.View view = IzFree.Application.ExecView(db,
-                "SELECT `Registry`,`Root`,`Key`,`Name`,`Value`,`Component_`" +
-                " FROM `Registry` ORDER BY `Registry`");
-            for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
-            {
-                Debug.WriteLine(String.Format("Registry={0}, Root={1}, " +
-                    "Key={2}, Name={3}, Value={4}, Component_={5}",
-                    rec.GetString(1), rec.GetInteger(2),
-                    rec.GetString(3), rec.GetString(4), rec.GetString(5),
-                    rec.GetString(6)));
-                rec.Dispose();
-            }
-            view.Close();
-        }
-
-        private void PopulateTablesTab(MSI.Database db)
-        {
-            using (new UpdateHelper(tablesListBox))
-            {
-                tablesListBox.Items.Clear();
-                MSI.View view = IzFree.Application.ExecView(db,
-                    "SELECT * FROM `_Tables` ORDER BY `Name`");
                 for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
                 {
-                    tablesListBox.Items.Add(rec.GetString(1));
+                    Debug.WriteLine(String.Format("File={0}, Component_={1}, " +
+                        "FileName={2}, FileSize={3}, Version={4}, " +
+                        "Language={5}, Attributes={6}, Sequence={7}",
+                        rec.GetString(1), rec.GetString(2),
+                        rec.GetString(3), rec.GetInteger(4), rec.GetString(5),
+                        rec.GetString(6), rec.GetInteger(7), rec.GetInteger(8)));
                     rec.Dispose();
                 }
                 view.Close();
             }
         }
 
-        private void PopulateTabs(MSI.Database db)
+        private void PopulateRegistryTab()
         {
-            PopulateTablesTab(db);
-            PopulateFeaturesTab(db);
-            PopulateComponentsTab(db);
-            PopulateFileSystemTab(db);
-            PopulateRegistryTab(db);
+            using (MSI.View view = ExecView(
+                       "SELECT `Registry`,`Root`,`Key`,`Name`,`Value`,`Component_`" +
+                       " FROM `Registry` ORDER BY `Registry`"))
+            {
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    Debug.WriteLine(String.Format("Registry={0}, Root={1}, " +
+                        "Key={2}, Name={3}, Value={4}, Component_={5}",
+                        rec.GetString(1), rec.GetInteger(2),
+                        rec.GetString(3), rec.GetString(4), rec.GetString(5),
+                        rec.GetString(6)));
+                    rec.Dispose();
+                }
+                view.Close();
+            }
+        }
+
+        private void PopulateTablesTab()
+        {
+            using (new UpdateHelper(tablesListBox))
+            {
+                tablesListBox.Items.Clear();
+                using (MSI.View view = ExecView(
+                           "SELECT * FROM `_Tables` ORDER BY `Name`"))
+                {
+                    for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                    {
+                        tablesListBox.Items.Add(rec.GetString(1));
+                        rec.Dispose();
+                    }
+                    view.Close();
+                }
+            }
+        }
+
+        private string GetUIAction(int sequence)
+        {
+            using (MSI.View view = ExecView(
+                       "SELECT `Action` FROM `InstallUISequence` WHERE " +
+                       "`Sequence`=" + sequence.ToString()))
+            {
+                MSI.Record rec = view.Fetch();
+                view.Close();
+                if (rec != null)
+                {
+                    string action = rec.GetString(1);
+                    rec.Dispose();
+                    return action;
+                }
+            }
+            return "";
+        }
+
+        private void LoadStandardDialogs()
+        {
+            if (Project.TableExists("InstallUISequence"))
+            {
+                fatalErrorLinkLabel.Text = GetUIAction(-3);
+                userExitLinkLabel.Text = GetUIAction(-2);
+                exitLinkLabel.Text = GetUIAction(-1);
+            }
+            if (Project.TableExists("Property"))
+            {
+                errorDialogLinkLabel.Text = Project.GetProperty("ErrorDialog");
+            }
+        }
+
+        private void LoadWizards(ArrayList dialogs)
+        {
+            ArrayList uiDialogs = new ArrayList();
+            using (MSI.View view = ExecView(
+                       "SELECT `Action` FROM `InstallUISequence` WHERE " +
+                       "`Sequence` >= 0 ORDER BY `Sequence`"))
+            {
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    if (dialogs.Contains(rec.GetString(1)))
+                    {
+                        uiDialogs.Add(rec.GetString(1));
+                    }
+                    rec.Dispose();
+                }
+                view.Close();
+            }
+            for (int i = 0; i < uiDialogs.Count; i++)
+            {
+                actionsComboBox.Items.Add(uiDialogs[i]);
+            }
+        }
+
+        private void PopulateDialogsTab()
+        {
+            dialogsListBox.Items.Clear();
+            actionsComboBox.Items.Clear();
+            fatalErrorLinkLabel.Text = "";
+            userExitLinkLabel.Text = "";
+            exitLinkLabel.Text = "";
+            errorDialogLinkLabel.Text = "";
+
+            eventsListBox.Items.Clear();
+            eventNameValueLabel.Text = "";
+            eventOrderingValueLabel.Text = "";
+            eventConditionValueLabel.Text = "";
+
+            if (Project.TableExists("Dialog"))
+            {
+                LoadStandardDialogs();
+                ArrayList dialogs = new ArrayList();
+                using (new UpdateHelper(dialogsListBox))
+                {
+                    dialogsListBox.Items.Clear();
+                    using (MSI.View view = ExecView(
+                               "SELECT `Dialog` FROM `Dialog` ORDER BY `Dialog`"))
+                    {
+                        for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                        {
+                            dialogs.Add(rec.GetString(1));
+                            rec.Dispose();
+                        }
+                        view.Close();
+                    }
+                    dialogs.Sort();
+                    dialogsListBox.Items.AddRange(dialogs.ToArray());
+                }
+                LoadWizards(dialogs);
+            }
+        }
+
+        private void PopulateTabs()
+        {
+            PopulateTablesTab();
+            PopulateFeaturesTab();
+            PopulateComponentsTab();
+            PopulateFileSystemTab();
+            PopulateRegistryTab();
+            PopulateDialogsTab();
+        }
+
+        public static string SqlQuote(string text)
+        {
+            return "`" + text + "`";
         }
 
         private string PrimaryKeys(string table)
         {
-            return "*";
+            string[] keys = Database.PrimaryKeys(table);
+            string result = SqlQuote(keys[0]);
+            for (int i = 1; i < keys.Length; i++)
+            {
+                result += "," + SqlQuote(keys[i]);
+            }
+            return result;
         }
 
         private void SetTitle()
         {
             Text = "izfree 2.0";
-            if (m_application.Project != null)
+            if (Project != null)
             {
                 Text += " - " + (Modified ? "* " : "") +
-                    m_application.Project.Filename;
+                    Project.Filename;
             }
         }
 
@@ -701,6 +1138,7 @@ namespace IzFree
                 projectTabControl.TabPages.Add(componentsTab);
                 projectTabControl.TabPages.Add(fileSystemTab);
                 projectTabControl.TabPages.Add(registryTab);
+                projectTabControl.TabPages.Add(dialogPreviewTab);
             }
             else
             {
@@ -709,6 +1147,7 @@ namespace IzFree
                 projectTabControl.TabPages.Remove(componentsTab);
                 projectTabControl.TabPages.Remove(fileSystemTab);
                 projectTabControl.TabPages.Remove(registryTab);
+                projectTabControl.TabPages.Remove(dialogPreviewTab);
             }
         }
 
@@ -818,14 +1257,14 @@ namespace IzFree
         #region Edit Menu
         private void editCopyNewGuidItem_Click(object sender, System.EventArgs e)
         {
-            Clipboard.SetDataObject(IzFree.Application.NewGuid());
+            Clipboard.SetDataObject(Application.NewGuid());
         }
 
         private void editPasteNewGuidItem_Click(object sender, System.EventArgs e)
         {
             if (this.ActiveControl is TextBox)
             {
-                this.ActiveControl.Text = IzFree.Application.NewGuid();
+                this.ActiveControl.Text = Application.NewGuid();
             }
         }
         #endregion
@@ -834,7 +1273,7 @@ namespace IzFree
         private void taskScanDirectoryItem_Click(object sender, System.EventArgs e)
         {
             using (NewComponentsForm dlg =
-                       new NewComponentsForm(m_application.Project))
+                       new NewComponentsForm(Project))
             {
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
@@ -862,7 +1301,7 @@ namespace IzFree
                 primaryKeyListView.Items.Clear();
                 string table = tablesListBox.SelectedItem.ToString();
                 MSI.View view =
-                    IzFree.Application.ExecView(m_application.Project.Database,
+                    Application.ExecView(Project.Database,
                     "SELECT " + PrimaryKeys(table) + " FROM `" + table + "`");
                 for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
                 {
@@ -876,6 +1315,20 @@ namespace IzFree
         #endregion
 
         #region Properties
+        #region Project
+        private Project Project
+        {
+            get { return m_application.Project; }
+        }
+        #endregion
+
+        #region Database
+        private MSI.Database Database
+        {
+            get { return Project.Database; }
+        }
+        #endregion
+
         #region Modified
         private bool Modified
         {
@@ -896,7 +1349,142 @@ namespace IzFree
         #endregion
 
         #region Private Instance Data
-        IzFree.Application m_application = new IzFree.Application();
+        Application m_application = new Application();
         #endregion
+
+        private void LinkDialog(LinkLabel control)
+        {
+            dialogsListBox.SelectedIndex = dialogsListBox.FindString(control.Text);
+        }
+        private void fatalErrorLinkLabel_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
+        {
+            LinkDialog(fatalErrorLinkLabel);
+        }
+
+        private void userExitLinkLabel_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
+        {
+            LinkDialog(userExitLinkLabel);
+        }
+
+        private void exitLinkLabel_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
+        {
+            LinkDialog(exitLinkLabel);
+        }
+
+        private void errorDialogLinkLabel_LinkClicked(object sender, System.Windows.Forms.LinkLabelLinkClickedEventArgs e)
+        {
+            LinkDialog(errorDialogLinkLabel);
+        }
+
+        private void actionsComboBox_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            dialogsListBox.SelectedIndex = dialogsListBox.FindString(
+                actionsComboBox.SelectedItem as string);
+        }
+
+        private void Preview()
+        {
+            string dialog = dialogsListBox.SelectedItem as string;
+            if (m_previewEnabled && (m_currentDialog != dialog))
+            {
+                m_currentDialog = dialog;
+                m_preview.PreviewDialog(m_currentDialog);
+                Activate();
+            }
+        }
+        private bool m_previewEnabled = false;
+        private string m_currentDialog = "";
+        private MSI.UIPreview m_preview = null;
+
+        private void dialogsListBox_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            cloneButton.Enabled = true;
+
+            eventsListBox.Items.Clear();
+            eventNameValueLabel.Text = "";
+            eventOrderingValueLabel.Text = "";
+            eventConditionValueLabel.Text = "";
+
+            string dlg = dialogsListBox.SelectedItem as string;
+            using (MSI.View view = ExecView(
+                       "SELECT `Control_`,`Argument` FROM `ControlEvent` " +
+                       "WHERE `Dialog_` = '" + dlg + "' AND " +
+                       "(`Event`='NewDialog' OR `Event`='SpawnDialog')"))
+            {
+                for (MSI.Record rec = view.Fetch(); rec != null; rec = view.Fetch())
+                {
+                    eventsListBox.Items.Add(rec.GetString(1) + " -> " +
+                        rec.GetString(2));
+                    rec.Dispose();
+                }
+            }
+
+            Preview();
+        }
+
+        private void showButton_Click(object sender, System.EventArgs e)
+        {
+            m_previewEnabled = true;
+            if (null == m_preview)
+            {
+                m_preview = Database.EnableUIPreview();
+            }
+            Preview();
+            hideButton.Enabled = true;
+        }
+
+        private void hideButton_Click(object sender, System.EventArgs e)
+        {
+            m_previewEnabled = false;
+            m_currentDialog = "";
+            m_preview.PreviewDialog("");
+            hideButton.Enabled = false;
+            showButton.Focus();
+        }
+
+        private static string NullInteger(MSI.Record rec, int field)
+        {
+            return rec.IsNull(field) ? "" : rec.GetInteger(field).ToString();
+        }
+        private static string NullString(MSI.Record rec, int field)
+        {
+            return rec.IsNull(field) ? "" : rec.GetString(field);
+        }
+
+        private void eventsListBox_SelectedIndexChanged(object sender, System.EventArgs e)
+        {
+            eventNameValueLabel.Text = "";
+            eventOrderingValueLabel.Text = "";
+            eventConditionValueLabel.Text = "";
+
+            if (eventsListBox.SelectedIndex >= 0)
+            {
+                string dialog = dialogsListBox.SelectedItem as string;
+                string[] pieces = (eventsListBox.SelectedItem as string).Split(new char[] { ' ' });
+                using (MSI.View view = ExecView(
+                           "SELECT `Condition`,`Ordering`,`Event` FROM " +
+                           "`ControlEvent` WHERE `Dialog_`='" + dialog + "' " +
+                           "AND `Control_`='" + pieces[0] + "' " +
+                           "AND `Argument`='" + pieces[2] + "'"))
+                {
+                    MSI.Record rec = view.Fetch();
+                    if (null == rec)
+                    {
+                        throw new InvalidOperationException("Didn't expect NULL result set from ControlEvent query");
+                    }
+                    eventNameValueLabel.Text = NullString(rec, 3);
+                    eventOrderingValueLabel.Text = NullInteger(rec, 2);
+                    eventConditionValueLabel.Text = NullString(rec, 1);
+                    rec.Dispose();
+                }
+            }
+        }
+
+        private void eventsListBox_DoubleClick(object sender, System.EventArgs e)
+        {
+            string dialog = (eventsListBox.SelectedItem as string).
+                Split(new char[] { ' ' })[2];
+            dialogsListBox.SelectedIndex = dialogsListBox.FindString(dialog);
+        }
     }
 }
