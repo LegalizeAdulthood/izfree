@@ -60,7 +60,7 @@
 		<revnumber>{3EF116B2-B7A6-42EC-A2CB-DA13516EBFD8}</revnumber>
 		<lastprinted>12/19/2001 14:21</lastprinted>
 		<createdtm>12/19/2001 14:21</createdtm>
-		<lastsavedtm>12/23/2001 18:25</lastsavedtm>
+		<lastsavedtm>12/23/2001 22:36</lastsavedtm>
 		<pagecount>110</pagecount>
 		<wordcount>0</wordcount>
 		<charcount>0</charcount>
@@ -11215,7 +11215,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f14_Generator.cpp</td>
 			<td>guidgen</td>
 			<td>Generato.cpp|Generator.cpp</td>
-			<td>626</td>
+			<td>685</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11415,7 +11415,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f34_UISample.Msi</td>
 			<td>Templates</td>
 			<td>UISample.Msi</td>
-			<td>292352</td>
+			<td>122368</td>
 			<td/>
 			<td/>
 			<td>0</td>
@@ -11445,7 +11445,7 @@ MBgAAf8YAAH+CAAB/gwAA/4P///+D////g///w==
 			<td>f37_izfree.msi.xml</td>
 			<td>Top</td>
 			<td>izfree_m.xml|izfree.msi.xml</td>
-			<td>637902</td>
+			<td>638240</td>
 			<td/>
 			<td/>
 			<td>0</td>
