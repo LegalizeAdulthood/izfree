@@ -382,6 +382,12 @@ interface IMonitor : IDispatch
     HRESULT ServiceControlTable([out, retval] IServiceControlTable * *pVal);
     [propget, id(9), helpstring("ServiceInstall Table")]
     HRESULT ServiceInstallTable([out, retval] IServiceInstallTable * *pVal);
+    [propget, id(10), helpstring("property File")]
+    HRESULT File([out, retval] BSTR *pVal);
+    [propget, id(11), helpstring("property Service")]
+    HRESULT Service([out, retval] long *pVal);
+    [id(12), helpstring("method ClearKeys")]
+    HRESULT ClearKeys();
 };
 
 /////////////////////////////////////////////////////////////////////////////
