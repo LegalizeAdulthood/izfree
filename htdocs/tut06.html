@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+<TITLE>izfree Tutorial 5: Registering COM Objects</TITLE>
+</HEAD>
+<BODY>
+
+<H3>[ <A HREF="http://sourceforge.net/">SourceForge.net</A>
+| <A HREF="http://sourceforge.net/projects/izfree/">Project</A>
+| <A HREF="http://izfree.sourceforge.net/">izfree</A>
+| <A HREF="tutorial.html">Tutorials</A>
+| Tutorial 5 ]</H3>
+
+<H3>Tutorial 5: Registering COM Objects</H3>
+
+<P>COM objects are reusable bits of software distributed in binary
+form.  COM objects register themselves with the system to make
+themselves accessible to applications.  Registration is the process of
+writing data to the system registry that identifies the location of
+the COM object's executable file and its properties.</P>
+
+<P>COM objects installed by an application need to be registered on the
+target machine.  Similarly, the registration information must be
+removed when the object itself is removed.  Windows Installer provides
+several tables for recording the registration information for a COM
+object.</P>
+
+<P>
+The <STRONG>Class</STRONG>,
+<STRONG>ProgId</STRONG>,
+<STRONG>TypeLib</STRONG>,
+<STRONG>AppId</STRONG>,
+<STRONG>Extension</STRONG>,
+<STRONG>Registry</STRONG>,
+<STRONG>Verb</STRONG>, and
+<STRONG>MIME</STRONG> tables provide for the registration of COM
+objects.  There is quite a bit of information in those tables, and its
+quite tedious to enter it all by hand.  However, doing so at least
+once will make you familiar with the purpose of all the tables and how
+they are used in your installation.  This understanding is invaluable
+in debugging COM registration problems.</P>
+
+<OL
+<LI><P>First, gather the necessary registration information for your
+code.  This involves at a minimum your object's CLSID information
+under HKEY_CLASSES_ROOT\CLSID\{your guid} when the object is
+registered.  If the component is not registered, then you will have to
+extract the necessary information from your source code or documentation.
+Information under your object's CLSID is entered into corresdonding
+entries in the <STRONG>Class</STRONG> table.  Make a note of any
+information that you haven't yet entered into the class table for
+later.</P>
+
+<LI><P>The object may also have a ProgId.  If so, this will be
+indicated
+
+<OL>
+<LI><P>Procedure Step 1</P>
+<LI><P>Procedure Step 2</P>
+</OL>
+
+<HR><UL>
+<LI><A HREF="tut01.html">Tutorial 1: The Basics</A>
+<LI><A HREF="tut02.html">Tutorial 2: Remove Unnecessary Dialogs</A>
+<LI><A HREF="tut03.html">Tutorial 3: Adding a Shortcut</A>
+<LI><A HREF="tut04.html">Tutorial 4: Initializing TARGETDIR</A>
+<LI><A HREF="tut05.html">Tutorial 5: Adding Shell Verbs</A>
+<LI>Tutorial 6: Registering COM Objects
+<LI><A HREF="tut07.html">Tutorial 7: Installing a Service</A>
+</UL>
+
+</BODY>
+</HTML>
