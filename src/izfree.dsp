@@ -94,6 +94,10 @@ InputPath=.\izfree.hhp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MakeSource.vbs
+# End Source File
+# Begin Source File
+
 SOURCE=.\ReadMe.txt
 # End Source File
 # End Target

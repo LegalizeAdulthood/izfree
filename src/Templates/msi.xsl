@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- 
   $Log$
-  Revision 1.1  2001/12/23 23:31:32  legalize
-  Initial checkin
+  Revision 1.2  2004/01/27 05:08:40  legalize
+  Final commit before conversion to C#/.NET
 
   Revision 1.5  2001/05/08 15:08:19  dgehrige
   * Added cross-referencing hyperlinks.

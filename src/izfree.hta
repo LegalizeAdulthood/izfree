@@ -27,6 +27,8 @@
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 option explicit
 
+const ORCA = "c:\program files\orca\orca.exe"
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' MAIN_WIDTH, MAIN_HEIGHT
 '
@@ -94,6 +96,7 @@ sub update_db_buttons
     all("new").disabled = not no_db
     all("close").disabled = no_db
     all("save").disabled = no_db or not g_db_modified
+    all("edit").disabled = no_db
     dim modified : modified = ""
     if (g_db_modified) then modified = "*"
     all("modified").innerText = modified
@@ -107,6 +110,7 @@ sub update_db_buttons
     set_tool_class "PreviewDialogs", tool_class
     set_tool_class "ValidateTable", tool_class
     set_tool_class "COMRegistration", tool_class
+    set_tool_class "LaunchFile", tool_class
     'all("ATLRegistration").className = tool_class
     'all("MergeModule").className = tool_class
     'all(""EditDialog").className = tool_class
@@ -170,6 +174,7 @@ sub NewComponents_onClick   : change_tool : end sub
 sub COMRegistration_onClick : change_tool : end sub
 sub PreviewDialogs_onClick  : change_tool : end sub
 sub ValidateTable_onClick   : change_tool : end sub
+sub LaunchFile_onClick      : change_tool : end sub
 
 'sub ATLCOM_onClick          : change_tool : end sub
 'sub MergeModule_onClick     : change_tool : end sub
@@ -235,6 +240,18 @@ Sub window_onhelp
     wsh().Run("hh .\izfree.chm")
 End Sub
 
+function q(str)
+    q = """" & str & """"
+end function
+
+sub edit_onClick
+    dim filename : filename = document.all("database").innerText
+    close_onClick
+    if (g_database is nothing) then
+        wsh().Run q(ORCA) & " " & q(filename)
+    end if
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' resize the window immediately, don't wait for document to load.
 window.resizeTo MAIN_WIDTH, MAIN_HEIGHT
@@ -246,6 +263,7 @@ window.resizeTo MAIN_WIDTH, MAIN_HEIGHT
 <INPUT ID="new" TYPE="button" VALUE="New...">
 <INPUT ID="close" TYPE="button" VALUE="Close" DISABLED>
 <INPUT ID="save" TYPE="button" VALUE="Save" DISABLED>
+<INPUT ID="edit" TYPE="button" VALUE="Edit" DISABLED>
 Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
 </FORM></TD><TD ALIGN="right"><H2>izfree 1.1</H2></TD></TR></TABLE>
 </TD></TR>
@@ -258,6 +276,7 @@ Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
 <P><SPAN ID="COMRegistration" CLASS="invisible">COM Registration</SPAN></P>
 <P><SPAN ID="PreviewDialogs" CLASS="invisible">Preview Dialogs</SPAN></P>
 <P><SPAN ID="ValidateTable" CLASS="invisible">Table Validation</SPAN></P>
+<P><SPAN ID="LaunchFile" CLASS="invisible">Launch File</SPAN></P>
 
 <!-- COM registration extraction from an ATL .rgs file is in development. -->
 <P CLASS="invisible"><SPAN ID="ATLRegistration" CLASS="invisible">ATL COM</SPAN></P>
