@@ -1,5 +1,5 @@
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' izfree Tools for Windows Installer 1.0
+' izfree Tools for Windows Installer 1.1
 ' Copyright (C) 2001 Pahvant Technologies, Inc.
 '
 ' This program is free software; you can redistribute it and/or modify
@@ -18,6 +18,8 @@
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 option explicit
 on error resume next
+
+' const vbYesNo = 4
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' Common Dialog Open File Name constants
@@ -109,10 +111,9 @@ const tvwChild = 4
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' check -- error checking routine
 '
-function check
-    check = 0
+sub check
     if (Err.number) then
-        check = err.number
+        'check = err.number
         dim msg : msg = Err.Source & " " & Hex(Err) & ": " & Err.Description & " " & Err.Source
         if (not installer is nothing) then
             dim err_rec : set err_rec = installer().LastErrorRecord
@@ -123,7 +124,7 @@ function check
         MsgBox(msg)
         Err.Clear
     end if
-end function
+end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' check_object
@@ -143,32 +144,44 @@ end function
 ' Accessors to grabbed objects
 ' 
 function installer()
-    if (window.name = "") then
+    select case window.name
+    case ""
         set installer = g_installer
-    else
+    case "Dialog"
+        set installer = window.dialogArguments.g_installer
+    case else
         set installer = window.parent.g_installer
-    end if
+    end select
 end function
 function wsh()
-    if (window.name = "") then
+    select case window.name
+    case ""
         set wsh = g_wsh
-    else
+    case "Dialog"
+        set wsh = window.dialogArguments.g_wsh
+    case else
         set wsh = window.parent.g_wsh
-    end if
+    end select
 end function
 function fso()
-    if (window.name = "") then
+    select case window.name
+    case ""
         set fso = g_fso
-    else
+    case "Dialog"
+        set fso = window.dialogArguments.g_fso
+    case else
         set fso = window.parent.g_fso
-    end if
+    end select
 end function
 function generator()
-    if (window.name = "") then
+    select case window.name
+    case ""
         set generator = g_generator
-    else
+    case "Dialog"
+        set generator = window.dialogArguments.g_generator
+    case else
         set generator = window.parent.g_generator
-    end if
+    end select
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -260,14 +273,18 @@ end function
 '
 ' Simple bubble sort on an array
 '
-sub sort(ary)
-    dim i : for i = 0 to ubound(ary)-2
-        dim j : for j = i+1 to ubound(ary)-1
-            if (ary(j) < ary(i)) then
-                dim tmp : tmp = ary(j) : ary(j) = ary(i) : ary(i) = tmp
-            end if
+sub sort(byref ary)
+    on error resume next : err.clear
+    dim len : len = ubound(ary)
+    if (not err) then
+        dim i : for i = 0 to len-1
+            dim j : for j = i+1 to len
+                if (ary(j) < ary(i)) then
+                    dim tmp : tmp = ary(j) : ary(j) = ary(i) : ary(i) = tmp
+                end if
+            next
         next
-    next
+    end if
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -350,7 +367,7 @@ end sub
 '
 function read_setting(tool, name)
     if (tool <> "") then tool = tool & "\"
-    read_setting = wsh.RegRead("HKCU\Software\Pahvant\izfree\" & tool & name)
+    read_setting = wsh().RegRead("HKCU\Software\Pahvant\izfree\" & tool & name)
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -360,7 +377,7 @@ end function
 '
 sub write_setting(tool, name, value)
     if (tool <> "") then tool = tool & "\"
-    wsh.RegWrite "HKCU\Software\Pahvant\izfree\" & tool & name, value
+    wsh().RegWrite "HKCU\Software\Pahvant\izfree\" & tool & name, value
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -388,3 +405,133 @@ sub read_input(tool, all, field, fallback)
     end if
     all(field).value = value
 end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub set_database(file, db, modified)
+    g_main_frame.document.forms("dbForm").all("database").innerText = file
+    set g_main_frame.g_database = db
+    g_main_frame.g_db_modified = modified
+    if (modified) then modified = "*" else modified = ""
+    g_main_frame.document.forms("dbForm").all("modified").innerText = modified
+end sub
+
+sub db_modified
+    g_main_frame.g_db_modified = true
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' push
+'
+' push a value onto the end of a dynamic array
+'
+sub push(byref ary, val)
+    on error resume next
+    Err.clear : redim preserve ary(ubound(ary)+1)
+    if (err) then
+        Err.Clear
+        redim preserve ary(0)
+    end if
+    ary(ubound(ary)) = val
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' db_dic
+'
+' Return a dictionary populated with keys from the column of a database
+' table
+'
+function db_dic(db, table, column)
+    dim dic : set dic = check_object("Scripting.Dictionary")
+    
+    dim view : set view = exec_view(db, _
+        "select `" & column & "` from `" & table & "`")
+    dim rec : set rec = view.fetch
+    do while (not rec is nothing)
+        dic.add rec.stringdata(1), 1
+        set rec = view.fetch
+    loop
+    set db_dic = dic
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' exec_view
+'
+' Create a view on a database and execute it, returning the view object.
+'
+function exec_view(db, query)
+    dim view : set view = db.openview(query) : check
+    view.execute : check
+    set exec_view = view
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' new_option
+'
+' Create a new OPTION element with the corresponding text and value
+'
+function new_option(item)
+    dim o : set o = document.createElement("OPTION")
+    o.text = item : o.value = item
+    set new_option = o
+end function
+
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' get_property
+'
+' Return the value of a database property, or empty string.
+'
+function get_property(db, name)
+    dim view : set view = db.OpenView("select `Value` from `Property` " &_
+        "where `Property`.`Property` = '" & name & "'") : check
+    view.execute : check
+    dim rec : set rec = view.fetch
+    if (not rec is nothing) then
+        get_property = rec.stringdata(1)
+    else
+        get_property = ""
+    end if
+    view.close : check
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' selected_option
+'
+' Return the OPTION element selected in the SELECT object, or nothing.
+'
+function selected_option(sel)
+    if (sel.selectedIndex >= 0) then
+        set selected_option = sel.options(sel.selectedIndex)
+    else
+        set selected_option = nothing
+    end if
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' null_int
+'
+' Return the integerdata in the field of the given record, or the empty
+' string if the field is null.
+'
+function null_int(rec, field)
+    if (rec.IsNull(field)) then
+        null_int = ""
+    else
+        null_int = rec.integerdata(field)
+    end if
+end function
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' null_str
+'
+' Return the stringdata in the field of the given record, or the empty
+' string if the field is null
+'
+function null_str(rec, field)
+    if (rec.IsNull(field)) then
+        null_str = ""
+    else
+        null_str = rec.stringdata(field)
+    end if
+end function
+

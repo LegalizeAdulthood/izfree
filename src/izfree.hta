@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.0
+    izfree Tools for Windows Installer 1.1
     Copyright (C) 2001 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 -->
 <META name=VI60_defaultClientScript content=VBScript>
 <HTA:APPLICATION NAVIGABLE="yes" ICON="izfree.ico" APPLICATIONNAME="izfree" />
-<TITLE>izfree Tools for Windows Installer</TITLE>
+<TITLE>izfree Tools for Windows Installer 1.1</TITLE>
 <LINK REL="stylesheet" HREF="izfree.css">
 <SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
 <SCRIPT LANGUAGE="VBScript" TYPE="text/vbscript"><!--
@@ -28,15 +28,122 @@
 option explicit
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-dim g_installer, g_wsh, g_fso, g_generator
+' MAIN_WIDTH, MAIN_HEIGHT
+'
+' Initial size of main window
+'
+const MAIN_WIDTH = 800
+const MAIN_HEIGHT = 600
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' selected_tool
+' g_installer, g_wsh, g_fso, g_generator
+'
+' Objects that we are likely to need almost anywhere
+'
+dim g_installer, g_wsh, g_fso, g_generator
+
+dim g_main_frame : set g_main_frame = window
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_database
+'
+' The currently open database, or nothing
+'
+dim g_database : set g_database = nothing
+dim g_db_modified : g_db_modified = false
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' g_selected_tool
 '
 ' Name of currently selected SPAN that represents the tool loaded in the
 ' IFRAME.
 '
-dim selected_tool
+dim g_selected_tool
+
+sub save_onClick
+    on error resume next
+    if (g_db_modified) then
+        g_database.commit : check
+    end if
+    g_db_modified = false
+    update_db_buttons
+end sub
+
+sub close_onClick
+    save_modified
+    set g_database = nothing
+    g_db_modified = false
+    document.all("database").innerText = ""
+    set_tool "NewGUID"
+    update_db_buttons
+end sub
+
+sub set_tool_class(tool, value)
+    if (g_selected_tool = tool) then
+        value = "selected"
+    end if
+    document.all(tool).className = value
+end sub
+
+sub update_db_buttons
+    dim all : set all = document.all
+    dim no_db : no_db = g_database is nothing
+    all("open").disabled = not no_db
+    all("new").disabled = not no_db
+    all("close").disabled = no_db
+    all("save").disabled = no_db or not g_db_modified
+    dim tool_class
+    if (not no_db) then
+        tool_class = "anchor"
+    else
+        tool_class = "invisible"
+    end if
+    set_tool_class "NewComponents", tool_class
+    set_tool_class "PreviewDialogs", tool_class
+    set_tool_class "ValidateTable", tool_class
+    set_tool_class "WizardSeqs", tool_class
+    'all("ATLRegistration").className = tool_class
+    'all("COMRegistration").className = tool_class
+    'all("MergeModule").className = tool_class
+    'all(""EditDialog").className = tool_class
+end sub
+
+sub open_onClick
+    save_modified
+    on error resume next
+    dim file : file = browse_for_existing_file(INSTALLER_FILE_FILTER)
+    if (file = "") then exit sub
+    Err.Clear
+    dim db : set db = _
+        g_installer.OpenDatabase(file, msiOpenDatabaseModeTransact)
+    if (Err.Number) then
+        MsgBox "Couldn't open installer database:" & vbCRLF &_
+            "Error " & Err.number & ", Source: " & Err.source & vbCRLF &_
+            "Description: " & Err.Description, vbOK, _
+            "Unexpected Error While Opening Database:"
+        Err.Clear
+        exit sub
+    end if
+    set_database file, db, false
+    update_db_buttons
+end sub
+
+sub new_onClick
+    save_modified
+    window.showModalDialog "NewPackage.html", window, _
+        "dialogWidth: 550px; dialogHeight: 400px"
+    update_db_buttons
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub set_tool(tool)
+    if (g_selected_tool <> "") then
+        document.all(g_selected_tool).className = "anchor"
+    end if
+    g_selected_tool = tool
+    document.all(tool).className = "selected"
+    document.all("tool").src = tool & ".html"
+end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' change_tool
@@ -45,13 +152,7 @@ dim selected_tool
 ' corresponding file into the IFRAME.
 '
 sub change_tool
-    dim span : set span = window.event.srcElement
-    if (selected_tool <> "") then
-        document.all(selected_tool).className = "anchor"
-    end if
-    selected_tool = span.id
-    span.className = "selected"
-    document.all("tool").src = span.id & ".html"
+    set_tool window.event.srcElement.id
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -59,13 +160,16 @@ end sub
 '
 ' Event handlers to load the corresponding tools.
 '
-sub NewGUID_onClick : change_tool : end sub
-sub NewPackage_onClick : change_tool : end sub
-sub NewComponents_onClick : change_tool : end sub
-sub PreviewDialogs_onClick : change_tool : end sub
-sub ATLCOM_onClick : change_tool : end sub
-sub MergeModule_onClick : change_tool : end sub
-sub EditDialog_onClick : change_tool : end sub
+sub NewGUID_onClick         : change_tool : end sub
+sub NewPackage_onClick      : change_tool : end sub
+sub NewComponents_onClick   : change_tool : end sub
+sub PreviewDialogs_onClick  : change_tool : end sub
+sub ATLCOM_onClick          : change_tool : end sub
+sub MergeModule_onClick     : change_tool : end sub
+sub EditDialog_onClick      : change_tool : end sub
+sub ValidateTable_onClick   : change_tool : end sub
+sub WizardSeqs_onClick      : change_tool : end sub
+sub Policies_onClick        : change_tool : end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' window_onLoad
@@ -78,12 +182,19 @@ sub window_onLoad
     set g_installer = check_object("WindowsInstaller.Installer")
     set g_fso = check_object("Scripting.FileSystemObject")
     set g_generator = check_object("Guidgen.Generator")
-    selected_tool = read_setting("", "Tool")
-    if (selected_tool = "") then
-        selected_tool = "NewGUID"
+    set_tool "NewGUID"
+end sub
+
+sub save_modified
+    if (g_db_modified) then
+        dim yesno : yesno = MsgBox("Database '" &_
+            document.all("database").innerText & "' has been modified." &_
+            vbCRLF & "Do you want to save your changes?", vbYesNo, _
+            "Confirm Saving Changed Database")
+        if (yesno = vbYes) then
+            g_database.commit
+        end if
     end if
-    document.all(selected_tool).className = "selected"
-    document.all("tool").src = selected_tool & ".html"
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -92,7 +203,9 @@ end sub
 ' Cleans up resources allocated in the application init.
 '
 sub window_onUnload
-    write_setting "", "Tool", selected_tool
+    save_modified
+    set g_database = nothing
+    write_setting "", "Tool", g_selected_tool
     set g_installer = nothing
     set g_wsh = nothing
     set g_fso = nothing
@@ -106,23 +219,38 @@ end sub
 '
 sub quit_onClick : window.close : end sub
 
+sub database_onKeyUp
+    enable_db_buttons
+end sub
+
+sub database_onValueChange
+    enable_db_buttons
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' resize the window immediately, don't wait for document to load.
-window.resizeTo 800, 600
+window.resizeTo MAIN_WIDTH, MAIN_HEIGHT
 --></SCRIPT>
 </HEAD><BODY ID="Main"><TABLE WIDTH="100%" HEIGHT="100%" CELLPADDING="0">
-<TR VALIGN="top">
-<TD COLSPAN=2 WIDTH="100%">
-<H1>izfree Tools for Windows Installer 1.0</H1>
-</TD>
-</TR>
+<!--<TR VALIGN="top"><TD COLSPAN=2 WIDTH="100%">
+<H1>izfree Tools for Windows Installer 1.1</H1>
+<HR>
+</TD></TR>-->
+<TR><TD COLSPAN=2><FORM ID="dbForm">
+<INPUT ID="open" TYPE="button" VALUE="Open...">
+<INPUT ID="new" TYPE="button" VALUE="New...">
+<INPUT ID="close" TYPE="button" VALUE="Close" DISABLED>
+<INPUT ID="save" TYPE="button" VALUE="Save" DISABLED>
+Database:&nbsp;<SPAN ID="database"></SPAN>&nbsp;<SPAN ID="modified"></SPAN>
+</FORM>
+</TD></TR>
 <TR HEIGHT="100%" VALIGN="top">
 <TD WIDTH="18%" HEIGHT="100%" VALIGN="top">
 <HR>
 <P><SPAN ID="NewGUID" CLASS="anchor">New GUID</SPAN></P>
-<P><SPAN ID="NewPackage" CLASS="anchor">New Package</SPAN></P>
-<P><SPAN ID="NewComponents" CLASS="anchor">New Components</SPAN></P>
-<P><SPAN ID="PreviewDialogs" CLASS="anchor">Preview Dialogs</SPAN></P>
+<P><SPAN ID="NewPackageX" CLASS="invisible">New Package</SPAN></P>
+<P><SPAN ID="NewComponents" CLASS="invisible">New Components</SPAN></P>
+<P><SPAN ID="PreviewDialogs" CLASS="invisible">Preview Dialogs</SPAN></P>
 <!-- COM registration extraction from an ATL .rgs file is in development. -->
 <P CLASS="invisible"><SPAN ID="ATLRegistration" CLASS="anchor">ATL COM</SPAN></P>
 <!-- Automatic COM registration extraction from a binary image is in development. -->
@@ -131,6 +259,9 @@ window.resizeTo 800, 600
 <P CLASS="invisible"><SPAN ID="MergeModule" CLASS="anchor">Merge Module</SPAN></P>
 <!-- A dialog editor is in development. -->
 <P CLASS="invisible"><SPAN ID="EditDialog" CLASS="anchor">Edit Dialog</SPAN></P>
+<P><SPAN ID="ValidateTable" CLASS="invisible">Table Validation</SPAN></P>
+<P><SPAN ID="WizardSeqs" CLASS="invisible">Wizard Dialog Sequences</SPAN></P>
+<P><SPAN ID="Policies" CLASS="anchor">Policy Settings</SPAN></P>
 <HR>
 <P><INPUT TYPE="button" ID="quit" VALUE="Quit" NAME="quit"></P>
 <HR>

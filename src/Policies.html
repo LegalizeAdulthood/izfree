@@ -1,0 +1,327 @@
+<HTML>
+<HEAD>
+<!--
+    izfree Tools for Windows Installer 1.1
+    Copyright (C) 2001 Pahvant Technologies, Inc.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<META NAME=VI60_defaultClientScript CONTENT=VBScript>
+<META NAME="GENERATOR" CONTENT="Microsoft Visual Studio 6.0">
+<TITLE>Create a Windows Installer GUID</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+
+const POLICY_SUBKEY = "Software\Policies\Microsoft\Windows\Installer"
+
+function read_bool(key)
+    on error resume next
+    Err.Clear
+    dim val : val = wsh().RegRead(key)
+    read_bool = (val = "1")
+end function
+
+function read_dword(key)
+    on error resume next
+    Err.Clear
+    dim val : val = wsh().RegRead(key)
+    if (Err) then
+        read_dword = 0
+    else
+        read_dword = val
+    end if
+end function
+
+function read_str(key)
+    on error resume next
+    Err.Clear
+    dim val : val = wsh().RegRead(key)
+    if (not Err) then
+        read_str = val
+    else
+        read_str = ""
+    end if
+end function
+
+sub read_bool_control(control, root, name)
+    set control = document.all(control)
+    if (read_bool(root & "\" & POLICY_SUBKEY & "\" & name)) then
+        control.selectedIndex = 1
+    else
+        control.selectedIndex = 0
+    end if
+end sub
+
+sub read_dword_control(control, root, name)
+    document.all(control).value = _
+        read_dword(root & "\" & POLICY_SUBKEY & "\" & name)
+end sub
+
+sub read_str_control(control, root, name)
+    document.all(control).value = _
+        read_str(root & "\" & POLICY_SUBKEY & "\" & name)
+end sub
+
+sub write_bool(key, value)
+    if (value) then value = 1 else value = 0
+    wsh().RegWrite key, value, "REG_DWORD"
+end sub
+
+sub write_dword(key, value)
+    wsh().RegWrite key, value, "REG_DWORD"
+end sub
+
+sub write_str(key, value)
+    wsh().RegWrite key, value, "REG_SZ"
+end sub
+
+sub write_bool_control(control, root, name)
+    set control = document.all(control)
+    write_bool root & "\" & POLICY_SUBKEY & "\" & name, control.value
+end sub
+
+sub write_dword_control(control, root, name)
+    set control = document.all(control)
+    write_dword root & "\" & POLICY_SUBKEY & "\" & name, control.value
+end sub
+
+sub write_str_control(control, root, name)
+    set control = document.all(control)
+    write_str root & "\" & POLICY_SUBKEY & "\" & name, control.value
+end sub
+
+sub read_user_bool(name)
+    read_bool_control "user" & name, "HKCU", name
+end sub
+sub read_user_str(name)
+    read_str_control "user" & name, "HKCU", name
+end sub
+sub write_user_bool(name)
+    write_bool_control "user" & name, "HKCU", name
+end sub
+sub write_user_str(name)
+    write_str_control "user" & name, "HKCU", name
+end sub
+
+sub read_sys_bool(name)
+    read_bool_control "sys" & name, "HKLM", name
+end sub
+sub read_sys_dword(name)
+    read_dword_control "sys" & name, "HKLM", name
+end sub
+sub read_sys_str(name)
+    read_str_control "sys" & name, "HKLM", name
+end sub
+sub write_sys_bool(name)
+    write_bool_control "sys" & name, "HKLM", name
+end sub
+sub write_sys_dword(name)
+    write_dword_control "sys" & name, "HKLM", name
+end sub
+sub write_sys_str(name)
+    write_str_control "sys" & name, "HKLM", name
+end sub
+
+sub extract_root_name(byref root, byref name)
+    dim which : which = window.event.srcElement.id
+    if (left(which, 3) = "sys") then
+        root = "HKLM"
+        name = mid(which, 4) 'sysXXXX
+    else
+        root = "HKCU"
+        name = mid(which, 5) 'userXXXX
+    end if
+end sub
+
+sub change_bool
+    dim root, name : extract_root_name root, name
+    write_bool_control window.event.srcElement.id, root, name
+end sub
+
+sub change_str
+    dim root, anme : extract_root_name root, name
+    write_str_control window.event.srcElement.id, root, name
+end sub
+--></SCRIPT>
+<SCRIPT ID=clientEventHandlersVBS LANGUAGE=vbscript>
+<!--
+option explicit
+
+sub sysAllowLockdownBrowse_onChange     : change_bool : end sub
+sub sysAllowLockdownPatch_onChange      : change_bool : end sub
+sub sysAlwaysInstallElevated_onChange   : change_bool : end sub
+sub sysDebug_onChange                   : change_bool : end sub
+sub sysDisableBrowse_onChange           : change_bool : end sub
+sub sysDisableMSI_onChange              : change_bool : end sub
+sub sysDisablePatch_onChange            : change_bool : end sub
+sub sysDisableRollback_onChange         : change_bool : end sub
+sub sysEnableAdminTSRemote_onChange     : change_bool : end sub
+sub sysLogging_onChange                 : change_str : end sub
+sub sysSafeForScripting_onChange        : change_bool : end sub
+sub sysTransformsSecure_onChange        : change_bool : end sub
+
+sub userAlwaysInstallElevated_onChange  : change_bool : end sub
+sub userDisableMedia_onChange           : change_bool : end sub
+sub userDisableRollback_onChange        : change_bool : end sub
+sub userSearchOrder_onChange            : change_str : end sub
+sub userTransformsAtSource_onChange     : change_bool : end sub
+
+sub window_onLoad()
+    read_user_bool "AlwaysInstallElevated"
+    read_user_bool "DisableMedia"
+    read_user_bool "DisableRollback"
+    read_user_str "SearchOrder"
+    read_user_bool "TransformsAtSource"
+    
+    read_sys_bool "AllowLockdownBrowse"
+    read_sys_bool "AllowLockdownPatch"
+    read_sys_bool "AlwaysInstallElevated"
+    read_sys_dword "Debug"
+    read_sys_bool "DisableBrowse"
+    read_sys_bool "DisableMSI"
+    read_sys_bool "DisablePatch"
+    read_sys_bool "DisableRollback"
+    read_sys_bool "EnableAdminTSRemote"
+    read_sys_str "Logging"
+    read_sys_bool "SafeForScripting"
+    read_sys_bool "TransformsSecure"
+end sub
+
+sub window_onUnloadXXXX
+    write_user_bool "AlwaysInstallElevated"
+    write_user_bool "DisableMedia"
+    write_user_bool "DisableRollback"
+    write_user_str "SearchOrder"
+    write_user_bool "TransformsAtSource"
+    
+    write_sys_bool "AllowLockdownBrowse"
+    write_sys_bool "AllowLockdownPatch"
+    write_sys_bool "AlwaysInstallElevated"
+    write_sys_dword "Debug"
+    write_sys_bool "DisableBrowse"
+    write_sys_bool "DisableMSI"
+    write_sys_bool "DisablePatch"
+    write_sys_bool "DisableRollback"
+    write_sys_bool "EnableAdminTSRemote"
+    write_sys_str "Logging"
+    write_sys_bool "SafeForScripting"
+    write_sys_bool "TransformsSecure"
+end sub
+-->
+</SCRIPT>
+</HEAD>
+<BODY>
+<P><FORM NAME="Policies">
+<TABLE BORDER=1 WIDTH=100%>
+<TR><TD WIDTH=50% VALIGN="top">
+    <TABLE>
+    <TR><TD COLSPAN=2 ALIGN="left"><H4>User Policies</H4></TD></TR>
+    <TR><TD ALIGN="right">Always Install Elevated:</TD>
+    <TD><SELECT ID="userAlwaysInstallElevated" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Disable Media:</TD>
+    <TD><SELECT ID="userDisableMedia" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Disable Rollback:</TD>
+    <TD><SELECT ID="userDisableRollback" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Search Order:</TD>
+    <TD><INPUT ID="userSearchOrder" SIZE=3>
+    <TR><TD ALIGN="right">Transforms At Source:</TD>
+    <TD><SELECT ID="userTransformsAtSource" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    </TABLE></TD>
+<TD WIDTH=100% VALIGN="top">
+    <TABLE>
+    <TR><TD COLSPAN=2 ALIGN="left"><H4>Machine Policies</H4></TD></TR>
+    <TR><TD ALIGN="right">Allow Lockdown Browse:</TD>
+    <TD><SELECT ID="sysAllowLockdownBrowse" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Allow Lockdown Patch:</TD>
+    <TD><SELECT ID="sysAllowLockdownPatch" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Always Install Elevated:</TD>
+    <TD><SELECT ID="sysAlwaysInstallElevated" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Debug Messages:</TD>
+    <TD><SELECT ID="sysDebug" SIZE=1>
+    <OPTION VALUE="0">None
+    <OPTION VALUE="1">Some
+    <OPTION VALUE="2">All
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Disable Browse:</TD>
+    <TD><SELECT ID="sysDisableBrowse" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Disable MSI:</TD>
+    <TD><SELECT ID="sysDisableMSI" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Disable Patch:</TD>
+    <TD><SELECT ID="sysDisablePatch" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Disable Rollback:</TD>
+    <TD><SELECT ID="sysDisableRollback" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Enable Admin TS Remote:</TD>
+    <TD><SELECT ID="sysEnableAdminTSRemote" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Enable User Control:</TD>
+    <TD><SELECT ID="sysEnableUserControl" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Logging Flags:</TD>
+    <TD><INPUT ID="sysLogging" TYPE="text" SIZE=3></TD></TR>
+    <TR><TD ALIGN="right">Safe For Scripting:</TD>
+    <TD><SELECT ID="sysSafeForScripting" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    <TR><TD ALIGN="right">Transforms Secure:</TD>
+    <TD><SELECT ID="sysTransformsSecure" SIZE=1>
+    <OPTION VALUE="0">No
+    <OPTION VALUE="1">Yes
+    </SELECT></TD></TR>
+    </TABLE></TD></TR>
+</TABLE>
+</FORM>
+<DIV ID="debug"></DIV></P>
+</BODY>
+</HTML>

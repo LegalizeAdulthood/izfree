@@ -1,0 +1,178 @@
+<HTML>
+<HEAD>
+<!--
+    izfree Tools for Windows Installer 1.1
+    Copyright (C) 2001 Pahvant Technologies, Inc.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+-->
+<META name=VI60_defaultClientScript content=VBScript>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 6.0">
+<TITLE>Table Validation</TITLE>
+<LINK REL="stylesheet" HREF="izfree.css">
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
+<SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+option explicit
+
+dim g_main_frame : set g_main_frame = window.parent
+
+function db()
+    set db = g_main_frame.g_database
+end function
+
+function selected_option(id)
+    dim sel : set sel = document.all(id)
+    selected_option = sel.options(sel.selectedIndex).value
+end function
+
+function selected_table()
+    selected_table = selected_option("table")
+end function
+
+function selected_column()
+    selected_column = selected_option("column")
+end function
+
+sub load_info(column_name)
+    dim view : set view = db().OpenView("select * from `_Validation`" &_
+        " where `Table` = '" & selected_table() &_
+        "' and `Column` = '" & column_name & "'") : check
+    view.execute : check
+    dim rec : set rec = view.fetch
+    dim all : set all = document.all
+    all("nullable").innerText = rec.stringdata(3)
+    all("minValue").innerText = null_int(rec, 4)
+    all("maxValue").innerText = null_int(rec, 5)
+    all("keyTable").innerText = null_str(rec, 6)
+    all("keyColumn").innerText = null_str(rec, 7)
+    all("category").innerText = null_str(rec, 8)
+    all("set").innerText = null_str(rec, 9)
+    all("description").innerText = null_str(rec, 10)
+    view.close : check
+    
+    set view = db().OpenView("select `" & column_name & "` from `" &_
+        selected_table() & "`") : check
+    view.execute : check
+    all("columnName").innerText = view.ColumnInfo(0).stringdata(1)
+    all("columnType").innerText = view.ColumnInfo(1).stringdata(1)
+end sub
+
+sub load_columns(table_name)
+    on error resume next
+    dim view : set view = db().OpenView("select * from `_Columns`" &_
+        " where `Table` = '" & table_name & "'") : check
+    view.execute : check
+    
+    dim column : set column = document.all("column")
+    dim rec : set rec = view.fetch
+    if (rec is nothing) then
+        MsgBox("No columns?  I don't believe it!")
+        stop
+    end if
+    dim columns()
+    do while (not rec is nothing)
+        push columns, rec.integerdata(2) & ". " & rec.stringdata(3)
+        set rec = view.fetch
+    loop
+    view.close : check
+    
+    sort columns
+    
+    column.innerHTML = ""
+    dim opts : set opts = column.options
+    dim i : for i = 0 to ubound(columns)
+        opts.add new_option(mid(columns(i), instr(columns(i), " ")+1))
+    next
+    
+    column.selectedIndex = 0
+    load_info opts(0).value
+end sub
+
+sub column_onChange
+    dim sel : set sel = document.all("column")
+    if (sel.selectedIndex >= 0) then
+        load_info sel.options(sel.selectedIndex).value
+    end if
+end sub
+
+sub table_onChange
+    dim sel : set sel = document.all("table")
+    if (sel.selectedIndex >= 0) then
+        load_columns sel.options(sel.selectedIndex).value
+    end if
+end sub
+
+sub window_onLoad
+    dim opts : set opts = document.all("table").options
+    dim view
+    set view = db().OpenView("select `Name` from `_Tables`") : check
+    view.execute : check
+    dim rec : set rec = view.fetch
+    dim tables()
+    do while (not rec is nothing)
+        if (left(rec.stringdata(1), 1) <> "#") then
+            push tables, rec.stringdata(1)
+        end if
+        set rec = view.fetch
+    loop
+    view.close : check
+    
+    sort tables
+    
+    dim i : for i = 0 to ubound(tables)
+        opts.add new_option(tables(i))
+    next
+end sub
+
+sub window_onUnload
+end sub
+</SCRIPT>
+</HEAD>
+<BODY>
+
+<H3>Validation Information</H3>
+
+<P><TABLE>
+<TBODY>
+<TR><TD VALIGN="top">
+<SELECT ID="table" CLASS="listBox" SIZE=15>
+</SELECT>
+</TD>
+<TD VALIGN="top">
+<SELECT ID="column" CLASS="narrowListBox" SIZE=15>
+</SELECT>
+</TD>
+<TD VALIGN="top">
+<TABLE>
+<TR><TD ALIGN="right"><STRONG>Column Name:</STRONG></TD><TD ID="columnName"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Column Type:</STRONG></TD><TD ID="columnType"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Nullable:</STRONG></TD><TD ID="nullable"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Minimum Value:</STRONG></TD><TD ID="minValue"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Maximum Value:</STRONG></TD><TD ID="maxValue"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Key Table:</STRONG></TD><TD ID="keyTable"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Key Column:</STRONG></TD><TD ID="keyColumn"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Category:</STRONG></TD><TD ID="category"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Set:</STRONG></TD><TD ID="set"></TD></TR>
+</TABLE>
+</TD>
+</TR>
+</TBODY>
+</TABLE><BR>
+<STRONG>Description:</STRONG>&nbsp;<SPAN ID="description"></SPAN>
+</P>
+
+<P ID="debug"></P>
+</BODY>
+</HTML>

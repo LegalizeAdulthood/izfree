@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.0
+    izfree Tools for Windows Installer 1.1
     Copyright (C) 2001 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -79,10 +79,8 @@ sub scan_onClick
         dim rec : set rec = view.fetch
         document.all("features").innerHTML = ""
         do while (not rec is nothing)
-            dim o : set o = document.createElement("OPTION")
-            o.text = rec.stringdata(1)
-            o.value = rec.stringdata(1)
-            document.all("features").options.add o
+            document.all("features").options.add _
+                new_option(rec.stringdata(1))
             set rec = view.fetch
         loop
         view.close

@@ -1,7 +1,7 @@
-<HTML>
+<HTML APPLICATION="yes">
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.0
+    izfree Tools for Windows Installer 1.1
     Copyright (C) 2001 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,9 @@ option explicit
 
 dim g_dest : g_dest = ""
 dim g_source : g_source = ""
+dim g_main_frame
+
+dim g_db : set g_db = nothing
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' merge -- merge a source database into the destination database
@@ -43,7 +46,7 @@ sub merge(db)
         installer().OpenDatabase(g_source & db, msiOpenDatabaseModeReadOnly) : check
     dim conflicts : conflicts = dest_db.Merge(src_db, "_MergeErrors")
     if (conflicts <> True) then
-        conflicts = check
+        conflicts = Err.Number
     end if
     if (conflicts <> 0) then
         MsgBox("Database merge countered conflicts.")
@@ -100,10 +103,10 @@ sub create_package(template_dir, database, manufacturer, _
     merge "Sequence.msi"
     merge "UISample.msi"
     
-    dim db : set db = _
+    set g_db = _
         installer().OpenDatabase(g_dest, msiOpenDatabaseModeTransact) : check
     
-    dim si : set si = db.SummaryInformation(9) 
+    dim si : set si = g_db.SummaryInformation(9) 
     si.property(PID_TITLE) = "Installation Database" : check
     si.property(PID_SUBJECT) = product_name : check
     si.property(PID_AUTHOR) = manufacturer : check
@@ -118,7 +121,7 @@ sub create_package(template_dir, database, manufacturer, _
     si.persist : check
     set si = nothing
     
-    dim view : set view = db.OpenView("INSERT INTO `Property`(" &_
+    dim view : set view = g_db.OpenView("INSERT INTO `Property`(" &_
             "`Property`,`Value`) VALUES (?,?)") : check
     set_property view, "Manufacturer", manufacturer
     set_property view, "ProductCode", product_code
@@ -128,8 +131,7 @@ sub create_package(template_dir, database, manufacturer, _
     view.close : check
     set view = nothing
 
-    db.commit : check    
-    set db = nothing
+    g_db.commit : check    
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -209,6 +211,8 @@ sub create_onClick
                         all("packageGuid").value, _
                         all("upgradeCode").value
     set all = nothing
+    set_database g_dest, g_db, false
+    window.close
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -221,7 +225,14 @@ sub read_tool_input(name, fallback)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub dialog_load
+    window.name = "Dialog"
+    set g_main_frame = window.dialogArguments
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onload
+    dialog_load
     read_tool_input "templateDir", _
         "C:\Program Files\Microsoft SDK\Samples\SysMgmt\Msi\Database" 
     read_tool_input "database", "test.msi"
@@ -231,12 +242,18 @@ sub window_onload
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub dialog_unload
+    set g_main_frame = nothing
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onUnload
     write_tool_input "templateDir"
     write_tool_input "database"
     write_tool_input "manufacturer"
     write_tool_input "productName"
     write_tool_input "productVersion"
+    dialog_unload
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -271,11 +288,6 @@ sub help_onClick
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub CreateForm_onAfterUpdate
-    update_create_package
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub BrowseTemplateDir_onClick
     dim dir : dir = browse_for_existing_dir("Template directory:")
     if (dir <> "") then
@@ -304,18 +316,23 @@ end sub
 sub reset_onClick
     update_create_package
 end sub
+
+sub cancel_onClick
+    window.close
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 --></SCRIPT>
 </HEAD>
-<BODY>
+<BODY LEFTMARGIN=20 RIGHTMARGIN=20>
 
 <H3><A NAME="CreatePackage">Create a New Installation Package</A></H3>
 
 <P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
 
-<FORM NAME="CreateForm"><TABLE>
+<FORM NAME="CreateForm"><P><TABLE>
 <TR><TD>Template Directory:</TD>
 <TD><INPUT NAME="templateDir" SIZE=50>
 <INPUT TYPE="button" VALUE="..." ID="BrowseTemplateDir"></TD></TR>
@@ -337,10 +354,14 @@ end sub
 <TR><TD>Upgrade Code:</TD>
 <TD><INPUT NAME="upgradeCode" SIZE=41>
 <INPUT TYPE="button" VALUE="New" id=guid3 name=guid3></TD></TR>
-</TABLE>
+</TABLE></P>
+<P>
 <INPUT TYPE="button" VALUE="Create Package" id="create" name="create" disabled>
-<INPUT TYPE="reset" ID="reset" VALUE="Reset">
+<INPUT TYPE="reset" ID="reset" VALUE="Reset Form">
+<INPUT ID="cancel" TYPE="button" VALUE="Cancel">
+</P>
 </FORM>
+
 <P ID="debug"></P>
 </BODY>
 </HTML>

@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.0
+    izfree Tools for Windows Installer 1.1
     Copyright (C) 2001 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -35,11 +35,7 @@ sub Scan_onClick
     dim fld : set fld = fso().GetFolder(document.all.Source.value) : check
     dim file : for each file in fld.Files
         if (lcase(right(file.Name, 4)) = ".rgs") then
-            dim o : set o = document.createElement("OPTION")
-            o.value = file.Name
-            o.text = file.Name
-            'o.outerText = file.Name
-            document.all.objects.options.add(o)
+            document.all.objects.options.add new_option(file.Name)
         end if
     next
     set file = nothing
@@ -66,7 +62,7 @@ end sub
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim parse_state : parse_state = 0
 dim brace_level : brace_level = 0
-dim tokens(), num_tokens : num_tokens = 0
+dim tokens()
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function WholeKey

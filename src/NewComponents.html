@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
 <!--
-    izfree Tools for Windows Installer 1.0
+    izfree Tools for Windows Installer 1.1
     Copyright (C) 2001 Pahvant Technologies, Inc.
 
     This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,21 @@
 <LINK REL="stylesheet" HREF="izfree.css">
 <SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript" SRC="izfree.vbs"></SCRIPT>
 <SCRIPT TYPE="text/vbscript" LANGUAGE="vbscript"><!--
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 option explicit
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim g_main_frame
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+const PAGE_DIRECTORY = 1
+const PAGE_COMPONENTS = 2
+const PAGE_FEATURES = 3
+const PAGE_COMMIT = 4
+const PAGE_LAST = 4 
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+dim g_page : g_page = 1
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim num_files : dim files()
@@ -33,12 +47,16 @@ const fil_name = 1
 const fil_component = 2
 const fil_size = 3
 const fil_dims = 3
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim num_dirs : dim dirs()
 const dir_dir = 0
 const dir_name = 1
 const dir_parent = 2
 const dir_default = 3
 const dir_dims = 3
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim num_components : dim components()
 const cmp_name = 0
 const cmp_dir = 1
@@ -131,32 +149,33 @@ end sub
 ' save_feature_table
 '
 ' Write Feature table into database.
-sub save_feature_table(db)
+sub save_feature_table(db, root, make_root)
     dim view : set view = db.openview("INSERT INTO `Feature`(" &_
         "`Feature`,`Feature_Parent`,`Title`,`Description`,`Display`,`Level`,`Directory_`,`Attributes`) " &_
         "VALUES (?,?,?,?,?,?,?,0)") : check
-        
     dim i : for i = 0 to num_components-1
         dim rec : set rec = installer().CreateRecord(7) : check
         rec.stringdata(1) = components(cmp_name, i) 'feature
-        rec.stringdata(2) = "All"                   'parent
+        rec.stringdata(2) = root                    'parent
         rec.stringdata(3) = components(cmp_name, i) 'title
         rec.stringdata(4) = components(cmp_name, i) 'description
         rec.integerdata(5) = 2*(i+100)              'display
         rec.integerdata(6) = 1                      'level
         rec.stringdata(7) = "" 'dirs(dir_name, components(cmp_dir, i)) 'directory
-        view.execute rec : check : if err.number then exit sub
+        view.execute rec : check
         set rec = nothing
     next
-    dim all : set all = installer().createrecord(7) : check
-    all.stringdata(1) = "All"
-    all.stringdata(2) = ""
-    all.stringdata(3) = "All"
-    all.stringdata(4) = "All"
-    all.integerdata(5) = 10
-    all.integerdata(6) = 1
-    all.stringdata(7) = "TARGETDIR"
-    view.execute all : check : if err.number then exit sub
+    if (make_root) then
+        set rec = installer().CreateRecord(7) : check
+        rec.stringdata(1) = "All"
+        rec.stringdata(2) = ""
+        rec.stringdata(3) = "All"
+        rec.stringdata(4) = "All Features"
+        rec.integerdata(5) = 10
+        rec.integerdata(6) = 1
+        rec.stringdata(7) = "TARGETDIR"
+        view.execute rec : check
+    end if
     view.close : check
 end sub
 
@@ -330,42 +349,18 @@ end sub
 ' Set UI state based on current values
 '
 sub update_create_components
-    document.forms("CreateComponents").all("save").disabled = (num_components = 0)
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' save_onClick
+' scan_directory
 '
-' Open named database for writing and store File, Directory, Media,
-' Component, Feature and FeatureComponent rows for information in
-' the arrays.
-'
-sub save_onClick
-    ' open database
-    dim database : database = document.forms("CreateComponents").all("Database").value
-    dim db : set db = installer().OpenDatabase(database, msiOpenDatabaseModeTransact) : check
-    
-    save_file_table db
-    save_directory_table db
-    save_media_table db
-    save_component_table db
-    save_feature_table db
-    save_feature_components_table db
-    db.commit : check    
-    set db = nothing
-    update_create_components
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-' scan_onClick
-'
-sub scan_onClick
+sub scan_directory
     num_dirs = 0
     num_files = 0
     num_components = 0    
     num_dir_components = 0
 
-    dim dir : dir = document.forms("CreateComponents").all("ScanDir").value
+    dim dir : dir = document.forms("CreateComponents").all("dir").value
     dim folder : set folder = fso().GetFolder(dir) : check
     enum_files dir, "", folder
     set folder = nothing
@@ -384,6 +379,13 @@ sub scan_onClick
     display_components tv
     update_create_components
 end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' ComponentTree_AfterLabelEdit
@@ -426,8 +428,8 @@ sub ComponentTree_NodeClick(node)
         source_dir = "SourceDir\" & target_dir
         target_dir = "TARGETDIR\" & target_dir
     end if
-    document.forms("CreateComponents").all("TargetDir").innerhtml = target_dir
-    document.forms("CreateComponents").all("SourceDir").innerhtml = source_dir
+    document.forms("CreateComponents").all("target").innerhtml = target_dir
+    document.forms("CreateComponents").all("source").innerhtml = source_dir
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -443,31 +445,14 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onLoad
-    read_tool_input "Database", ""
-    read_tool_input "ScanDir", ""
+    set g_main_frame = window.parent
+    read_tool_input "dir", ""
     update_scan
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub window_onUnload
-    write_tool_input "Database"
-    write_tool_input "ScanDir"
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub DatabaseBrowse_onClick
-    dim file : file = browse_for_existing_file(INSTALLER_FILE_FILTER)
-    if (file <> "") then
-        document.all("Database").value = file
-    end if
-end sub
-
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub ScanBrowse_onClick
-    dim dir : dir = browse_for_existing_dir("Output directory:")
-    if (dir <> "") then
-        document.all("ScanDir").value = dir
-    end if
+    write_tool_input "dir"
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -477,43 +462,160 @@ end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub update_scan
-    document.all("scan").disabled = _
-        (trim(document.all("ScanDir").value) = "")
+    dim val : val = document.all("dir").value
+    dim enabled : enabled = (val <> "") and fso().FolderExists(val)
+    document.all("next").disabled = not enabled
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-sub ScanDir_onChange : update_scan : end sub
-sub ScanDir_onKeyUp : update_scan : end sub
+sub dir_onChange : update_scan : end sub
+sub dir_onKeyUp  : update_scan : end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub display_features
+    dbgout "Display features"
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' commit_components
+'
+' Store File, Directory, Media, Component, Feature and FeatureComponent
+' rows in the database from information in the arrays.
+'
+sub commit_components(db)
+    save_file_table db
+    save_directory_table db
+    save_media_table db
+    save_component_table db
+    save_feature_table db, "All", true
+    save_feature_components_table db
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub back_next_update
+    dim first : first = (g_page = 1)
+    dim last : last = (g_page = PAGE_LAST)
+    dim no_comps : no_comps = (num_components = 0)
+    document.all("back").disabled = first
+    document.all("next").disabled = last or (not first and no_comps)
+    dim disabled : disabled = no_comps or first
+    document.all("finish").disabled = disabled
+    document.all("cancel").disabled = disabled
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub do_step
+    select case g_page
+    case PAGE_DIRECTORY:        scan_directory
+    case PAGE_COMPONENTS:       display_features
+    case PAGE_FEATURES:
+    case PAGE_LAST:             commit_components
+    end select
+end sub
+
+sub next_onClick
+    do_step
+    
+    if (g_page >= 1) then
+        document.all("page" & g_page).className = "invisible"
+    end if
+    g_page = g_page + 1
+    if (g_page <= PAGE_LAST) then
+        document.all("page" & g_page).className = ""
+    end if
+    back_next_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub back_onClick
+    if (g_page <= PAGE_LAST) then
+        document.all("page" & g_page).className = "invisible"
+    end if
+    g_page = g_page - 1
+    if (g_page >= 1) then
+        document.all("page" & g_page).className = ""
+   end if
+   back_next_update
+end sub
+
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+sub browse_onClick
+    dim dir : dir = browse_for_existing_dir("Output directory:")
+    if (dir <> "") then
+        document.all("dir").value = dir
+    end if
+end sub
+
+sub cancel_onClick
+    document.all("page" & g_page).className = "invisible"
+    g_page = 1
+    document.all("page" & g_page).className = ""
+    back_next_update
+end sub
+    
+sub finish_onClick
+    document.all("page" & g_page).className = "invisible"
+    do while (g_page < PAGE_LAST)
+        do_step
+        g_page = g_page+1
+    loop
+    g_page = 1
+    document.all("page" & g_page).className = ""
+    back_next_update
+end sub
+
 --></SCRIPT>
 </HEAD>
 <BODY>
 
-<H3>Scan Directory for Components</H3>
+<FORM NAME="CreateComponents"><TABLE WIDTH=100%>
+<TR ID="page1"><TD COLSPAN=3>
+<P><STRONG>1. Select Scan Directory:</STRONG></P>
 
-<P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
-
-<FORM NAME="CreateComponents">
-<P>Output Database:
-<INPUT NAME="Database" SIZE=30 >
-<INPUT TYPE="button" NAME="DatabaseBrowse" VALUE="...">
-<INPUT TYPE="button" VALUE="Save" id=save name=save disabled><BR>
-Scan Directory:
-<INPUT NAME="ScanDir" SIZE=30>
-<INPUT TYPE="button" NAME="ScanBrowse" VALUE="...">
-<INPUT TYPE="button" VALUE="Scan" id=scan name=scan DISABLED>
-</P>
-
-<P><TABLE>
-<TR><TH>Components:</TH><TH>Component Detail:</TH></TR>
-<TR><TD>
-      <OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 
-      id=ComponentTree style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="0"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT></TD>
-<TD VALIGN=top><TABLE>
-<TR><TH>Source Directory:</TH><TD ID="SourceDir"> </TD></TR>
-<TR><TH>Target Directory:</TH><TD ID="TargetDir"> </TD></TR>
-</TABLE>
+<P><INPUT NAME="dir" TYPE="text" SIZE=30>
+<INPUT NAME="browse" TYPE="button" VALUE="..."></P>
 </TD></TR>
-</TABLE>
-</FORM>
+
+<TR ID="page2" CLASS="invisible"><TD COLSPAN=3>
+<P><STRONG>2. Modify Generated Components</STRONG></P>
+<P><TABLE>
+    <THEAD>
+        <TR><TH>Components:</TH><TH>Component Detail:</TH></TR>
+    </THEAD>
+    <TBODY>
+        <TR><TD><OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 id=ComponentTree style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="0"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT></TD>
+            <TD VALIGN=top><TABLE>
+                <TBODY>
+                <TR><TH>Source Directory:</TH><TD ID="source"></TD></TR>
+                <TR><TH>Target Directory:</TH><TD ID="target"></TD></TR>
+                </TBODY>
+            </TABLE></TD>
+        </TR>
+    </TBODY>
+</TABLE></P>
+</TD></TR>
+
+<TR ID="page3" CLASS="invisible"><TD COLSPAN=3>
+<P><STRONG>3. Locate New Components Under a Feature</STRONG></P>
+<P><OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 id="features" style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="0"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT></TD>
+</P></TD></TR>
+
+<TR ID="page4" CLASS="invisible"><TD COLSPAN=3>
+<P><STRONG>4. Commit Components to the Database</STRONG></P>
+<P>Commit xx features, yy components and zz files under parent feature 'All'?</P>
+</TD></TR>
+<TR>
+<TD STYLE="width: 150px" ALIGN="center">
+<INPUT ID="back" TYPE="button" VALUE="< Back" DISABLED></TD>
+<TD STYLE="width: 150px" ALIGN="center">
+<INPUT ID="next" TYPE="button" VALUE="Next >" DISABLED></TD>
+<TD STYLE="width: 150px" ALIGN="center">
+<INPUT ID="cancel" TYPE="button" VALUE="Cancel" DISABLED>
+<INPUT ID="finish" TYPE="button" VALUE="Finish" DISABLED></TD>
+</TR>
+</TABLE></FORM></P>
+
+<P ID="debug"></P>
+
 </BODY>
 </HTML>
