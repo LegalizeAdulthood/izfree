@@ -117,15 +117,18 @@ end sub
 '
 ' Write Directory table into database.
 '
-sub save_directory_table(db)
+sub save_directory_table(db, root)
     dim view : set view = db.openview("INSERT INTO `Directory`(" &_
         "`Directory`,`Directory_Parent`,`DefaultDir`) VALUES (?,?,?)") : check
     dim i : for i = 0 to num_dirs-1
-        dim rec : set rec = installer().CreateRecord(3) : check
-        rec.stringdata(1) = dirs(dir_name, i)
-        rec.stringdata(2) = dirs(dir_parent, i)
-        rec.stringdata(3) = dirs(dir_default, i)
-        view.execute rec : check : if err.number then exit sub
+        if (dirs(dir_name, i) = "TARGETDIR") then
+        else
+            dim rec : set rec = installer().CreateRecord(3) : check
+            rec.stringdata(1) = dirs(dir_name, i)
+            rec.stringdata(2) = dirs(dir_parent, i)
+            rec.stringdata(3) = dirs(dir_default, i)
+            view.execute rec : check : if err.number then exit sub
+        end if
         set rec = nothing
     next
     view.close : check
@@ -149,7 +152,7 @@ end sub
 ' save_feature_table
 '
 ' Write Feature table into database.
-sub save_feature_table(db, root, make_root)
+sub save_feature_table(db, root)
     dim view : set view = db.openview("INSERT INTO `Feature`(" &_
         "`Feature`,`Feature_Parent`,`Title`,`Description`,`Display`,`Level`,`Directory_`,`Attributes`) " &_
         "VALUES (?,?,?,?,?,?,?,0)") : check
@@ -165,17 +168,6 @@ sub save_feature_table(db, root, make_root)
         view.execute rec : check
         set rec = nothing
     next
-    if (make_root) then
-        set rec = installer().CreateRecord(7) : check
-        rec.stringdata(1) = "All"
-        rec.stringdata(2) = ""
-        rec.stringdata(3) = "All"
-        rec.stringdata(4) = "All Features"
-        rec.integerdata(5) = 10
-        rec.integerdata(6) = 1
-        rec.stringdata(7) = "TARGETDIR"
-        view.execute rec : check
-    end if
     view.close : check
 end sub
 
@@ -458,10 +450,10 @@ end sub
 '
 sub commit_components(db)
     save_file_table db
-    save_directory_table db
+    save_directory_table db, selected_option(document.all("rootDirectory"))
     save_media_table db
     save_component_table db
-    save_feature_table db, "All", true
+    save_feature_table db, document.all("features").selectedIndex.value
     save_feature_components_table db
 end sub
 
@@ -493,7 +485,7 @@ sub do_step
     case PAGE_DIRECTORY:        scan_directory
     case PAGE_COMPONENTS:       display_features
     case PAGE_FEATURES:         display_totals
-    case PAGE_LAST:             commit_components
+    case PAGE_LAST:             commit_components(g_main_frame.g_database)
     end select
 end sub
 
@@ -505,17 +497,21 @@ sub undo_step
     end select
 end sub
 
+sub load_opts(opts, ary)
+    do while (opts.length > 0)
+        opts.remove 0
+    loop
+    dim i : for i = 0 to ubound(ary)
+        opts.add new_option(ary(i))
+    next
+end sub
+
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ' load_directories
 '
 ' Load the primary keys of the directory table for the new feature form
 '
 sub load_directories
-    dim opts
-    set opts = document.forms("CreateComponents").all("directory").options
-    do while (opts.length > 0)
-        opts.remove 0
-    loop
     dim view : set view = exec_view(g_main_frame.g_database, _
         "select `Directory` from `Directory`")
     dim rec : set rec = view.fetch
@@ -529,9 +525,8 @@ sub load_directories
     loop
     view.close : check
     sort dirs
-    dim i : for i = 0 to ubound(dirs)
-        opts.add new_option(dirs(i))
-    next
+    load_opts document.all("directory").options, dirs
+    load_opts document.all("rootDirectory").options, dirs
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -651,6 +646,7 @@ sub finish_onClick
         do_step
         g_page = g_page+1
     loop
+    do_step
     g_page = 1
     document.all("page" & g_page).className = ""
     back_next_update
@@ -722,10 +718,11 @@ end sub
 </TD></TR>
 
 <TR ID="page3" CLASS="invisible"><TD COLSPAN=3>
-<P><STRONG>3. Locate New Components Under a Feature</STRONG></P>
+<P><STRONG>3. Locate New Components Under a Feature and Directory</STRONG></P>
 
 <P><TABLE><TR>
-<TD><OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 id="features" name="features" style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="1"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT>
+<TD><SELECT ID="rootDirectory" SIZE=1 STYLE="width: 250px"></SELECT><BR>
+<OBJECT classid=clsid:C74190B6-8589-11D1-B16A-00C0F0283628 height=250 id="features" name="features" style="HEIGHT: 250px; WIDTH: 241px" VIEWASTEXT><PARAM NAME="_ExtentX" VALUE="6376"><PARAM NAME="_ExtentY" VALUE="6615"><PARAM NAME="_Version" VALUE="393217"><PARAM NAME="HideSelection" VALUE="1"><PARAM NAME="Indentation" VALUE="423"><PARAM NAME="LabelEdit" VALUE="1"><PARAM NAME="LineStyle" VALUE="1"><PARAM NAME="PathSeparator" VALUE="\"><PARAM NAME="Sorted" VALUE="1"><PARAM NAME="Style" VALUE="7"><PARAM NAME="Checkboxes" VALUE="0"><PARAM NAME="FullRowSelect" VALUE="0"><PARAM NAME="HotTracking" VALUE="0"><PARAM NAME="Scroll" VALUE="1"><PARAM NAME="SingleSel" VALUE="0"><PARAM NAME="ImageList" VALUE=""><PARAM NAME="BorderStyle" VALUE="0"><PARAM NAME="Appearance" VALUE="1"><PARAM NAME="MousePointer" VALUE="0"><PARAM NAME="Enabled" VALUE="1"><PARAM NAME="OLEDragMode" VALUE="0"><PARAM NAME="OLEDropMode" VALUE="0"></OBJECT>
 </TD>
 <TD VALIGN="top"><TABLE>
     <TR>
@@ -753,7 +750,7 @@ end sub
         <TD><INPUT ID="level" TYPE="text" SIZE=5> (integer)</TD>
     </TR>
     <TR>
-        <TD ALIGN="right"><STRONG>Parent:</STRONG></TD>
+        <TD ALIGN="right"><STRONG>Directory:</STRONG></TD>
         <TD><SElECT ID="directory" SIZE=1></SELECT></TD>
     </TR>
     <TR>
