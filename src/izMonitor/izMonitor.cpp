@@ -28,21 +28,7 @@
 #include "izMonitor.h"
 
 #include "izMonitor_i.c"
-#include "AppIdRecord.h"
-#include "AppIdTable.h"
 #include "Monitor.h"
-#include "ClassTable.h"
-#include "ClassRecord.h"
-#include "RegistryTable.h"
-#include "ProgIdTable.h"
-#include "TypeLibTable.h"
-#include "ServiceControlTable.h"
-#include "ServiceInstallTable.h"
-#include "RegistryRecord.h"
-#include "ProgIdRecord.h"
-#include "TypeLibRecord.h"
-#include "ServiceControlRecord.h"
-#include "ServiceInstallRecord.h"
 
 
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
@@ -123,6 +109,62 @@ OBJECT_ENTRY(CLSID_ServiceControlRecord, CServiceControlRecord)
 OBJECT_ENTRY(CLSID_ServiceInstallRecord, CServiceInstallRecord)
 END_OBJECT_MAP()
 
+///////////////////////////////////////////////////////////////////////////
+// check_registry
+//
+// Checks the return values from ::RegXXX functions.  These functions don't
+// set the value of ::GetLastError(), so they have to be treated special.
+// Throw an exception on failure.
+//
+LONG
+check_registry(LONG result, LPCTSTR file, UINT line, LPCTSTR context)
+{
+    if (ERROR_SUCCESS != result)
+    {
+        tostringstream buff;
+        buff << file << _T("(") << line << _T("): ") << result << _T(" = ")
+            << context << _T("\n");
+        TCHAR msg[1024] = { 0 };
+        const DWORD count = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+            NULL, result, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            &msg[0], NUM_OF(msg), NULL);
+        if (count)
+        {
+            buff << _T("   '") << msg << _T("\n");
+        }
+        ::ODS(buff);
+        throw win32_error(result, file, line, buff.str().c_str());
+    }
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// check_hr
+//
+// Throw an exception on a FAILED HRESULT.
+//
+HRESULT
+check_hr(HRESULT hr, LPCTSTR file, UINT line, LPCTSTR context)
+{
+    if (FAILED(hr))
+    {
+        tostringstream buff;
+        buff << file << _T("(") << line << _T("): 0x") << std::hex
+            << std::setfill(_T('0')) << std::setw(8) << hr << _T(" = ")
+            << context << _T("\n");
+        TCHAR msg[1024] = { 0 };
+        const DWORD count = ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,
+            NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            &msg[0], NUM_OF(msg), NULL);
+        if (count)
+        {
+            buff << _T("   '") << msg << _T("'\n");
+        }
+        ::ODS(buff);
+        throw hresult_error(hr, file, line, buff.str().c_str());
+    }
+    return hr;
+}
 
 LPCTSTR FindOneOf(LPCTSTR p1, LPCTSTR p2)
 {
