@@ -1,0 +1,13 @@
+Microsoft Visual Studio Solution File, Format Version 1.00
+Project("{2CA5CB9B-D322-11D0-AD8F-00C04FB6BE4C}") = "htdocs", "htdocs.vup", "{20687958-D63A-4A6D-84DB-5E4DD08DF600}"
+EndProject
+Global
+	GlobalSection(LocalDeployment) = postSolution
+		StartupProject = {20687958-D63A-4A6D-84DB-5E4DD08DF600}
+	EndGlobalSection
+	GlobalSection(BuildOrder) = postSolution
+		0 = {20687958-D63A-4A6D-84DB-5E4DD08DF600}
+	EndGlobalSection
+	GlobalSection(DeploymentRoot) = postSolution
+	EndGlobalSection
+EndGlobal
