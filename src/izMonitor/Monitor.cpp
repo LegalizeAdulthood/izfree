@@ -121,12 +121,13 @@ CMonitor::FinalConstruct()
 void
 CMonitor::FinalRelease()
 {
+    release_table(m_app_id);
     release_table(m_class);
     release_table(m_prog_id);
     release_table(m_registry);
-    release_table(m_type_lib);
     release_table(m_service_control);
     release_table(m_service_install);
+    release_table(m_type_lib);
 }
 
 ///////////////////////////////////////////////////////////////////////////
