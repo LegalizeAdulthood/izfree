@@ -31,15 +31,17 @@ dim atl_db : set atl_db = nothing
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 sub Scan_onClick
-    document.all.Objects.innerHTML = ""
+    dim rgs()
     dim fld : set fld = fso().GetFolder(document.all.Source.value) : check
     dim file : for each file in fld.Files
         if (lcase(right(file.Name, 4)) = ".rgs") then
-            document.all.objects.options.add new_option(file.Name)
+            push rgs, file.Name
         end if
     next
     set file = nothing
     set fld = nothing
+    sort rgs
+    load_opts document.all.objects.options, rgs
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -247,9 +249,8 @@ end sub
 </SCRIPT>
 </HEAD>
 <BODY>
-<P><SPAN ID="help" CLASS="anchor">Help?</SPAN></P>
-<FORM NAME="ATLTool">
-<TABLE>
+<P><FORM NAME="ATLTool"><TABLE>
+
 <TR><TD>ATL Source Location:</TD>
     <TD><INPUT NAME="Source" VALUE="c:\data\projects\msidb\guidgen" SIZE=50>
     <INPUT TYPE="button" ID="BrowseSource" VALUE="..." NAME="BrowseSource">
@@ -265,8 +266,7 @@ end sub
 <TR><TD><INPUT TYPE="button" VALUE="Open" NAME="Open">
 <INPUT TYPE="button" VALUE="Close" NAME="Close" disabled>
 <INPUT TYPE="button" VALUE="Register" NAME="Register" disabled></TD></TR>
-</TABLE>
-</FORM>
+</TABLE></FORM></P>
 
 </BODY>
 </HTML>
