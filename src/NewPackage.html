@@ -146,7 +146,7 @@ end sub
 function is_hex(str)
     is_hex = true
     dim i : for i = 1 to len(str)
-        if (instr("0123456789abcdef", lcase(mid(str,i,1))) = -1) then
+        if (instr("0123456789ABCDEF", mid(str,i,1)) = -1) then
             is_hex = false
             exit function
         end if
@@ -162,16 +162,11 @@ end function
 '
 function is_guid(str)
     is_guid = (len(str) = 38) and _
-        (left(str,1) = "{") and _
-        (right(str,1) = "}") and _
-        (mid(str,10,1) = "-") and _
-        (mid(str,15,1) = "-") and _
-        (mid(str,20,1) = "-") and _
-        (mid(str,25,1) = "-") and _
-        is_hex(mid(str,2,8)) and _
-        is_hex(mid(str,11,4)) and _
-        is_hex(mid(str,16,4)) and _
-        is_hex(mid(str,21,4)) and _
+        (left(str,1) = "{") and (right(str,1) = "}") and _
+        (mid(str,10,1) = "-") and (mid(str,15,1) = "-") and _
+        (mid(str,20,1) = "-") and (mid(str,25,1) = "-") and _
+        is_hex(mid(str,2,8)) and is_hex(mid(str,11,4)) and _
+        is_hex(mid(str,16,4)) and is_hex(mid(str,21,4)) and _
         is_hex(mid(str,26,12))
 end function
 
