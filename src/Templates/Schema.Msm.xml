@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml:stylesheet type="text/xsl" href="msi.xsl" ?>
+<!--
+      XML Dump of Windows Installer Database
+      Created with msi2xml 1.1
+
+      (C) 2001 Daniel Gehriger (gehriger@linkcad.com)
+-->
+<!DOCTYPE msi [
+   <!ELEMENT msi   (summary,table*)>
+   <!ATTLIST msi version   CDATA #REQUIRED>
+   <!ATTLIST msi xmlns:dt  CDATA #IMPLIED>
+   <!ELEMENT summary       (codepage?,title?,subject?,author?,keywords?,comments?,
+                            template,lastauthor?,revnumber,lastprinted?,
+                            createdtm?,lastsavedtm?,pagecount,wordcount,
+                            charcount?,appname?,security?)>
+   <!ELEMENT codepage      (#PCDATA)>
+   <!ELEMENT title         (#PCDATA)>
+   <!ELEMENT subject       (#PCDATA)>
+   <!ELEMENT author        (#PCDATA)>
+   <!ELEMENT keywords      (#PCDATA)>
+   <!ELEMENT comments      (#PCDATA)>
+   <!ELEMENT template      (#PCDATA)>
+   <!ELEMENT lastauthor    (#PCDATA)>
+   <!ELEMENT revnumber     (#PCDATA)>
+   <!ELEMENT lastprinted   (#PCDATA)>
+   <!ELEMENT createdtm     (#PCDATA)>
+   <!ELEMENT lastsavedtm   (#PCDATA)>
+   <!ELEMENT pagecount     (#PCDATA)>
+   <!ELEMENT wordcount     (#PCDATA)>
+   <!ELEMENT charcount     (#PCDATA)>
+   <!ELEMENT appname       (#PCDATA)>
+   <!ELEMENT security      (#PCDATA)>
+   <!ELEMENT table         (col+,row*)>
+   <!ATTLIST table
+                 name      CDATA #REQUIRED>
+
+   <!ELEMENT col           (#PCDATA)>
+   <!ATTLIST col
+                 key       (yes|no) #IMPLIED
+                 def       CDATA #IMPLIED>
+   <!ELEMENT row (td+)>
+   <!ELEMENT td            (#PCDATA)>
+   <!ATTLIST td
+                 href      CDATA #IMPLIED
+                 dt:dt     (string|bin.base64) #IMPLIED
+                 md5       CDATA #IMPLIED>
+]>
+<msi version="1.1" xmlns:dt="urn:schemas-microsoft-com:datatypes">
+	
+	<summary>
+		<codepage>1252</codepage>
+		<title>Installation Database</title>
+		<subject>Merge Module Table Schema</subject>
+		<author>Microsoft Corporation</author>
+		<keywords>Installer,MSI,Database</keywords>
+		<comments>Contact:  Your local administrator</comments>
+		<template>;1033</template>
+		<lastauthor/>
+		<revnumber>{Put Module GUID Here}</revnumber>
+		<lastprinted/>
+		<createdtm>06/21/1999 00:00</createdtm>
+		<lastsavedtm/>
+		<pagecount>100</pagecount>
+		<wordcount>0</wordcount>
+		<charcount/>
+		<appname>Windows Installer</appname>
+		<security>1</security>
+	</summary>
+	
+	<table name="ModuleAdminExecuteSequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleAdminUISequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleAdvtExecuteSequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleAdvtUISequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleComponents">
+		<col key="yes" def="s72">Component</col>
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">Language</col>
+	</table>
+
+	<table name="ModuleConfiguration">
+		<col key="yes" def="s72">Name</col>
+		<col def="i2">Format</col>
+		<col def="S72">Type</col>
+		<col def="L0">ContextData</col>
+		<col def="L0">DefaultValue</col>
+		<col def="I4">Attributes</col>
+		<col def="L72">DisplayName</col>
+		<col def="L0">Description</col>
+		<col def="S0">HelpLocation</col>
+		<col def="S0">HelpKeyword</col>
+	</table>
+
+	<table name="ModuleDependency">
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">ModuleLanguage</col>
+		<col key="yes" def="s72">RequiredID</col>
+		<col key="yes" def="i2">RequiredLanguage</col>
+		<col def="S32">RequiredVersion</col>
+	</table>
+
+	<table name="ModuleExclusion">
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">ModuleLanguage</col>
+		<col key="yes" def="s72">ExcludedID</col>
+		<col key="yes" def="i2">ExcludedLanguage</col>
+		<col def="S32">ExcludedMinVersion</col>
+		<col def="S32">ExcludedMaxVersion</col>
+	</table>
+
+	<table name="ModuleIgnoreTable">
+		<col key="yes" def="s72">Table</col>
+	</table>
+
+	<table name="ModuleInstallExecuteSequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleInstallUISequence">
+		<col key="yes" def="s64">Action</col>
+		<col def="I2">Sequence</col>
+		<col def="S64">BaseAction</col>
+		<col def="I2">After</col>
+		<col def="S255">Condition</col>
+	</table>
+
+	<table name="ModuleSignature">
+		<col key="yes" def="s72">ModuleID</col>
+		<col key="yes" def="i2">Language</col>
+		<col def="s32">Version</col>
+	</table>
+
+	<table name="ModuleSubstitution">
+		<col key="yes" def="s72">Table</col>
+		<col key="yes" def="s0">Row</col>
+		<col key="yes" def="s72">Column</col>
+		<col def="L0">Value</col>
+	</table>
+
+	<table name="_Validation">
+		<col key="yes" def="s32">Table</col>
+		<col key="yes" def="s32">Column</col>
+		<col def="s4">Nullable</col>
+		<col def="I4">MinValue</col>
+		<col def="I4">MaxValue</col>
+		<col def="S255">KeyTable</col>
+		<col def="I2">KeyColumn</col>
+		<col def="S32">Category</col>
+		<col def="S255">Set</col>
+		<col def="S255">Description</col>
+		<row>
+			<td>ModuleAdminExecuteSequence</td>
+			<td>Action</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Action to insert</td>
+		</row>
+		<row>
+			<td>ModuleAdminExecuteSequence</td>
+			<td>After</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>1</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Before (0) or After (1)</td>
+		</row>
+		<row>
+			<td>ModuleAdminExecuteSequence</td>
+			<td>BaseAction</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td>ModuleAdminExecuteSequence</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Base action to determine insert location.</td>
+		</row>
+		<row>
+			<td>ModuleAdminExecuteSequence</td>
+			<td>Condition</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Condition</td>
+			<td/>
+			<td/>
+		</row>
+		<row>
+			<td>ModuleAdminExecuteSequence</td>
+			<td>Sequence</td>
+			<td>Y</td>
+			<td>-4</td>
+			<td>32767</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Standard Sequence number</td>
+		</row>
+		<row>
+			<td>ModuleAdminUISequence</td>
+			<td>Action</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Action to insert</td>
+		</row>
+		<row>
+			<td>ModuleAdminUISequence</td>
+			<td>After</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>1</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Before (0) or After (1)</td>
+		</row>
+		<row>
+			<td>ModuleAdminUISequence</td>
+			<td>BaseAction</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td>ModuleAdminUISequence</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Base action to determine insert location.</td>
+		</row>
+		<row>
+			<td>ModuleAdminUISequence</td>
+			<td>Condition</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Condition</td>
+			<td/>
+			<td/>
+		</row>
+		<row>
+			<td>ModuleAdminUISequence</td>
+			<td>Sequence</td>
+			<td>Y</td>
+			<td>-4</td>
+			<td>32767</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Standard Sequence number</td>
+		</row>
+		<row>
+			<td>ModuleAdvtExecuteSequence</td>
+			<td>Action</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Action to insert</td>
+		</row>
+		<row>
+			<td>ModuleAdvtExecuteSequence</td>
+			<td>After</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>1</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Before (0) or After (1)</td>
+		</row>
+		<row>
+			<td>ModuleAdvtExecuteSequence</td>
+			<td>BaseAction</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td>ModuleAdvtExecuteSequence</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Base action to determine insert location.</td>
+		</row>
+		<row>
+			<td>ModuleAdvtExecuteSequence</td>
+			<td>Condition</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Condition</td>
+			<td/>
+			<td/>
+		</row>
+		<row>
+			<td>ModuleAdvtExecuteSequence</td>
+			<td>Sequence</td>
+			<td>Y</td>
+			<td>-4</td>
+			<td>32767</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Standard Sequence number</td>
+		</row>
+		<row>
+			<td>ModuleAdvtUISequence</td>
+			<td>Action</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Action to insert</td>
+		</row>
+		<row>
+			<td>ModuleAdvtUISequence</td>
+			<td>After</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>1</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Before (0) or After (1)</td>
+		</row>
+		<row>
+			<td>ModuleAdvtUISequence</td>
+			<td>BaseAction</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td>ModuleAdvtUISequence</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Base action to determine insert location.</td>
+		</row>
+		<row>
+			<td>ModuleAdvtUISequence</td>
+			<td>Condition</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Condition</td>
+			<td/>
+			<td/>
+		</row>
+		<row>
+			<td>ModuleAdvtUISequence</td>
+			<td>Sequence</td>
+			<td>Y</td>
+			<td>-4</td>
+			<td>32767</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Standard Sequence number</td>
+		</row>
+		<row>
+			<td>ModuleComponents</td>
+			<td>Component</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>Component</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Component contained in the module.</td>
+		</row>
+		<row>
+			<td>ModuleComponents</td>
+			<td>Language</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>ModuleSignature</td>
+			<td>2</td>
+			<td/>
+			<td/>
+			<td>Default language ID for module (may be changed by transform).</td>
+		</row>
+		<row>
+			<td>ModuleComponents</td>
+			<td>ModuleID</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>ModuleSignature</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Module containing the component.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>Attributes</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>3</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Additional type-specific attributes.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>ContextData</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Additional context information about this item.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>DefaultValue</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Default value for this item.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>Description</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>A human-readable description.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>DisplayName</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>A short human-readable name for this item.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>Format</td>
+			<td>N</td>
+			<td>0</td>
+			<td>3</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Format of this item.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>HelpKeyword</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Keyword index into the HelpLocation for this item.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>HelpLocation</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Filename or namespace of the context-sensitive help for this item.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>Name</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Unique identifier for this row.</td>
+		</row>
+		<row>
+			<td>ModuleConfiguration</td>
+			<td>Type</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Additional type information for this item.</td>
+		</row>
+		<row>
+			<td>ModuleDependency</td>
+			<td>ModuleID</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>ModuleSignature</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Module requiring the dependency.</td>
+		</row>
+		<row>
+			<td>ModuleDependency</td>
+			<td>ModuleLanguage</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>ModuleSignature</td>
+			<td>2</td>
+			<td/>
+			<td/>
+			<td>Language of module requiring the dependency.</td>
+		</row>
+		<row>
+			<td>ModuleDependency</td>
+			<td>RequiredID</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>String.GUID of required module.</td>
+		</row>
+		<row>
+			<td>ModuleDependency</td>
+			<td>RequiredLanguage</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>LanguageID of the required module.</td>
+		</row>
+		<row>
+			<td>ModuleDependency</td>
+			<td>RequiredVersion</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Version</td>
+			<td/>
+			<td>Version of the required version.</td>
+		</row>
+		<row>
+			<td>ModuleExclusion</td>
+			<td>ExcludedID</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>String.GUID of excluded module.</td>
+		</row>
+		<row>
+			<td>ModuleExclusion</td>
+			<td>ExcludedLanguage</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Language of excluded module.</td>
+		</row>
+		<row>
+			<td>ModuleExclusion</td>
+			<td>ExcludedMaxVersion</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Version</td>
+			<td/>
+			<td>Maximum version of excluded module.</td>
+		</row>
+		<row>
+			<td>ModuleExclusion</td>
+			<td>ExcludedMinVersion</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Version</td>
+			<td/>
+			<td>Minimum version of excluded module.</td>
+		</row>
+		<row>
+			<td>ModuleExclusion</td>
+			<td>ModuleID</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>ModuleSignature</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>String.GUID of module with exclusion requirement.</td>
+		</row>
+		<row>
+			<td>ModuleExclusion</td>
+			<td>ModuleLanguage</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td>ModuleSignature</td>
+			<td>2</td>
+			<td/>
+			<td/>
+			<td>LanguageID of module with exclusion requirement.</td>
+		</row>
+		<row>
+			<td>ModuleIgnoreTable</td>
+			<td>Table</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Table name to ignore during merge operation.</td>
+		</row>
+		<row>
+			<td>ModuleInstallExecuteSequence</td>
+			<td>Action</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Action to insert</td>
+		</row>
+		<row>
+			<td>ModuleInstallExecuteSequence</td>
+			<td>After</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>1</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Before (0) or After (1)</td>
+		</row>
+		<row>
+			<td>ModuleInstallExecuteSequence</td>
+			<td>BaseAction</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td>ModuleInstallExecuteSequence</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Base action to determine insert location.</td>
+		</row>
+		<row>
+			<td>ModuleInstallExecuteSequence</td>
+			<td>Condition</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Condition</td>
+			<td/>
+			<td/>
+		</row>
+		<row>
+			<td>ModuleInstallExecuteSequence</td>
+			<td>Sequence</td>
+			<td>Y</td>
+			<td>-4</td>
+			<td>32767</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Standard Sequence number</td>
+		</row>
+		<row>
+			<td>ModuleInstallUISequence</td>
+			<td>Action</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Action to insert</td>
+		</row>
+		<row>
+			<td>ModuleInstallUISequence</td>
+			<td>After</td>
+			<td>Y</td>
+			<td>0</td>
+			<td>1</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Before (0) or After (1)</td>
+		</row>
+		<row>
+			<td>ModuleInstallUISequence</td>
+			<td>BaseAction</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td>ModuleInstallUISequence</td>
+			<td>1</td>
+			<td>Identifier</td>
+			<td/>
+			<td>Base action to determine insert location.</td>
+		</row>
+		<row>
+			<td>ModuleInstallUISequence</td>
+			<td>Condition</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Condition</td>
+			<td/>
+			<td/>
+		</row>
+		<row>
+			<td>ModuleInstallUISequence</td>
+			<td>Sequence</td>
+			<td>Y</td>
+			<td>-4</td>
+			<td>32767</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Standard Sequence number</td>
+		</row>
+		<row>
+			<td>ModuleSignature</td>
+			<td>Language</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Default decimal language of module.</td>
+		</row>
+		<row>
+			<td>ModuleSignature</td>
+			<td>ModuleID</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Module identifier (String.GUID).</td>
+		</row>
+		<row>
+			<td>ModuleSignature</td>
+			<td>Version</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Version</td>
+			<td/>
+			<td>Version of the module.</td>
+		</row>
+		<row>
+			<td>ModuleSubstitution</td>
+			<td>Column</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Column containing the data to be modified.</td>
+		</row>
+		<row>
+			<td>ModuleSubstitution</td>
+			<td>Row</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Row containing the data to be modified.</td>
+		</row>
+		<row>
+			<td>ModuleSubstitution</td>
+			<td>Table</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Table containing the data to be modified.</td>
+		</row>
+		<row>
+			<td>ModuleSubstitution</td>
+			<td>Value</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Template for modification data.</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>Category</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text;Formatted;Template;Condition;Guid;Path;Version;Language;Identifier;Binary;UpperCase;LowerCase;Filename;Paths;AnyPath;WildCardFilename;RegPath;KeyFormatted;CustomSource;Property;Cabinet;Shortcut;URL</td>
+			<td>String category</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>Column</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Name of column</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>Description</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Description of column</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>KeyColumn</td>
+			<td>Y</td>
+			<td>1</td>
+			<td>32</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Column to which foreign key connects</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>KeyTable</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>For foreign key, Name of table to which data must link</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>MaxValue</td>
+			<td>Y</td>
+			<td>-2147483647</td>
+			<td>2147483647</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Maximum value allowed</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>MinValue</td>
+			<td>Y</td>
+			<td>-2147483647</td>
+			<td>2147483647</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Minimum value allowed</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>Nullable</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Y;N;@</td>
+			<td>Whether the column is nullable</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>Set</td>
+			<td>Y</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Text</td>
+			<td/>
+			<td>Set of values that are permitted</td>
+		</row>
+		<row>
+			<td>_Validation</td>
+			<td>Table</td>
+			<td>N</td>
+			<td/>
+			<td/>
+			<td/>
+			<td/>
+			<td>Identifier</td>
+			<td/>
+			<td>Name of table</td>
+		</row>
+	</table>
+
+</msi>

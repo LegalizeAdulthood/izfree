@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml:stylesheet type="text/xsl" href="msi.xsl" ?>
+<!--
+      XML Dump of Windows Installer Database
+      Created with msi2xml 1.1
+
+      (C) 2001 Daniel Gehriger (gehriger@linkcad.com)
+-->
+<!DOCTYPE msi [
+   <!ELEMENT msi   (summary,table*)>
+   <!ATTLIST msi version   CDATA #REQUIRED>
+   <!ATTLIST msi xmlns:dt  CDATA #IMPLIED>
+   <!ELEMENT summary       (codepage?,title?,subject?,author?,keywords?,comments?,
+                            template,lastauthor?,revnumber,lastprinted?,
+                            createdtm?,lastsavedtm?,pagecount,wordcount,
+                            charcount?,appname?,security?)>
+   <!ELEMENT codepage      (#PCDATA)>
+   <!ELEMENT title         (#PCDATA)>
+   <!ELEMENT subject       (#PCDATA)>
+   <!ELEMENT author        (#PCDATA)>
+   <!ELEMENT keywords      (#PCDATA)>
+   <!ELEMENT comments      (#PCDATA)>
+   <!ELEMENT template      (#PCDATA)>
+   <!ELEMENT lastauthor    (#PCDATA)>
+   <!ELEMENT revnumber     (#PCDATA)>
+   <!ELEMENT lastprinted   (#PCDATA)>
+   <!ELEMENT createdtm     (#PCDATA)>
+   <!ELEMENT lastsavedtm   (#PCDATA)>
+   <!ELEMENT pagecount     (#PCDATA)>
+   <!ELEMENT wordcount     (#PCDATA)>
+   <!ELEMENT charcount     (#PCDATA)>
+   <!ELEMENT appname       (#PCDATA)>
+   <!ELEMENT security      (#PCDATA)>
+   <!ELEMENT table         (col+,row*)>
+   <!ATTLIST table
+                 name      CDATA #REQUIRED>
+
+   <!ELEMENT col           (#PCDATA)>
+   <!ATTLIST col
+                 key       (yes|no) #IMPLIED
+                 def       CDATA #IMPLIED>
+   <!ELEMENT row (td+)>
+   <!ELEMENT td            (#PCDATA)>
+   <!ATTLIST td
+                 href      CDATA #IMPLIED
+                 dt:dt     (string|bin.base64) #IMPLIED
+                 md5       CDATA #IMPLIED>
+]>
+<msi version="1.1" xmlns:dt="urn:schemas-microsoft-com:datatypes">
+	
+	<summary>
+		<codepage>1252</codepage>
+		<title>Installation Database</title>
+		<subject>Recommended Sequence Tables for Windows Installer 1.1</subject>
+		<author>Microsoft Corporation</author>
+		<keywords/>
+		<comments>Note that actions in the UI sequence tables that end in "Dialog" are authored dialogs and not stardard actions.</comments>
+		<template>;</template>
+		<lastauthor/>
+		<revnumber/>
+		<lastprinted/>
+		<createdtm>07/30/1999 00:00</createdtm>
+		<lastsavedtm/>
+		<pagecount>110</pagecount>
+		<wordcount/>
+		<charcount/>
+		<appname>Windows Installer</appname>
+		<security/>
+	</summary>
+	
+	<table name="AdminExecuteSequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<row>
+			<td>CostFinalize</td>
+			<td/>
+			<td>1000</td>
+		</row>
+		<row>
+			<td>CostInitialize</td>
+			<td/>
+			<td>800</td>
+		</row>
+		<row>
+			<td>FileCost</td>
+			<td/>
+			<td>900</td>
+		</row>
+		<row>
+			<td>InstallAdminPackage</td>
+			<td/>
+			<td>3900</td>
+		</row>
+		<row>
+			<td>InstallFiles</td>
+			<td/>
+			<td>4000</td>
+		</row>
+		<row>
+			<td>InstallFinalize</td>
+			<td/>
+			<td>6600</td>
+		</row>
+		<row>
+			<td>InstallInitialize</td>
+			<td/>
+			<td>1500</td>
+		</row>
+		<row>
+			<td>InstallValidate</td>
+			<td/>
+			<td>1400</td>
+		</row>
+	</table>
+
+	<table name="AdminUISequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<row>
+			<td>CostFinalize</td>
+			<td/>
+			<td>1000</td>
+		</row>
+		<row>
+			<td>CostInitialize</td>
+			<td/>
+			<td>800</td>
+		</row>
+		<row>
+			<td>ExecuteAction</td>
+			<td/>
+			<td>1300</td>
+		</row>
+		<row>
+			<td>ExitDialog</td>
+			<td/>
+			<td>-1</td>
+		</row>
+		<row>
+			<td>FatalError</td>
+			<td/>
+			<td>-3</td>
+		</row>
+		<row>
+			<td>FileCost</td>
+			<td/>
+			<td>900</td>
+		</row>
+		<row>
+			<td>UserExit</td>
+			<td/>
+			<td>-2</td>
+		</row>
+	</table>
+
+	<table name="AdvtExecuteSequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<row>
+			<td>CostFinalize</td>
+			<td/>
+			<td>1000</td>
+		</row>
+		<row>
+			<td>CostInitialize</td>
+			<td/>
+			<td>800</td>
+		</row>
+		<row>
+			<td>CreateShortcuts</td>
+			<td/>
+			<td>4500</td>
+		</row>
+		<row>
+			<td>InstallFinalize</td>
+			<td/>
+			<td>6600</td>
+		</row>
+		<row>
+			<td>InstallInitialize</td>
+			<td/>
+			<td>1500</td>
+		</row>
+		<row>
+			<td>InstallValidate</td>
+			<td/>
+			<td>1400</td>
+		</row>
+		<row>
+			<td>MsiPublishAssemblies</td>
+			<td/>
+			<td>6250</td>
+		</row>
+		<row>
+			<td>PublishComponents</td>
+			<td/>
+			<td>6200</td>
+		</row>
+		<row>
+			<td>PublishFeatures</td>
+			<td/>
+			<td>6300</td>
+		</row>
+		<row>
+			<td>PublishProduct</td>
+			<td/>
+			<td>6400</td>
+		</row>
+		<row>
+			<td>RegisterClassInfo</td>
+			<td/>
+			<td>4600</td>
+		</row>
+		<row>
+			<td>RegisterExtensionInfo</td>
+			<td/>
+			<td>4700</td>
+		</row>
+		<row>
+			<td>RegisterMIMEInfo</td>
+			<td/>
+			<td>4900</td>
+		</row>
+		<row>
+			<td>RegisterProgIdInfo</td>
+			<td/>
+			<td>4800</td>
+		</row>
+	</table>
+
+	<table name="InstallExecuteSequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<row>
+			<td>AllocateRegistrySpace</td>
+			<td>NOT Installed</td>
+			<td>1550</td>
+		</row>
+		<row>
+			<td>AppSearch</td>
+			<td/>
+			<td>400</td>
+		</row>
+		<row>
+			<td>BindImage</td>
+			<td/>
+			<td>4300</td>
+		</row>
+		<row>
+			<td>CCPSearch</td>
+			<td>NOT Installed</td>
+			<td>500</td>
+		</row>
+		<row>
+			<td>CostFinalize</td>
+			<td/>
+			<td>1000</td>
+		</row>
+		<row>
+			<td>CostInitialize</td>
+			<td/>
+			<td>800</td>
+		</row>
+		<row>
+			<td>CreateFolders</td>
+			<td/>
+			<td>3700</td>
+		</row>
+		<row>
+			<td>CreateShortcuts</td>
+			<td/>
+			<td>4500</td>
+		</row>
+		<row>
+			<td>DeleteServices</td>
+			<td>VersionNT</td>
+			<td>2000</td>
+		</row>
+		<row>
+			<td>DuplicateFiles</td>
+			<td/>
+			<td>4210</td>
+		</row>
+		<row>
+			<td>FileCost</td>
+			<td/>
+			<td>900</td>
+		</row>
+		<row>
+			<td>FindRelatedProducts</td>
+			<td/>
+			<td>200</td>
+		</row>
+		<row>
+			<td>InstallFiles</td>
+			<td/>
+			<td>4000</td>
+		</row>
+		<row>
+			<td>InstallFinalize</td>
+			<td/>
+			<td>6600</td>
+		</row>
+		<row>
+			<td>InstallInitialize</td>
+			<td/>
+			<td>1500</td>
+		</row>
+		<row>
+			<td>InstallODBC</td>
+			<td/>
+			<td>5400</td>
+		</row>
+		<row>
+			<td>InstallServices</td>
+			<td>VersionNT</td>
+			<td>5800</td>
+		</row>
+		<row>
+			<td>InstallValidate</td>
+			<td/>
+			<td>1400</td>
+		</row>
+		<row>
+			<td>IsolateComponents</td>
+			<td/>
+			<td>950</td>
+		</row>
+		<row>
+			<td>LaunchConditions</td>
+			<td/>
+			<td>100</td>
+		</row>
+		<row>
+			<td>MigrateFeatureStates</td>
+			<td/>
+			<td>1200</td>
+		</row>
+		<row>
+			<td>MoveFiles</td>
+			<td/>
+			<td>3800</td>
+		</row>
+		<row>
+			<td>MsiPublishAssemblies</td>
+			<td/>
+			<td>6250</td>
+		</row>
+		<row>
+			<td>MsiUnpublishAssemblies</td>
+			<td/>
+			<td>1750</td>
+		</row>
+		<row>
+			<td>PatchFiles</td>
+			<td/>
+			<td>4090</td>
+		</row>
+		<row>
+			<td>ProcessComponents</td>
+			<td/>
+			<td>1600</td>
+		</row>
+		<row>
+			<td>PublishComponents</td>
+			<td/>
+			<td>6200</td>
+		</row>
+		<row>
+			<td>PublishFeatures</td>
+			<td/>
+			<td>6300</td>
+		</row>
+		<row>
+			<td>PublishProduct</td>
+			<td/>
+			<td>6400</td>
+		</row>
+		<row>
+			<td>RMCCPSearch</td>
+			<td>NOT Installed</td>
+			<td>600</td>
+		</row>
+		<row>
+			<td>RegisterClassInfo</td>
+			<td/>
+			<td>4600</td>
+		</row>
+		<row>
+			<td>RegisterComPlus</td>
+			<td/>
+			<td>5700</td>
+		</row>
+		<row>
+			<td>RegisterExtensionInfo</td>
+			<td/>
+			<td>4700</td>
+		</row>
+		<row>
+			<td>RegisterFonts</td>
+			<td/>
+			<td>5300</td>
+		</row>
+		<row>
+			<td>RegisterMIMEInfo</td>
+			<td/>
+			<td>4900</td>
+		</row>
+		<row>
+			<td>RegisterProduct</td>
+			<td/>
+			<td>6100</td>
+		</row>
+		<row>
+			<td>RegisterProgIdInfo</td>
+			<td/>
+			<td>4800</td>
+		</row>
+		<row>
+			<td>RegisterTypeLibraries</td>
+			<td/>
+			<td>5500</td>
+		</row>
+		<row>
+			<td>RegisterUser</td>
+			<td/>
+			<td>6000</td>
+		</row>
+		<row>
+			<td>RemoveDuplicateFiles</td>
+			<td/>
+			<td>3400</td>
+		</row>
+		<row>
+			<td>RemoveEnvironmentStrings</td>
+			<td/>
+			<td>3300</td>
+		</row>
+		<row>
+			<td>RemoveExistingProducts</td>
+			<td/>
+			<td>6700</td>
+		</row>
+		<row>
+			<td>RemoveFiles</td>
+			<td/>
+			<td>3500</td>
+		</row>
+		<row>
+			<td>RemoveFolders</td>
+			<td/>
+			<td>3600</td>
+		</row>
+		<row>
+			<td>RemoveIniValues</td>
+			<td/>
+			<td>3100</td>
+		</row>
+		<row>
+			<td>RemoveODBC</td>
+			<td/>
+			<td>2400</td>
+		</row>
+		<row>
+			<td>RemoveRegistryValues</td>
+			<td/>
+			<td>2600</td>
+		</row>
+		<row>
+			<td>RemoveShortcuts</td>
+			<td/>
+			<td>3200</td>
+		</row>
+		<row>
+			<td>SelfRegModules</td>
+			<td/>
+			<td>5600</td>
+		</row>
+		<row>
+			<td>SelfUnregModules</td>
+			<td/>
+			<td>2200</td>
+		</row>
+		<row>
+			<td>SetODBCFolders</td>
+			<td/>
+			<td>1100</td>
+		</row>
+		<row>
+			<td>StartServices</td>
+			<td>VersionNT</td>
+			<td>5900</td>
+		</row>
+		<row>
+			<td>StopServices</td>
+			<td>VersionNT</td>
+			<td>1900</td>
+		</row>
+		<row>
+			<td>UnpublishComponents</td>
+			<td/>
+			<td>1700</td>
+		</row>
+		<row>
+			<td>UnpublishFeatures</td>
+			<td/>
+			<td>1800</td>
+		</row>
+		<row>
+			<td>UnregisterClassInfo</td>
+			<td/>
+			<td>2700</td>
+		</row>
+		<row>
+			<td>UnregisterComPlus</td>
+			<td/>
+			<td>2100</td>
+		</row>
+		<row>
+			<td>UnregisterExtensionInfo</td>
+			<td/>
+			<td>2800</td>
+		</row>
+		<row>
+			<td>UnregisterFonts</td>
+			<td/>
+			<td>2500</td>
+		</row>
+		<row>
+			<td>UnregisterMIMEInfo</td>
+			<td/>
+			<td>3000</td>
+		</row>
+		<row>
+			<td>UnregisterProgIdInfo</td>
+			<td/>
+			<td>2900</td>
+		</row>
+		<row>
+			<td>UnregisterTypeLibraries</td>
+			<td/>
+			<td>2300</td>
+		</row>
+		<row>
+			<td>ValidateProductID</td>
+			<td/>
+			<td>700</td>
+		</row>
+		<row>
+			<td>WriteEnvironmentStrings</td>
+			<td/>
+			<td>5200</td>
+		</row>
+		<row>
+			<td>WriteIniValues</td>
+			<td/>
+			<td>5100</td>
+		</row>
+		<row>
+			<td>WriteRegistryValues</td>
+			<td/>
+			<td>5000</td>
+		</row>
+	</table>
+
+	<table name="InstallUISequence">
+		<col key="yes" def="s72">Action</col>
+		<col def="S255">Condition</col>
+		<col def="I2">Sequence</col>
+		<row>
+			<td>AppSearch</td>
+			<td/>
+			<td>400</td>
+		</row>
+		<row>
+			<td>CCPSearch</td>
+			<td>NOT Installed</td>
+			<td>500</td>
+		</row>
+		<row>
+			<td>CostFinalize</td>
+			<td/>
+			<td>1000</td>
+		</row>
+		<row>
+			<td>CostInitialize</td>
+			<td/>
+			<td>800</td>
+		</row>
+		<row>
+			<td>ExecuteAction</td>
+			<td/>
+			<td>1300</td>
+		</row>
+		<row>
+			<td>ExitDialog</td>
+			<td/>
+			<td>-1</td>
+		</row>
+		<row>
+			<td>FatalError</td>
+			<td/>
+			<td>-3</td>
+		</row>
+		<row>
+			<td>FileCost</td>
+			<td/>
+			<td>900</td>
+		</row>
+		<row>
+			<td>FindRelatedProducts</td>
+			<td/>
+			<td>200</td>
+		</row>
+		<row>
+			<td>IsolateComponents</td>
+			<td/>
+			<td>950</td>
+		</row>
+		<row>
+			<td>LaunchConditions</td>
+			<td/>
+			<td>100</td>
+		</row>
+		<row>
+			<td>MigrateFeatureStates</td>
+			<td/>
+			<td>1200</td>
+		</row>
+		<row>
+			<td>RMCCPSearch</td>
+			<td>NOT Installed</td>
+			<td>600</td>
+		</row>
+		<row>
+			<td>UserExit</td>
+			<td/>
+			<td>-2</td>
+		</row>
+		<row>
+			<td>ValidateProductID</td>
+			<td/>
+			<td>700</td>
+		</row>
+	</table>
+
+</msi>
