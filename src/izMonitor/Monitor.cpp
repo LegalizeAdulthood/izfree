@@ -134,6 +134,12 @@ CMonitor::FinalRelease()
 STDMETHODIMP
 CMonitor::WatchKey(BSTR registry_key)
 {
+    if (m_keys.size() >= 64)
+    {
+        return Error(_T("A maximum of 64 keys can be monitored."),
+            IID_IMonitor, E_OUTOFMEMORY);
+    }
+
     USES_CONVERSION;
     HKEY root = 0;
     tstring key = W2T(registry_key);
@@ -173,11 +179,8 @@ CMonitor::WatchKey(BSTR registry_key)
     THR_TRY();
     if (whack != tstring::npos)
     {
-        const tstring subkey = key.substr(whack+1);
-        CRegKey tmp;
-        TRS(tmp.Open(root, subkey.c_str(), KEY_READ));
-        m_keys.push_back(s_monitor_key(tmp.Detach(), root_name.c_str(),
-                                       subkey.c_str()));
+        m_keys.push_back(s_monitor_key(root, root_name.c_str(),
+                                       key.substr(whack+1).c_str()));
     }
     else
     {
