@@ -72,7 +72,7 @@ InputPath=.\izfree.hhp
 
 "izfree.chm" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	"c:\program files\html help workshop\hhc" $(InputPath) 
-	@echo done. 
+	echo done. 
 	
 # End Custom Build
 
@@ -85,12 +85,16 @@ InputPath=.\izfree.hhp
 
 "izfree.chm" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	"c:\program files\html help workshop\hhc" $(InputPath) 
-	@echo done. 
+	echo done. 
 	
 # End Custom Build
 
 !ENDIF 
 
+# End Source File
+# Begin Source File
+
+SOURCE=.\ReadMe.txt
 # End Source File
 # End Target
 # End Project
