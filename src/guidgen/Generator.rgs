@@ -1,26 +1,26 @@
 HKCR
 {
-	Guidgen.Generator.1 = s 'Generator Class'
-	{
-		CLSID = s '{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}'
-	}
-	Guidgen.Generator = s 'Generator Class'
-	{
-		CLSID = s '{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}'
-		CurVer = s 'Guidgen.Generator.1'
-	}
-	NoRemove CLSID
-	{
-		ForceRemove {186D8B3C-C050-4F03-BC33-64B24FEAE4A1} = s 'Generator Class'
-		{
-			ProgID = s 'Guidgen.Generator.1'
-			VersionIndependentProgID = s 'Guidgen.Generator'
-			ForceRemove 'Programmable'
-			InprocServer32 = s '%MODULE%'
-			{
-				val ThreadingModel = s 'Apartment'
-			}
-			'TypeLib' = s '{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}'
-		}
-	}
+    Guidgen.Generator.1 = s 'Generator Class'
+    {
+        CLSID = s '{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}'
+    }
+    Guidgen.Generator = s 'Generator Class'
+    {
+        CLSID = s '{186D8B3C-C050-4F03-BC33-64B24FEAE4A1}'
+        CurVer = s 'Guidgen.Generator.1'
+    }
+    NoRemove CLSID
+    {
+        ForceRemove {186D8B3C-C050-4F03-BC33-64B24FEAE4A1} = s 'Generator Class'
+        {
+            ProgID = s 'Guidgen.Generator.1'
+            VersionIndependentProgID = s 'Guidgen.Generator'
+            ForceRemove 'Programmable'
+            InprocServer32 = s '%MODULE%'
+            {
+                val ThreadingModel = s 'Apartment'
+            }
+            'TypeLib' = s '{699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC}'
+        }
+    }
 }

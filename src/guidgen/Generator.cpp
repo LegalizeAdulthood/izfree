@@ -46,5 +46,5 @@ STDMETHODIMP CGenerator::Generate(BSTR *guid)
     }
     *guid = CComBSTR(buffer).Detach();
 
-	return S_OK;
+    return S_OK;
 }

@@ -278,11 +278,11 @@ END_COM_MAP()
 
     // IMonitor
 public:
-	STDMETHOD(get_Feature)(BSTR *pVal);
-	STDMETHOD(get_Component)(BSTR *pVal);
-	STDMETHOD(ClearKeys)();
-	STDMETHOD(get_Service)(long *pVal);
-	STDMETHOD(get_File)(BSTR *pVal);
+    STDMETHOD(get_Feature)(BSTR *pVal);
+    STDMETHOD(get_Component)(BSTR *pVal);
+    STDMETHOD(ClearKeys)();
+    STDMETHOD(get_Service)(long *pVal);
+    STDMETHOD(get_File)(BSTR *pVal);
     STDMETHOD(get_ServiceInstallTable)(IServiceInstallTable **pVal);
     STDMETHOD(get_ServiceControlTable)(IServiceControlTable **pVal);
     STDMETHOD(get_TypeLibTable)(ITypeLibTable **pVal);

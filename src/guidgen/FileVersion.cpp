@@ -175,5 +175,5 @@ CFileVersion::get_Version(BSTR file, BSTR *pVal)
     USES_CONVERSION;
     *pVal = CComBSTR(file_version(W2T(file)).c_str()).Detach();
 
-	return S_OK;
+    return S_OK;
 }

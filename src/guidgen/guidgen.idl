@@ -26,57 +26,57 @@ import "ocidl.idl";
 
 /////////////////////////////////////////////////////////////////////////////
 [
-	object,
-	uuid(67E7999E-9B44-4CB3-974A-235670564EC8),
-	dual,
-	helpstring("IGenerator Interface"),
-	pointer_default(unique)
+    object,
+    uuid(67E7999E-9B44-4CB3-974A-235670564EC8),
+    dual,
+    helpstring("IGenerator Interface"),
+    pointer_default(unique)
 ]
 interface IGenerator : IDispatch
 {
-	[id(1), helpstring("method Generate")]
+    [id(1), helpstring("method Generate")]
     HRESULT Generate([out, retval] BSTR *guid);
 };
 
 /////////////////////////////////////////////////////////////////////////////
 [
-	object,
-	uuid(D242E8F4-F93F-408D-B0CB-0AF9F9851E5F),
-	dual,
-	helpstring("IFileVersion Interface"),
-	pointer_default(unique)
+    object,
+    uuid(D242E8F4-F93F-408D-B0CB-0AF9F9851E5F),
+    dual,
+    helpstring("IFileVersion Interface"),
+    pointer_default(unique)
 ]
 interface IFileVersion : IDispatch
 {
-	[propget, id(1), helpstring("property Version")]
+    [propget, id(1), helpstring("property Version")]
     HRESULT Version([in] BSTR file, [out, retval] BSTR *pVal);
 };
 
 /////////////////////////////////////////////////////////////////////////////
 [
-	uuid(699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC),
-	version(1.0),
-	helpstring("guidgen 1.0 Type Library")
+    uuid(699E2EC2-F86C-4360-BA1E-F01DD5AA5BAC),
+    version(1.0),
+    helpstring("guidgen 1.0 Type Library")
 ]
 library GUIDGENLib
 {
-	importlib("stdole32.tlb");
-	importlib("stdole2.tlb");
+    importlib("stdole32.tlb");
+    importlib("stdole2.tlb");
 
-	[
-		uuid(186D8B3C-C050-4F03-BC33-64B24FEAE4A1),
-		helpstring("Generator Class")
-	]
-	coclass Generator
-	{
-		[default] interface IGenerator;
-	};
-	[
-		uuid(0098849C-76BB-423F-B54E-AF34B5849098),
-		helpstring("FileVersion Class")
-	]
-	coclass FileVersion
-	{
-		[default] interface IFileVersion;
-	};
+    [
+        uuid(186D8B3C-C050-4F03-BC33-64B24FEAE4A1),
+        helpstring("Generator Class")
+    ]
+    coclass Generator
+    {
+        [default] interface IGenerator;
+    };
+    [
+        uuid(0098849C-76BB-423F-B54E-AF34B5849098),
+        helpstring("FileVersion Class")
+    ]
+    coclass FileVersion
+    {
+        [default] interface IFileVersion;
+    };
 };

@@ -294,7 +294,7 @@ end sub
 ' Encapsulate a string in single quotes.
 '
 function quote(item)
-	quote = "'" & item & "'"
+    quote = "'" & item & "'"
 end function
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''

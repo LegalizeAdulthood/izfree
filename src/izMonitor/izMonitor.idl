@@ -388,9 +388,9 @@ interface IMonitor : IDispatch
     HRESULT Service([out, retval] long *pVal);
     [id(12), helpstring("method ClearKeys")]
     HRESULT ClearKeys();
-	[propget, id(13), helpstring("property Component")]
+    [propget, id(13), helpstring("property Component")]
     HRESULT Component([out, retval] BSTR *pVal);
-	[propget, id(14), helpstring("property Feature")]
+    [propget, id(14), helpstring("property Feature")]
     HRESULT Feature([out, retval] BSTR *pVal);
 };
 
