@@ -555,6 +555,7 @@ namespace Pahvant.MSI
         #endregion
 
         #region SetExternalUI
+        // need a delegate to handle function pointer here
         public static void SetExternalUI(IntPtr handler,
             int messageFilter, IntPtr context)
         {

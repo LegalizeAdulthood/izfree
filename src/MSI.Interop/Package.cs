@@ -11,7 +11,8 @@ namespace Pahvant.MSI
 	{
         public enum OpenFlags
         {
-            IgnoreMachineState
+            Default                     = 0,
+            IgnoreMachineState          = 1,
         }
         
         public Package(string packagePath)

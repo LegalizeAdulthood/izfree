@@ -14,129 +14,137 @@ namespace Pahvant.MSI
         #region Enumerations
         public enum AssemblyAttributes
         {
-            URT,
-            Win32
+            URT     = 0,
+            Win32   = 1
         }
+        [Flags]
         public enum ClassAttributes
         {
-            RelativePath
+            Default         = 0,
+            RelativePath    = 1
         }
+        [Flags]
         public enum ControlAttributes
         {
-            Visible,
-            Enabled,
-            Sunken,
-            Indirect,
-            Integer,
-            RTLRO,
-            RightAligned,
-            LeftScroll,
-            BiDi,
-            Transparent,
-            NoPrefix,
-            NoWrap,
-            FormatSize,
-            UsersLanguage,
-            Multiline,
-            PasswordInput,
-            Progress95,
-            RemovableVolume,
-            FixedVolume,
-            RemoteVolume,
-            CDROMVolume,
-            RAMDiskVolume,
-            FloppyVolume,
-            ShowRollbackCost,
-            Sorted,
-            ComboList,
-            ImageHandle,
-            PushLike,
-            Bitmap,
-            Icon,
-            FixedSize,
-            IconSize16,
-            IconSize32,
-            IconSize48,
-            HasBorder
+            Visible           = 0x00000001,
+            Enabled           = 0x00000002,
+            Sunken            = 0x00000004,
+            Indirect          = 0x00000008,
+            Integer           = 0x00000010,
+            RTLRO             = 0x00000020,
+            RightAligned      = 0x00000040,
+            LeftScroll        = 0x00000080,
+            BiDi              = RTLRO | RightAligned | LeftScroll,
+            Transparent       = 0x00010000,
+            NoPrefix          = 0x00020000,
+            NoWrap            = 0x00040000,
+            FormatSize        = 0x00080000,
+            UsersLanguage     = 0x00100000,
+            Multiline         = 0x00010000,
+            PasswordInput     = 0x00200000,
+            Progress95        = 0x00010000,
+            RemovableVolume   = 0x00010000,
+            FixedVolume       = 0x00020000,
+            RemoteVolume      = 0x00040000,
+            CDROMVolume       = 0x00080000,
+            RAMDiskVolume     = 0x00100000,
+            FloppyVolume      = 0x00200000,
+            ShowRollbackCost  = 0x00400000,
+            Sorted            = 0x00010000,
+            ComboList         = 0x00020000,
+            ImageHandle       = 0x00010000,
+            PushLike          = 0x00020000,
+            Bitmap            = 0x00040000,
+            Icon              = 0x00080000,
+            FixedSize         = 0x00100000,
+            IconSize16        = 0x00200000,
+            IconSize32        = 0x00400000,
+            IconSize48        = 0x00600000,
+            HasBorder         = 0x01000000
         }
+        [Flags]
         public enum ComponentAttributes
         {
-            LocalOnly,
-            SourceOnly,
-            Optional,
-            RegistryKeyPath,
-            SharedDllRefCount,
-            Permanent,
-            ODBCDataSource,
-            Transitive,
-            NeverOverwrite,
-            SixtyFourBit
+            LocalOnly           = 0x00000000,
+            SourceOnly          = 0x00000001,
+            Optional            = 0x00000002,
+            RegistryKeyPath     = 0x00000004,
+            SharedDllRefCount   = 0x00000008,
+            Permanent           = 0x00000010,
+            ODBCDataSource      = 0x00000020,
+            Transitive          = 0x00000040,
+            NeverOverwrite      = 0x00000080,
+            SixtyFourBit        = 0x00000100
         }
+        [Flags]
         public enum CustomActionType
         {
-            Dll,
-            Exe,
-            TextData,
-            JScript,
-            VBScript,
-            Install,
-            BinaryData,
-            SourceFile,
-            Directory,
-            Property,
-            Continue,
-            Async,
-            FirstSequnce,
-            OncePerProcess,
-            ClientRepeat,
-            InScript,
-            Rollback,
-            Commit,
-            NoImpersonate,
-            TSAware,
-            SixtyFourBitScript,
-            HideTarget
+            Dll              = 0x00000001,
+            Exe              = 0x00000002,
+            TextData         = 0x00000003,
+            JScript          = 0x00000005,
+            VBScript         = 0x00000006,
+            Install          = 0x00000007,
+            BinaryData       = 0x00000000,
+            SourceFile       = 0x00000010,
+            Directory        = 0x00000020,
+            Property         = 0x00000030,
+            Continue         = 0x00000040,
+            Async            = 0x00000080,
+            FirstSequence    = 0x00000100,
+            OncePerProcess   = 0x00000200,
+            ClientRepeat     = 0x00000300,
+            InScript         = 0x00000400,
+            Rollback         = 0x00000100,
+            Commit           = 0x00000200,
+            NoImpersonate    = 0x00000800,
+            TSAware          = 0x00004000,
+            SixtyFourBitScript = 0x00001000,
+            HideTarget       = 0x00002000
         }
+        [Flags]
         public enum DialogAttributes
         {
-            Visible,
-            Modal,
-            Minimize,
-            SysModal,
-            KeepModeless,
-            TrackDiskSpace,
-            UseCustomPalette,
-            RTLRO,
-            RightAligned,
-            LeftScroll,
-            BiDi,
-            Error
+            Visible          = 0x00000001,
+            Modal            = 0x00000002,
+            Minimize         = 0x00000004,
+            SysModal         = 0x00000008,
+            KeepModeless     = 0x00000010,
+            TrackDiskSpace   = 0x00000020,
+            UseCustomPalette = 0x00000040,
+            RTLRO            = 0x00000080,
+            RightAligned     = 0x00000100,
+            LeftScroll       = 0x00000200,
+            BiDi             = RTLRO | RightAligned | LeftScroll,
+            Error            = 0x00010000
         }
+        [Flags]
         public enum FeatureAttributes
         {
-            FavorLocal,
-            FavorSource,
-            FollowParent,
-            FavorAdvertise,
-            DisallowAdvertise,
-            UIDisallowAbsent,
-            NoUnsupportedAdvertise
+            FavorLocal              = 0x00000000,
+            FavorSource             = 0x00000001,
+            FollowParent            = 0x00000002,
+            FavorAdvertise          = 0x00000004,
+            DisallowAdvertise       = 0x00000008,
+            UIDisallowAbsent        = 0x00000010,
+            NoUnsupportedAdvertise  = 0x00000020
         }
+        [Flags]
         public enum FileAttributes
         {
-            ReadOnly,
-            Hidden,
-            System,
-            Reserved0,
-            Reserved1,
-            Reserved2,
-            Reserved3,
-            Vital,
-            Checksum,
-            PatchAdded,
-            Noncompressed,
-            Compressed,
-            Reserved4
+            ReadOnly       = 0x00000001,
+            Hidden         = 0x00000002,
+            System         = 0x00000004,
+            Reserved0      = 0x00000008,
+            Reserved1      = 0x00000040,
+            Reserved2      = 0x00000080,
+            Reserved3      = 0x00000100,
+            Vital          = 0x00000200,
+            Checksum       = 0x00000400,
+            PatchAdded     = 0x00001000,
+            Noncompressed  = 0x00002000,
+            Compressed     = 0x00004000,
+            Reserved4      = 0x00008000
         }
         public enum FileInstallMode
         {
@@ -146,51 +154,81 @@ namespace Pahvant.MSI
         }
         public enum IniFileAction
         {
-            AddLine,
-            CreateLine,
-            RemoveLine,
-            AddTag,
-            RemoveTag
+            AddLine    = 0x00000000,
+            CreateLine = 0x00000001,
+            RemoveLine = 0x00000002,
+            AddTag     = 0x00000003,
+            RemoveTag  = 0x00000004,
         }
         public enum InstallErrorControl
         {
             Vital
         }
+        [Flags]
         public enum LocatorType
         {
-            Directory,
-            FileName,
-            RawValue,
-            SixtyFourBit
+            Directory       = 0x00000000,
+            FileName        = 0x00000001,
+            RawValue        = 0x00000002,
+            SixtyFourBit    = 0x00000010
         }
         public enum MoveFileOptions
         {
-            Move
+            Copy            = 0,
+            Move            = 1
         }
         public enum ODBCDataSourceRegistration
         {
-            PerMachine,
-            PerUser
+            PerMachine      = 0,
+            PerUser         = 1
         }
+        [Flags]
+        public enum OpenMode
+        {
+            ReadOnly        = 0,
+            Transact        = 1,
+            Direct          = 2,
+            Create          = 3,
+            CreateDirect    = 4,
+            ListScript      = 5,
+            PatchFileW      = 16,
+            PatchFileA      = 32
+        }
+        [Flags]
         public enum PatchAttributes
         {
-            NonVital
+            Vital           = 0,
+            NonVital        = 1
         }
         public enum RegistryRoot
         {
-            ClassesRoot,
-            CurrentUser,
-            LocalMachine,
-            Users
+            ClassesRoot     = 0,
+            CurrentUser     = 1,
+            LocalMachine    = 2,
+            Users           = 3
+        }
+        public enum RemoveFileInstallMode
+        {
+            OnInstall       = 1,
+            OnRemove        = 2,
+            OnBoth          = 3,
         }
         public enum ServiceControlEvent
         {
-            Start,
-            Stop,
-            Delete,
-            UninstallStart,
-            UninstallStop,
-            UninstallDelete
+            Start           = 0x01,
+            Stop            = 0x02,
+            Delete          = 0x08,
+            UninstallStart  = 0x10,
+            UninstallStop   = 0x20,
+            UninstallDelete = 0x80
+        }
+        [Flags]
+        public enum ServiceInstallErrorControl
+        {
+            Ignore          = 0,
+            Normal          = 1,
+            Critical        = 3,
+            Vital           = 0x00008000
         }
         public enum State
         {
@@ -204,33 +242,23 @@ namespace Pahvant.MSI
             Compressed,
             AdminImage
         }
+        [Flags]
         public enum TextStyleBits
         {
-            Bold,
-            Italic,
-            Underline,
-            Strike
-        }
-        public enum UpgradeAttributes
-        {
-            MigrateFeatures,
-            OnlyDetect,
-            IgnoreRemoveFailure,
-            VersionMinInclusive,
-            VersionMaxInclusive,
-            LanguagesExclusive
+            Bold            = 0x1,
+            Italic          = 0x2,
+            Underline       = 0x4,
+            Strike          = 0x8
         }
         [Flags]
-        public enum OpenMode
+        public enum UpgradeAttributes
         {
-            ReadOnly = 0,
-            Transact = 1,
-            Direct = 2,
-            Create = 3,
-            CreateDirect = 4,
-            // ListScript = 5,
-            PatchFileW = 16,
-            PatchFileA = 32
+            MigrateFeatures     = 0x1,
+            OnlyDetect          = 0x2,
+            IgnoreRemoveFailure = 0x4,
+            VersionMinInclusive = 0x100,
+            VersionMaxInclusive = 0x200,
+            LanguagesExclusive  = 0x400
         }
         #endregion
 

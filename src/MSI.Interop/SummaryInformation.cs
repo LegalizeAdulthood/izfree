@@ -26,6 +26,13 @@ namespace Pahvant.MSI
             Application = 18,
             Security    = 19
         }
+        [Flags]
+        public enum SourceType
+        {
+            ShortFileNames  = 0x00000001,
+            Compressed      = 0x00000002,
+            AdminImage      = 0x00000004
+        }
 
         #region Construction/Destruction
         public SummaryInformation(Database db, int count)
@@ -232,6 +239,18 @@ namespace Pahvant.MSI
         {
             get { return GetIntegerProperty(Properties.Words); }
             set { SetIntegerProperty(Properties.Words, value); }
+        }
+        public bool ShortFileNames
+        {
+            get { return 0 != (Words & (int) SourceType.ShortFileNames); }
+        }
+        public bool Compressed
+        {
+            get { return 0 != (Words & (int) SourceType.Compressed); }
+        }
+        public bool AdministrativeImage
+        {
+            get { return 0 != (Words & (int) SourceType.AdminImage); }
         }
         public int Characters
         {
