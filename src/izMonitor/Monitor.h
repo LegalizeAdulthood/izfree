@@ -42,8 +42,8 @@
 return bang.m_hr; } catch (...) { return E_UNEXPECTED; } else 0
 
 // returns HRESULT + ISupportsErrorInfo
-#define THR_CATCH_EI(iid_) } catch (const hresult_error &bang) { \
-return Error(bang.m_msg.c_str(), iid_, bang.m_hr); } catch (...) { \
+#define THR_CATCH_EI(iid_) } catch (const source_error &bang) { \
+return Error(bang.m_msg.c_str(), iid_, E_UNEXPECTED); } catch (...) { \
 return E_UNEXPECTED; } else 0
 
 ///////////////////////////////////////////////////////////////////////////
