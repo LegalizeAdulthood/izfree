@@ -28,6 +28,7 @@ option explicit
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 dim g_main_frame : set g_main_frame = window.parent
+dim g_table_keys
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 function db()
@@ -72,6 +73,11 @@ sub load_info(column_name)
     view.execute : check
     all("columnName").innerText = view.ColumnInfo(0).stringdata(1)
     all("columnType").innerText = view.ColumnInfo(1).stringdata(1)
+    if (g_table_keys.exists(view.ColumnInfo(0).stringdata(1))) then
+        all("key").innerText = "Yes"
+    else
+        all("key").innerText = "No"
+    end if
 end sub
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
@@ -96,6 +102,12 @@ sub load_columns(table_name)
         set rec = view.fetch
     loop
     view.close : check
+    
+    dim keys : set keys = db().PrimaryKeys(table_name)
+    set g_table_keys = check_object("Scripting.Dictionary")
+    dim i : for i = 1 to keys.FieldCount
+        g_table_keys.add keys.stringdata(i), 1
+    next
     
     load_opts document.all("column").options, columns
     column.selectedIndex = 0
@@ -175,6 +187,7 @@ end sub
 <TABLE>
 <TR><TD ALIGN="right"><STRONG>Column Name:</STRONG></TD><TD ID="columnName"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Column Type:</STRONG></TD><TD ID="columnType"></TD></TR>
+<TR><TD ALIGN="right"><STRONG>Key:</STRONG></TD><TD ID="key"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Nullable:</STRONG></TD><TD ID="nullable"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Minimum Value:</STRONG></TD><TD ID="minValue"></TD></TR>
 <TR><TD ALIGN="right"><STRONG>Maximum Value:</STRONG></TD><TD ID="maxValue"></TD></TR>
