@@ -436,7 +436,10 @@ sub scan_directory
     num_components = 0    
     num_dir_components = 0
 
-    dim dir : dir = document.forms("CreateComponents").all("dir").value
+    dim dir : dir = trim(document.forms("CreateComponents").all("dir").value)
+    do while (right(dir, 1) = "\")
+        dir = left(dir, len(dir)-1)
+    loop
     dim folder : set folder = fso().GetFolder(dir) : check
     enum_files dir, "", folder
     set folder = nothing
