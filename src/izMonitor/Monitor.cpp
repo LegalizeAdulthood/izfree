@@ -18,8 +18,8 @@
 // Monitor.cpp : Implementation of CMonitor
 #include "stdafx.h"
 #include "izMonitor.h"
-#include "Monitor.h"
 #include "AppIdRecord.h"
+#include "Monitor.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CMonitor
@@ -32,7 +32,13 @@
     } else 0
 
 CMonitor::CMonitor()
-    : m_app_ids(NULL)
+    : m_app_id(NULL),
+    m_class(NULL),
+    m_prog_id(NULL),
+    m_registry(NULL),
+    m_type_lib(NULL),
+    m_service_control(NULL),
+    m_service_install(NULL)
 {
 }
 
@@ -40,29 +46,48 @@ CMonitor::~CMonitor()
 {
 }
 
+template <typename Wrapper>
+void
+construct_table(CComObject<Wrapper> *&table)
+{
+    THR(CComObject<Wrapper>::CreateInstance(&table));
+    table->AddRef();
+}
+
 HRESULT
 CMonitor::FinalConstruct()
 {
-    CComObject<CAppIdTable>::CreateInstance(&m_app_ids);
-    m_app_ids->AddRef();
+    try
+    {
+        construct_table(m_app_id);
+    }
+    catch (const hresult_error &bang)
+    {
+        return bang.m_hr;
+    }
+    catch (...)
+    {
+        return E_UNEXPECTED;
+    }
+
     return S_OK;
 }
 
 void
 CMonitor::FinalRelease()
 {
-    m_app_ids->Release();
-    m_app_ids = 0;
+    m_app_id->Release();
+    m_app_id = 0;
 }
 
 STDMETHODIMP
 CMonitor::get_AppIdTable(IAppIdTable **pVal)
 {
     CHECK_POINTER(pVal);
-    *pVal = m_app_ids;
+    *pVal = m_app_id;
     (*pVal)->AddRef();
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP
@@ -71,7 +96,7 @@ CMonitor::Process(BSTR file, BOOL service)
     USES_CONVERSION;
     m_file = W2T(file);
     m_service = (service != 0);
-	return S_OK;
+    return S_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -103,47 +128,47 @@ CMonitor::WatchKey(BSTR registry_key)
                      IID_IMonitor, E_INVALIDARG);
     }
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP CMonitor::get_ClassTable(IClassTable **pVal)
 {
-	// TODO: Add your implementation code here
+    // TODO: Add your implementation code here
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP CMonitor::get_RegistryTable(IRegistryTable **pVal)
 {
-	// TODO: Add your implementation code here
+    // TODO: Add your implementation code here
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP CMonitor::get_ProgIdTable(IProgIdTable **pVal)
 {
-	// TODO: Add your implementation code here
+    // TODO: Add your implementation code here
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP CMonitor::get_TypeLibTable(ITypeLibTable **pVal)
 {
-	// TODO: Add your implementation code here
+    // TODO: Add your implementation code here
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP CMonitor::get_ServiceControlTable(IServiceControlTable **pVal)
 {
-	// TODO: Add your implementation code here
+    // TODO: Add your implementation code here
 
-	return S_OK;
+    return S_OK;
 }
 
 STDMETHODIMP CMonitor::get_ServiceInstallTable(IServiceInstallTable **pVal)
 {
-	// TODO: Add your implementation code here
+    // TODO: Add your implementation code here
 
-	return S_OK;
+    return S_OK;
 }
